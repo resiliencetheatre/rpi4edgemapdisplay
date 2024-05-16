@@ -1,4 +1,4 @@
-# rpi-edgemap (initramfs, meshtastic)
+# rpi-edgemap (meshtastic, video conference)
 
 External tree for [buildroot](https://buildroot.org) to build RaspberryPi4 based [Edgemap](https://resilience-theatre.com/edgemap/) firmware image. 
 
