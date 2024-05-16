@@ -1,0 +1,4 @@
+config BR2_PACKAGE_UDPTUNNEL
+        bool "udptunnel"
+        help 
+              otp variant of udptunnel

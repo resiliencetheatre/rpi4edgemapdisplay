@@ -1,0 +1,5 @@
+config BR2_PACKAGE_GWSOCKET
+	bool "gwsocket"
+	help
+	  WebSocket server
+

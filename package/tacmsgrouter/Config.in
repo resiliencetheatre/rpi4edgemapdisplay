@@ -1,0 +1,5 @@
+config BR2_PACKAGE_TACMSGROUTER
+        bool "tacmsgrouter"
+        select BR2_PACKAGE_LIBCURL
+        help 
+              Simple fifo input output relay binary.

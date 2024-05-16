@@ -1,0 +1,11 @@
+--- a/taky.egg-info/requires.txt	2023-01-21 18:20:42.000000000 +0200
++++ b/taky.egg-info/requires.txt	2024-03-24 05:28:13.275622770 +0200
+@@ -1,6 +1,6 @@
+-Flask~=2.0
++lxml>=4.4.0
+ cryptography>=38.0.0
+ dateutils
++Flask~=3.0
+ gunicorn
+-lxml>=4.4.0
+ redis

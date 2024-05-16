@@ -1,0 +1,10 @@
+config BR2_PACKAGE_PYTHON_DATEUTILS
+	bool "python-dateutils"
+	select BR2_PACKAGE_PYTHON_ARGPARSE # runtime
+	select BR2_PACKAGE_PYTHON_DATEUTIL # runtime
+	select BR2_PACKAGE_PYTHON_PYTZ # runtime
+	help
+	  Various utilities for working with date and datetime
+	  objects.
+
+	  https://github.com/jmcantrell/python-dateutils

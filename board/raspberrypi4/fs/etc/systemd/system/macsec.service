@@ -1,0 +1,9 @@
+[Unit]
+Description=macsec service
+After=multi-user.target
+
+[Service]
+WorkingDirectory=/opt/nk-macsec
+Type=oneshot
+ExecStart=sh -c /opt/nk-macsec/macsec.sh
+RemainAfterExit=true

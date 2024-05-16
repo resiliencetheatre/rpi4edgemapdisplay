@@ -1,0 +1,8 @@
+config BR2_PACKAGE_UDPSPEEDER
+        bool "udpspeeder"
+        help 
+              A Tunnel which Improves your Network Quality on a 
+              High-latency Lossy Link by using Forward Error Correction,
+              possible for All Traffics(TCP/UDP/ICMP).
+              https://github.com/wangyu-/UDPspeeder      
+		

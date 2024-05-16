@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PYTHON_TIMEAGO
+	bool "python-timeago"
+	help
+	
+	  https://pypi.org/project/timeago/

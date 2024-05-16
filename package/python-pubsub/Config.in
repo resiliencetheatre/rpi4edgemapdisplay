@@ -1,0 +1,8 @@
+config BR2_PACKAGE_PYTHON_PUBSUB
+	bool "python-pubsub"
+	help
+    Provides a publish-subscribe API to facilitate event-based 
+    or message-based architecture in a single-process application.
+    
+
+	  https://github.com/schollii/pypubsub

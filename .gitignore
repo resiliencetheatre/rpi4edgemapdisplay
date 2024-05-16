@@ -1,0 +1,10 @@
+authorized_keys
+wg0.*
+wgcap_service.conf
+*.csv
+*.pkcs1
+*.pmtiles
+*.mbtiles
+test.db
+archive*
+

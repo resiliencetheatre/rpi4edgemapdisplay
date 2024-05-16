@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PYTHON_DOTMAP
+	bool "python-dotmap"
+	help
+	
+	  https://pypi.org/project/dotmap/

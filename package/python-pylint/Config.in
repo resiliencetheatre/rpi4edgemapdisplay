@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PYTHON_PYLINT
+	bool "python-pylint"
+	help
+	
+	  https://pypi.org/project/pylint/

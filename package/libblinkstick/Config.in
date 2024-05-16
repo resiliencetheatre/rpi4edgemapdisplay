@@ -1,0 +1,8 @@
+config BR2_PACKAGE_LIBBLINKSTICK
+	bool "libblinkstick"
+	select BR2_PACKAGE_LIBHID
+	select BR2_PACKAGE_LIBUSB
+	select BR2_PACKAGE_HIDAPI
+	help
+	  A blinkstick library written in C
+

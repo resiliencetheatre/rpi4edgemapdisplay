@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PYTHON_PYTESTCOV
+	bool "python-pytestcov"
+	help
+	
+	  https://pypi.org/project/pytest-cov/

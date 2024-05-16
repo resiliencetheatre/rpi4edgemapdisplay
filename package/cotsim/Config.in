@@ -1,0 +1,5 @@
+config BR2_PACKAGE_COTSIM
+        bool "cotsim"
+	select BR2_PACKAGE_LIBCURL
+        help 
+              CoT simulator

@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PYTHON_PYTAP2
+	bool "python-pytap2"
+	help
+	
+	  https://pypi.org/project/pytap2/

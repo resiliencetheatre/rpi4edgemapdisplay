@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PYTHON_PDOC3
+	bool "python-pdoc3"
+	help
+	
+	  https://pypi.org/project/pdoc3/

@@ -1,0 +1,5 @@
+config BR2_PACKAGE_HIGHRATE
+        bool "highrate"
+        select BR2_PACKAGE_LIBCURL
+        help 
+              simple text file reader and writer for CoT simulation

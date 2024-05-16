@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PYTHON_TABULATE
+	bool "python-tabulate"
+	help
+	
+	  https://pypi.org/project/tabulate/

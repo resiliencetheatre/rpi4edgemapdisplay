@@ -1,0 +1,5 @@
+config BR2_PACKAGE_MODMODEM
+        bool "modmodem"
+
+        help 
+              OFDM modem

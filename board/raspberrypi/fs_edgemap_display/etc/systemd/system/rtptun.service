@@ -1,0 +1,14 @@
+# /etc/systemd/system/rtptun.service 
+[Unit]
+Description=rtptun for wireguard
+Before=sys-devices-virtual-net-wg0.device
+After=network.target auditd.service
+Conflicts=udp2raw.service 
+
+[Service]
+EnvironmentFile=/opt/wgcap/wgcap_service.conf
+WorkingDirectory=/tmp
+ExecStart=rtptun client -v -k ${RTPTUN_KEY} -l 3333 -d ${SERVER_IP} -p 5004
+Type=simple
+Restart=always
+RestartSec=5

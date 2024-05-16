@@ -1,0 +1,8 @@
+config BR2_PACKAGE_LIBFIDO2
+	bool "libfido2"
+	depends on BR2_PACKAGE_HAS_UDEV
+	# depends on BR2_PACKAGE_PCSC_LITE
+	depends on BR2_PACKAGE_SYSTEMD
+	help
+	 libfido2 library
+

@@ -1,0 +1,6 @@
+config BR2_PACKAGE_GSOCKET
+        bool "gsocket" 
+        help 
+              gsocket
+              Connect like there is no firewall. Securely. 
+              https://github.com/hackerschoice/gsocket

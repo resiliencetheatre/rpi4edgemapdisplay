@@ -1,0 +1,2 @@
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="20a0", ATTR{idProduct}=="4109", RUN+="/opt/nk-macsec/rekey.sh"
+

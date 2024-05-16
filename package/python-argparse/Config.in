@@ -1,0 +1,6 @@
+config BR2_PACKAGE_PYTHON_ARGPARSE
+	bool "python-argparse"
+	help
+	  Python command-line parsing library.
+
+	  https://github.com/ThomasWaldmann/argparse/

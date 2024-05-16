@@ -1,0 +1,14 @@
+[Unit]
+Description=gwsocket for highrate
+After=multi-user.target
+
+[Service]
+WorkingDirectory=/opt/edgemap
+KillMode=process
+ExecStart=gwsocket --pipein=/tmp/wscontrol
+Restart=always
+RestartSec=1
+TimeoutStartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,14 @@
+[Unit]
+Description=gwsocket port 7790 for local GPS 
+After=multi-user.target
+
+[Service]
+WorkingDirectory=/opt/edgemap
+KillMode=process
+ExecStart=gwsocket -p 7790 --pipein=/tmp/gpssocket
+Restart=always
+RestartSec=1
+TimeoutStartSec=5
+
+[Install]
+WantedBy=multi-user.target

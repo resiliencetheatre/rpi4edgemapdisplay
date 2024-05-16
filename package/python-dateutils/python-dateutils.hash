@@ -1,0 +1,5 @@
+# md5, sha256 from https://pypi.org/pypi/dateutils/json
+md5  97df37df4d4416da52391b85f3b27448  dateutils-0.6.12.tar.gz
+sha256  03dd90bcb21541bd4eb4b013637e4f1b5f944881c46cc6e4b67a6059e370e3f1  dateutils-0.6.12.tar.gz
+# Locally computed sha256 checksums
+sha256  2ed476b9e897c0795f814bebab6530ca54e38fed2c3f2683c919107414a8c563  LICENSE

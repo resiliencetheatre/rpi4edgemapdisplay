@@ -1,0 +1,5 @@
+config BR2_PACKAGE_CURLCOT
+        bool "curlcot"
+	select BR2_PACKAGE_LIBCURL
+        help 
+           Simple CoT reader with libcurl.

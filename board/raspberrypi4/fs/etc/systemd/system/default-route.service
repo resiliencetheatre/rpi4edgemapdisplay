@@ -1,0 +1,9 @@
+[Unit]
+Description=default route service
+After=multi-user.target sys-devices-virtual-net-wg1.device
+
+[Service]
+WorkingDirectory=/opt/nk-macsec
+Type=oneshot
+ExecStart=sh -c /opt/nk-macsec/default-route.sh
+RemainAfterExit=true

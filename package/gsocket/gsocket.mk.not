@@ -1,0 +1,18 @@
+GSOCKET_VERSION = 1.4.40
+GSOCKET_SOURCE = gsocket-$(GSOCKET_VERSION).tar.gz
+GSOCKET_SITE =  https://github.com/hackerschoice/gsocket/releases/download/v$(GSOCKET_VERSION)
+GSOCKET_PREFIX = $(TARGET_DIR)/usr
+
+define GSOCKET_BUILD_CMDS
+     $(MAKE) $(TARGET_CONFIGURE_OPTS) -C $(@D)
+endef
+
+define GSOCKET_INSTALL_TARGET_CMDS
+        (cd $(@D); cp tools/gs-netcat $(GSOCKET_PREFIX)/bin)
+endef
+
+define GSOCKET_CLEAN_CMDS
+        $(MAKE) $(GSOCKET_MAKE_OPTS) -C $(@D) clean
+endef
+
+$(eval $(generic-package))

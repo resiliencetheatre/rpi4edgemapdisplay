@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PYTHON_AUTOPEP8
+	bool "python-autopep8"
+	help
+	
+	  https://pypi.org/project/autopep8/

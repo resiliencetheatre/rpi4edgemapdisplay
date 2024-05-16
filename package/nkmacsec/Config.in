@@ -1,0 +1,5 @@
+config BR2_PACKAGE_NKMACSEC
+        bool "nkmacsec"
+	select BR2_PACKAGE_LIBNITROKEY
+        help 
+              out-of-band keying for macsec with Nitrokey

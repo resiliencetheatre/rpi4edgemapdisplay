@@ -1,0 +1,14 @@
+[Unit]
+Description=gwsocket for status messages
+After=multi-user.target
+
+[Service]
+WorkingDirectory=/opt/edgemap
+KillMode=process
+ExecStart=gwsocket --ssl-cert=/opt/edgemap/ca/buildroot.crt --ssl-key=/opt/edgemap/ca/buildroot.key -p 7995 --pipein=/tmp/statusin
+Restart=always
+RestartSec=1
+TimeoutStartSec=5
+
+[Install]
+WantedBy=multi-user.target

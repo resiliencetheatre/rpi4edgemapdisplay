@@ -1,0 +1,20 @@
+AUDIOSTREAMER_VERSION = 1c047ec756055270b6b437d3b5b3528950458b3e
+AUDIOSTREAMER_SITE = https://codeberg.org/48554e6d/audiostreamer.git
+AUDIOSTREAMER_SITE_METHOD = git
+AUDIOSTREAMER_DEPENDENCIES = gstreamer1 gst1-plugins-base
+AUDIOSTREAMER_PREFIX = $(TARGET_DIR)/usr
+AUDIOSTREAMER_LICENSE = gplv2
+
+define AUDIOSTREAMER_BUILD_CMDS
+     $(MAKE) $(TARGET_CONFIGURE_OPTS) -C $(@D)
+endef
+
+define AUDIOSTREAMER_INSTALL_TARGET_CMDS
+        (cd $(@D); cp audiostreamer $(AUDIOSTREAMER_PREFIX)/bin)
+endef
+
+define AUDIOSTREAMER_CLEAN_CMDS
+        $(MAKE) $(AUDIOSTREAMER_MAKE_OPTS) -C $(@D) clean
+endef
+
+$(eval $(generic-package))

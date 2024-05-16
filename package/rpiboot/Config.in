@@ -1,0 +1,5 @@
+config BR2_PACKAGE_RPIBOOT
+        bool "rpiboot"
+		select BR2_PACKAGE_LIBUSB
+        help 
+              rpiboot tool

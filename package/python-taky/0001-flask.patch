@@ -1,0 +1,10 @@
+--- a/requirements.txt	2024-03-24 03:31:21.308158001 +0200
++++ b/requirements.txt	2024-03-24 03:32:09.182866988 +0200
+@@ -1,6 +1,6 @@
+ lxml>=4.4.0
+ cryptography>=38.0.0
+ dateutils
+-Flask~=2.0
++Flask~=3.0
+ gunicorn
+ redis
