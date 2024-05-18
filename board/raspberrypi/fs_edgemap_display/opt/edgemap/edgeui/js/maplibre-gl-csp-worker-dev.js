@@ -1,6 +1,6 @@
 /**
  * MapLibre GL JS
- * @license 3-Clause BSD. Full text of license: https://github.com/maplibre/maplibre-gl-js/blob/v4.1.3/LICENSE.txt
+ * @license 3-Clause BSD. Full text of license: https://github.com/maplibre/maplibre-gl-js/blob/v4.3.1/LICENSE.txt
  */
 var maplibregl = (function () {
 'use strict';
@@ -858,6 +858,23 @@ function isOffscreenCanvasDistorted() {
 }
 
 /**
+ * For a given collection of 2D points, returns their axis-aligned bounding box,
+ * in the format [minX, minY, maxX, maxY].
+ */
+function getAABB(points) {
+    let tlX = Infinity;
+    let tlY = Infinity;
+    let brX = -Infinity;
+    let brY = -Infinity;
+    for (const p of points) {
+        tlX = Math.min(tlX, p.x);
+        tlY = Math.min(tlY, p.y);
+        brX = Math.max(brX, p.x);
+        brY = Math.max(brY, p.y);
+    }
+    return [tlX, tlY, brX, brY];
+}
+/**
  * Given a value `t` that varies between 0 and 1, return
  * an interpolation function that eases between 0 and 1 in a pleasing
  * cubic in-out fashion.
@@ -881,7 +898,7 @@ function easeCubicInOut(t) {
  */
 function bezier$1(p1x, p1y, p2x, p2y) {
     const bezier = new UnitBezier$3(p1x, p1y, p2x, p2y);
-    return function (t) {
+    return (t) => {
         return bezier.solve(t);
     };
 }
@@ -1110,42 +1127,6 @@ function findLineIntersection(a1, a2, b1, b2) {
     const aInterpolation = (bDeltaX * originDeltaY - bDeltaY * originDeltaX) / denominator;
     // Find intersection by projecting out from origin of first segment
     return new Point$3(a1.x + (aInterpolation * aDeltaX), a1.y + (aInterpolation * aDeltaY));
-}
-/**
- * Returns the signed area for the polygon ring.  Positive areas are exterior rings and
- * have a clockwise winding.  Negative areas are interior rings and have a counter clockwise
- * ordering.
- *
- * @param ring - Exterior or interior ring
- */
-function calculateSignedArea(ring) {
-    let sum = 0;
-    for (let i = 0, len = ring.length, j = len - 1, p1, p2; i < len; j = i++) {
-        p1 = ring[i];
-        p2 = ring[j];
-        sum += (p2.x - p1.x) * (p1.y + p2.y);
-    }
-    return sum;
-}
-/**
- * Detects closed polygons, first + last point are equal
- *
- * @param points - array of points
- * @returns `true` if the points are a closed polygon
- */
-function isClosedPolygon(points) {
-    // If it is 2 points that are the same then it is a point
-    // If it is 3 points with start and end the same then it is a line
-    if (points.length < 4)
-        return false;
-    const p1 = points[0];
-    const p2 = points[points.length - 1];
-    if (Math.abs(p1.x - p2.x) > 0 ||
-        Math.abs(p1.y - p2.y) > 0) {
-        return false;
-    }
-    // polygon simplification can produce polygons with zero area and more than 3 points
-    return Math.abs(calculateSignedArea(points)) > 0.01;
 }
 /**
  * Converts spherical coordinates to cartesian coordinates.
@@ -3210,8 +3191,6 @@ var filter_operator = {
 		has: {
 		},
 		"!has": {
-		},
-		within: {
 		}
 	}
 };
@@ -6517,360 +6496,45 @@ class ParsingContext {
     }
 }
 
-class CollatorExpression {
-    constructor(caseSensitive, diacriticSensitive, locale) {
-        this.type = CollatorType;
-        this.locale = locale;
-        this.caseSensitive = caseSensitive;
-        this.diacriticSensitive = diacriticSensitive;
-    }
-    static parse(args, context) {
-        if (args.length !== 2)
-            return context.error('Expected one argument.');
-        const options = args[1];
-        if (typeof options !== 'object' || Array.isArray(options))
-            return context.error('Collator options argument must be an object.');
-        const caseSensitive = context.parse(options['case-sensitive'] === undefined ? false : options['case-sensitive'], 1, BooleanType);
-        if (!caseSensitive)
-            return null;
-        const diacriticSensitive = context.parse(options['diacritic-sensitive'] === undefined ? false : options['diacritic-sensitive'], 1, BooleanType);
-        if (!diacriticSensitive)
-            return null;
-        let locale = null;
-        if (options['locale']) {
-            locale = context.parse(options['locale'], 1, StringType);
-            if (!locale)
-                return null;
-        }
-        return new CollatorExpression(caseSensitive, diacriticSensitive, locale);
+class Let {
+    constructor(bindings, result) {
+        this.type = result.type;
+        this.bindings = [].concat(bindings);
+        this.result = result;
     }
     evaluate(ctx) {
-        return new Collator(this.caseSensitive.evaluate(ctx), this.diacriticSensitive.evaluate(ctx), this.locale ? this.locale.evaluate(ctx) : null);
+        return this.result.evaluate(ctx);
     }
     eachChild(fn) {
-        fn(this.caseSensitive);
-        fn(this.diacriticSensitive);
-        if (this.locale) {
-            fn(this.locale);
+        for (const binding of this.bindings) {
+            fn(binding[1]);
         }
-    }
-    outputDefined() {
-        // Technically the set of possible outputs is the combinatoric set of Collators produced
-        // by all possible outputs of locale/caseSensitive/diacriticSensitive
-        // But for the primary use of Collators in comparison operators, we ignore the Collator's
-        // possible outputs anyway, so we can get away with leaving this false for now.
-        return false;
-    }
-}
-
-const EXTENT$1 = 8192;
-function updateBBox(bbox, coord) {
-    bbox[0] = Math.min(bbox[0], coord[0]);
-    bbox[1] = Math.min(bbox[1], coord[1]);
-    bbox[2] = Math.max(bbox[2], coord[0]);
-    bbox[3] = Math.max(bbox[3], coord[1]);
-}
-function mercatorXfromLng$1(lng) {
-    return (180 + lng) / 360;
-}
-function mercatorYfromLat$1(lat) {
-    return (180 - (180 / Math.PI * Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360)))) / 360;
-}
-function boxWithinBox(bbox1, bbox2) {
-    if (bbox1[0] <= bbox2[0])
-        return false;
-    if (bbox1[2] >= bbox2[2])
-        return false;
-    if (bbox1[1] <= bbox2[1])
-        return false;
-    if (bbox1[3] >= bbox2[3])
-        return false;
-    return true;
-}
-function getTileCoordinates(p, canonical) {
-    const x = mercatorXfromLng$1(p[0]);
-    const y = mercatorYfromLat$1(p[1]);
-    const tilesAtZoom = Math.pow(2, canonical.z);
-    return [Math.round(x * tilesAtZoom * EXTENT$1), Math.round(y * tilesAtZoom * EXTENT$1)];
-}
-function onBoundary(p, p1, p2) {
-    const x1 = p[0] - p1[0];
-    const y1 = p[1] - p1[1];
-    const x2 = p[0] - p2[0];
-    const y2 = p[1] - p2[1];
-    return (x1 * y2 - x2 * y1 === 0) && (x1 * x2 <= 0) && (y1 * y2 <= 0);
-}
-function rayIntersect(p, p1, p2) {
-    return ((p1[1] > p[1]) !== (p2[1] > p[1])) && (p[0] < (p2[0] - p1[0]) * (p[1] - p1[1]) / (p2[1] - p1[1]) + p1[0]);
-}
-// ray casting algorithm for detecting if point is in polygon
-function pointWithinPolygon(point, rings) {
-    let inside = false;
-    for (let i = 0, len = rings.length; i < len; i++) {
-        const ring = rings[i];
-        for (let j = 0, len2 = ring.length; j < len2 - 1; j++) {
-            if (onBoundary(point, ring[j], ring[j + 1]))
-                return false;
-            if (rayIntersect(point, ring[j], ring[j + 1]))
-                inside = !inside;
-        }
-    }
-    return inside;
-}
-function pointWithinPolygons(point, polygons) {
-    for (let i = 0; i < polygons.length; i++) {
-        if (pointWithinPolygon(point, polygons[i]))
-            return true;
-    }
-    return false;
-}
-function perp(v1, v2) {
-    return (v1[0] * v2[1] - v1[1] * v2[0]);
-}
-// check if p1 and p2 are in different sides of line segment q1->q2
-function twoSided(p1, p2, q1, q2) {
-    // q1->p1 (x1, y1), q1->p2 (x2, y2), q1->q2 (x3, y3)
-    const x1 = p1[0] - q1[0];
-    const y1 = p1[1] - q1[1];
-    const x2 = p2[0] - q1[0];
-    const y2 = p2[1] - q1[1];
-    const x3 = q2[0] - q1[0];
-    const y3 = q2[1] - q1[1];
-    const det1 = (x1 * y3 - x3 * y1);
-    const det2 = (x2 * y3 - x3 * y2);
-    if ((det1 > 0 && det2 < 0) || (det1 < 0 && det2 > 0))
-        return true;
-    return false;
-}
-// a, b are end points for line segment1, c and d are end points for line segment2
-function lineIntersectLine(a, b, c, d) {
-    // check if two segments are parallel or not
-    // precondition is end point a, b is inside polygon, if line a->b is
-    // parallel to polygon edge c->d, then a->b won't intersect with c->d
-    const vectorP = [b[0] - a[0], b[1] - a[1]];
-    const vectorQ = [d[0] - c[0], d[1] - c[1]];
-    if (perp(vectorQ, vectorP) === 0)
-        return false;
-    // If lines are intersecting with each other, the relative location should be:
-    // a and b lie in different sides of segment c->d
-    // c and d lie in different sides of segment a->b
-    if (twoSided(a, b, c, d) && twoSided(c, d, a, b))
-        return true;
-    return false;
-}
-function lineIntersectPolygon(p1, p2, polygon) {
-    for (const ring of polygon) {
-        // loop through every edge of the ring
-        for (let j = 0; j < ring.length - 1; ++j) {
-            if (lineIntersectLine(p1, p2, ring[j], ring[j + 1])) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-function lineStringWithinPolygon(line, polygon) {
-    // First, check if geometry points of line segments are all inside polygon
-    for (let i = 0; i < line.length; ++i) {
-        if (!pointWithinPolygon(line[i], polygon)) {
-            return false;
-        }
-    }
-    // Second, check if there is line segment intersecting polygon edge
-    for (let i = 0; i < line.length - 1; ++i) {
-        if (lineIntersectPolygon(line[i], line[i + 1], polygon)) {
-            return false;
-        }
-    }
-    return true;
-}
-function lineStringWithinPolygons(line, polygons) {
-    for (let i = 0; i < polygons.length; i++) {
-        if (lineStringWithinPolygon(line, polygons[i]))
-            return true;
-    }
-    return false;
-}
-function getTilePolygon(coordinates, bbox, canonical) {
-    const polygon = [];
-    for (let i = 0; i < coordinates.length; i++) {
-        const ring = [];
-        for (let j = 0; j < coordinates[i].length; j++) {
-            const coord = getTileCoordinates(coordinates[i][j], canonical);
-            updateBBox(bbox, coord);
-            ring.push(coord);
-        }
-        polygon.push(ring);
-    }
-    return polygon;
-}
-function getTilePolygons(coordinates, bbox, canonical) {
-    const polygons = [];
-    for (let i = 0; i < coordinates.length; i++) {
-        const polygon = getTilePolygon(coordinates[i], bbox, canonical);
-        polygons.push(polygon);
-    }
-    return polygons;
-}
-function updatePoint(p, bbox, polyBBox, worldSize) {
-    if (p[0] < polyBBox[0] || p[0] > polyBBox[2]) {
-        const halfWorldSize = worldSize * 0.5;
-        let shift = (p[0] - polyBBox[0] > halfWorldSize) ? -worldSize : (polyBBox[0] - p[0] > halfWorldSize) ? worldSize : 0;
-        if (shift === 0) {
-            shift = (p[0] - polyBBox[2] > halfWorldSize) ? -worldSize : (polyBBox[2] - p[0] > halfWorldSize) ? worldSize : 0;
-        }
-        p[0] += shift;
-    }
-    updateBBox(bbox, p);
-}
-function resetBBox(bbox) {
-    bbox[0] = bbox[1] = Infinity;
-    bbox[2] = bbox[3] = -Infinity;
-}
-function getTilePoints(geometry, pointBBox, polyBBox, canonical) {
-    const worldSize = Math.pow(2, canonical.z) * EXTENT$1;
-    const shifts = [canonical.x * EXTENT$1, canonical.y * EXTENT$1];
-    const tilePoints = [];
-    for (const points of geometry) {
-        for (const point of points) {
-            const p = [point.x + shifts[0], point.y + shifts[1]];
-            updatePoint(p, pointBBox, polyBBox, worldSize);
-            tilePoints.push(p);
-        }
-    }
-    return tilePoints;
-}
-function getTileLines(geometry, lineBBox, polyBBox, canonical) {
-    const worldSize = Math.pow(2, canonical.z) * EXTENT$1;
-    const shifts = [canonical.x * EXTENT$1, canonical.y * EXTENT$1];
-    const tileLines = [];
-    for (const line of geometry) {
-        const tileLine = [];
-        for (const point of line) {
-            const p = [point.x + shifts[0], point.y + shifts[1]];
-            updateBBox(lineBBox, p);
-            tileLine.push(p);
-        }
-        tileLines.push(tileLine);
-    }
-    if (lineBBox[2] - lineBBox[0] <= worldSize / 2) {
-        resetBBox(lineBBox);
-        for (const line of tileLines) {
-            for (const p of line) {
-                updatePoint(p, lineBBox, polyBBox, worldSize);
-            }
-        }
-    }
-    return tileLines;
-}
-function pointsWithinPolygons(ctx, polygonGeometry) {
-    const pointBBox = [Infinity, Infinity, -Infinity, -Infinity];
-    const polyBBox = [Infinity, Infinity, -Infinity, -Infinity];
-    const canonical = ctx.canonicalID();
-    if (polygonGeometry.type === 'Polygon') {
-        const tilePolygon = getTilePolygon(polygonGeometry.coordinates, polyBBox, canonical);
-        const tilePoints = getTilePoints(ctx.geometry(), pointBBox, polyBBox, canonical);
-        if (!boxWithinBox(pointBBox, polyBBox))
-            return false;
-        for (const point of tilePoints) {
-            if (!pointWithinPolygon(point, tilePolygon))
-                return false;
-        }
-    }
-    if (polygonGeometry.type === 'MultiPolygon') {
-        const tilePolygons = getTilePolygons(polygonGeometry.coordinates, polyBBox, canonical);
-        const tilePoints = getTilePoints(ctx.geometry(), pointBBox, polyBBox, canonical);
-        if (!boxWithinBox(pointBBox, polyBBox))
-            return false;
-        for (const point of tilePoints) {
-            if (!pointWithinPolygons(point, tilePolygons))
-                return false;
-        }
-    }
-    return true;
-}
-function linesWithinPolygons(ctx, polygonGeometry) {
-    const lineBBox = [Infinity, Infinity, -Infinity, -Infinity];
-    const polyBBox = [Infinity, Infinity, -Infinity, -Infinity];
-    const canonical = ctx.canonicalID();
-    if (polygonGeometry.type === 'Polygon') {
-        const tilePolygon = getTilePolygon(polygonGeometry.coordinates, polyBBox, canonical);
-        const tileLines = getTileLines(ctx.geometry(), lineBBox, polyBBox, canonical);
-        if (!boxWithinBox(lineBBox, polyBBox))
-            return false;
-        for (const line of tileLines) {
-            if (!lineStringWithinPolygon(line, tilePolygon))
-                return false;
-        }
-    }
-    if (polygonGeometry.type === 'MultiPolygon') {
-        const tilePolygons = getTilePolygons(polygonGeometry.coordinates, polyBBox, canonical);
-        const tileLines = getTileLines(ctx.geometry(), lineBBox, polyBBox, canonical);
-        if (!boxWithinBox(lineBBox, polyBBox))
-            return false;
-        for (const line of tileLines) {
-            if (!lineStringWithinPolygons(line, tilePolygons))
-                return false;
-        }
-    }
-    return true;
-}
-class Within {
-    constructor(geojson, geometries) {
-        this.type = BooleanType;
-        this.geojson = geojson;
-        this.geometries = geometries;
+        fn(this.result);
     }
     static parse(args, context) {
-        if (args.length !== 2)
-            return context.error(`'within' expression requires exactly one argument, but found ${args.length - 1} instead.`);
-        if (isValue(args[1])) {
-            const geojson = args[1];
-            if (geojson.type === 'FeatureCollection') {
-                const polygonsCoords = [];
-                for (const polygon of geojson.features) {
-                    const { type, coordinates } = polygon.geometry;
-                    if (type === 'Polygon') {
-                        polygonsCoords.push(coordinates);
-                    }
-                    if (type === 'MultiPolygon') {
-                        polygonsCoords.push(...coordinates);
-                    }
-                }
-                if (polygonsCoords.length) {
-                    const multipolygonWrapper = {
-                        type: 'MultiPolygon',
-                        coordinates: polygonsCoords
-                    };
-                    return new Within(geojson, multipolygonWrapper);
-                }
+        if (args.length < 4)
+            return context.error(`Expected at least 3 arguments, but found ${args.length - 1} instead.`);
+        const bindings = [];
+        for (let i = 1; i < args.length - 1; i += 2) {
+            const name = args[i];
+            if (typeof name !== 'string') {
+                return context.error(`Expected string, but found ${typeof name} instead.`, i);
             }
-            else if (geojson.type === 'Feature') {
-                const type = geojson.geometry.type;
-                if (type === 'Polygon' || type === 'MultiPolygon') {
-                    return new Within(geojson, geojson.geometry);
-                }
+            if (/[^a-zA-Z0-9_]/.test(name)) {
+                return context.error('Variable names must contain only alphanumeric characters or \'_\'.', i);
             }
-            else if (geojson.type === 'Polygon' || geojson.type === 'MultiPolygon') {
-                return new Within(geojson, geojson);
-            }
+            const value = context.parse(args[i + 1], i + 1);
+            if (!value)
+                return null;
+            bindings.push([name, value]);
         }
-        return context.error('\'within\' expression requires valid geojson object that contains polygon geometry type.');
+        const result = context.parse(args[args.length - 1], args.length - 1, context.expectedType, bindings);
+        if (!result)
+            return null;
+        return new Let(bindings, result);
     }
-    evaluate(ctx) {
-        if (ctx.geometry() != null && ctx.canonicalID() != null) {
-            if (ctx.geometryType() === 'Point') {
-                return pointsWithinPolygons(ctx, this.geometries);
-            }
-            else if (ctx.geometryType() === 'LineString') {
-                return linesWithinPolygons(ctx, this.geometries);
-            }
-        }
-        return false;
-    }
-    eachChild() { }
     outputDefined() {
-        return true;
+        return this.result.outputDefined();
     }
 }
 
@@ -6898,209 +6562,328 @@ class Var {
     }
 }
 
-class CompoundExpression {
-    constructor(name, type, evaluate, args) {
-        this.name = name;
+class At {
+    constructor(type, index, input) {
         this.type = type;
-        this._evaluate = evaluate;
-        this.args = args;
+        this.index = index;
+        this.input = input;
+    }
+    static parse(args, context) {
+        if (args.length !== 3)
+            return context.error(`Expected 2 arguments, but found ${args.length - 1} instead.`);
+        const index = context.parse(args[1], 1, NumberType);
+        const input = context.parse(args[2], 2, array$1(context.expectedType || ValueType));
+        if (!index || !input)
+            return null;
+        const t = input.type;
+        return new At(t.itemType, index, input);
     }
     evaluate(ctx) {
-        return this._evaluate(ctx, this.args);
+        const index = this.index.evaluate(ctx);
+        const array = this.input.evaluate(ctx);
+        if (index < 0) {
+            throw new RuntimeError(`Array index out of bounds: ${index} < 0.`);
+        }
+        if (index >= array.length) {
+            throw new RuntimeError(`Array index out of bounds: ${index} > ${array.length - 1}.`);
+        }
+        if (index !== Math.floor(index)) {
+            throw new RuntimeError(`Array index must be an integer, but found ${index} instead.`);
+        }
+        return array[index];
     }
     eachChild(fn) {
-        this.args.forEach(fn);
+        fn(this.index);
+        fn(this.input);
     }
     outputDefined() {
         return false;
     }
+}
+
+class In {
+    constructor(needle, haystack) {
+        this.type = BooleanType;
+        this.needle = needle;
+        this.haystack = haystack;
+    }
     static parse(args, context) {
-        const op = args[0];
-        const definition = CompoundExpression.definitions[op];
-        if (!definition) {
-            return context.error(`Unknown expression "${op}". If you wanted a literal array, use ["literal", [...]].`, 0);
+        if (args.length !== 3) {
+            return context.error(`Expected 2 arguments, but found ${args.length - 1} instead.`);
         }
-        // Now check argument types against each signature
-        const type = Array.isArray(definition) ?
-            definition[0] : definition.type;
-        const availableOverloads = Array.isArray(definition) ?
-            [[definition[1], definition[2]]] :
-            definition.overloads;
-        const overloads = availableOverloads.filter(([signature]) => (!Array.isArray(signature) || // varags
-            signature.length === args.length - 1 // correct param count
-        ));
-        let signatureContext = null;
-        for (const [params, evaluate] of overloads) {
-            // Use a fresh context for each attempted signature so that, if
-            // we eventually succeed, we haven't polluted `context.errors`.
-            signatureContext = new ParsingContext(context.registry, isExpressionConstant, context.path, null, context.scope);
-            // First parse all the args, potentially coercing to the
-            // types expected by this overload.
-            const parsedArgs = [];
-            let argParseFailed = false;
-            for (let i = 1; i < args.length; i++) {
-                const arg = args[i];
-                const expectedType = Array.isArray(params) ?
-                    params[i - 1] :
-                    params.type;
-                const parsed = signatureContext.parse(arg, 1 + parsedArgs.length, expectedType);
-                if (!parsed) {
-                    argParseFailed = true;
-                    break;
-                }
-                parsedArgs.push(parsed);
-            }
-            if (argParseFailed) {
-                // Couldn't coerce args of this overload to expected type, move
-                // on to next one.
-                continue;
-            }
-            if (Array.isArray(params)) {
-                if (params.length !== parsedArgs.length) {
-                    signatureContext.error(`Expected ${params.length} arguments, but found ${parsedArgs.length} instead.`);
-                    continue;
-                }
-            }
-            for (let i = 0; i < parsedArgs.length; i++) {
-                const expected = Array.isArray(params) ? params[i] : params.type;
-                const arg = parsedArgs[i];
-                signatureContext.concat(i + 1).checkSubtype(expected, arg.type);
-            }
-            if (signatureContext.errors.length === 0) {
-                return new CompoundExpression(op, type, evaluate, parsedArgs);
-            }
+        const needle = context.parse(args[1], 1, ValueType);
+        const haystack = context.parse(args[2], 2, ValueType);
+        if (!needle || !haystack)
+            return null;
+        if (!isValidType(needle.type, [BooleanType, StringType, NumberType, NullType, ValueType])) {
+            return context.error(`Expected first argument to be of type boolean, string, number or null, but found ${toString$1(needle.type)} instead`);
         }
-        if (overloads.length === 1) {
-            context.errors.push(...signatureContext.errors);
+        return new In(needle, haystack);
+    }
+    evaluate(ctx) {
+        const needle = this.needle.evaluate(ctx);
+        const haystack = this.haystack.evaluate(ctx);
+        if (!haystack)
+            return false;
+        if (!isValidNativeType(needle, ['boolean', 'string', 'number', 'null'])) {
+            throw new RuntimeError(`Expected first argument to be of type boolean, string, number or null, but found ${toString$1(typeOf(needle))} instead.`);
+        }
+        if (!isValidNativeType(haystack, ['string', 'array'])) {
+            throw new RuntimeError(`Expected second argument to be of type array or string, but found ${toString$1(typeOf(haystack))} instead.`);
+        }
+        return haystack.indexOf(needle) >= 0;
+    }
+    eachChild(fn) {
+        fn(this.needle);
+        fn(this.haystack);
+    }
+    outputDefined() {
+        return true;
+    }
+}
+
+class IndexOf {
+    constructor(needle, haystack, fromIndex) {
+        this.type = NumberType;
+        this.needle = needle;
+        this.haystack = haystack;
+        this.fromIndex = fromIndex;
+    }
+    static parse(args, context) {
+        if (args.length <= 2 || args.length >= 5) {
+            return context.error(`Expected 3 or 4 arguments, but found ${args.length - 1} instead.`);
+        }
+        const needle = context.parse(args[1], 1, ValueType);
+        const haystack = context.parse(args[2], 2, ValueType);
+        if (!needle || !haystack)
+            return null;
+        if (!isValidType(needle.type, [BooleanType, StringType, NumberType, NullType, ValueType])) {
+            return context.error(`Expected first argument to be of type boolean, string, number or null, but found ${toString$1(needle.type)} instead`);
+        }
+        if (args.length === 4) {
+            const fromIndex = context.parse(args[3], 3, NumberType);
+            if (!fromIndex)
+                return null;
+            return new IndexOf(needle, haystack, fromIndex);
         }
         else {
-            const expected = overloads.length ? overloads : availableOverloads;
-            const signatures = expected
-                .map(([params]) => stringifySignature(params))
-                .join(' | ');
-            const actualTypes = [];
-            // For error message, re-parse arguments without trying to
-            // apply any coercions
-            for (let i = 1; i < args.length; i++) {
-                const parsed = context.parse(args[i], 1 + actualTypes.length);
-                if (!parsed)
+            return new IndexOf(needle, haystack);
+        }
+    }
+    evaluate(ctx) {
+        const needle = this.needle.evaluate(ctx);
+        const haystack = this.haystack.evaluate(ctx);
+        if (!isValidNativeType(needle, ['boolean', 'string', 'number', 'null'])) {
+            throw new RuntimeError(`Expected first argument to be of type boolean, string, number or null, but found ${toString$1(typeOf(needle))} instead.`);
+        }
+        if (!isValidNativeType(haystack, ['string', 'array'])) {
+            throw new RuntimeError(`Expected second argument to be of type array or string, but found ${toString$1(typeOf(haystack))} instead.`);
+        }
+        if (this.fromIndex) {
+            const fromIndex = this.fromIndex.evaluate(ctx);
+            return haystack.indexOf(needle, fromIndex);
+        }
+        return haystack.indexOf(needle);
+    }
+    eachChild(fn) {
+        fn(this.needle);
+        fn(this.haystack);
+        if (this.fromIndex) {
+            fn(this.fromIndex);
+        }
+    }
+    outputDefined() {
+        return false;
+    }
+}
+
+class Match {
+    constructor(inputType, outputType, input, cases, outputs, otherwise) {
+        this.inputType = inputType;
+        this.type = outputType;
+        this.input = input;
+        this.cases = cases;
+        this.outputs = outputs;
+        this.otherwise = otherwise;
+    }
+    static parse(args, context) {
+        if (args.length < 5)
+            return context.error(`Expected at least 4 arguments, but found only ${args.length - 1}.`);
+        if (args.length % 2 !== 1)
+            return context.error('Expected an even number of arguments.');
+        let inputType;
+        let outputType;
+        if (context.expectedType && context.expectedType.kind !== 'value') {
+            outputType = context.expectedType;
+        }
+        const cases = {};
+        const outputs = [];
+        for (let i = 2; i < args.length - 1; i += 2) {
+            let labels = args[i];
+            const value = args[i + 1];
+            if (!Array.isArray(labels)) {
+                labels = [labels];
+            }
+            const labelContext = context.concat(i);
+            if (labels.length === 0) {
+                return labelContext.error('Expected at least one branch label.');
+            }
+            for (const label of labels) {
+                if (typeof label !== 'number' && typeof label !== 'string') {
+                    return labelContext.error('Branch labels must be numbers or strings.');
+                }
+                else if (typeof label === 'number' && Math.abs(label) > Number.MAX_SAFE_INTEGER) {
+                    return labelContext.error(`Branch labels must be integers no larger than ${Number.MAX_SAFE_INTEGER}.`);
+                }
+                else if (typeof label === 'number' && Math.floor(label) !== label) {
+                    return labelContext.error('Numeric branch labels must be integer values.');
+                }
+                else if (!inputType) {
+                    inputType = typeOf(label);
+                }
+                else if (labelContext.checkSubtype(inputType, typeOf(label))) {
                     return null;
-                actualTypes.push(toString$1(parsed.type));
+                }
+                if (typeof cases[String(label)] !== 'undefined') {
+                    return labelContext.error('Branch labels must be unique.');
+                }
+                cases[String(label)] = outputs.length;
             }
-            context.error(`Expected arguments of type ${signatures}, but found (${actualTypes.join(', ')}) instead.`);
+            const result = context.parse(value, i, outputType);
+            if (!result)
+                return null;
+            outputType = outputType || result.type;
+            outputs.push(result);
         }
-        return null;
+        const input = context.parse(args[1], 1, ValueType);
+        if (!input)
+            return null;
+        const otherwise = context.parse(args[args.length - 1], args.length - 1, outputType);
+        if (!otherwise)
+            return null;
+        if (input.type.kind !== 'value' && context.concat(1).checkSubtype(inputType, input.type)) {
+            return null;
+        }
+        return new Match(inputType, outputType, input, cases, outputs, otherwise);
     }
-    static register(registry, definitions) {
-        CompoundExpression.definitions = definitions;
-        for (const name in definitions) {
-            registry[name] = CompoundExpression;
-        }
+    evaluate(ctx) {
+        const input = this.input.evaluate(ctx);
+        const output = (typeOf(input) === this.inputType && this.outputs[this.cases[input]]) || this.otherwise;
+        return output.evaluate(ctx);
+    }
+    eachChild(fn) {
+        fn(this.input);
+        this.outputs.forEach(fn);
+        fn(this.otherwise);
+    }
+    outputDefined() {
+        return this.outputs.every(out => out.outputDefined()) && this.otherwise.outputDefined();
     }
 }
-function stringifySignature(signature) {
-    if (Array.isArray(signature)) {
-        return `(${signature.map(toString$1).join(', ')})`;
+
+class Case {
+    constructor(type, branches, otherwise) {
+        this.type = type;
+        this.branches = branches;
+        this.otherwise = otherwise;
     }
-    else {
-        return `(${toString$1(signature.type)}...)`;
+    static parse(args, context) {
+        if (args.length < 4)
+            return context.error(`Expected at least 3 arguments, but found only ${args.length - 1}.`);
+        if (args.length % 2 !== 0)
+            return context.error('Expected an odd number of arguments.');
+        let outputType;
+        if (context.expectedType && context.expectedType.kind !== 'value') {
+            outputType = context.expectedType;
+        }
+        const branches = [];
+        for (let i = 1; i < args.length - 1; i += 2) {
+            const test = context.parse(args[i], i, BooleanType);
+            if (!test)
+                return null;
+            const result = context.parse(args[i + 1], i + 1, outputType);
+            if (!result)
+                return null;
+            branches.push([test, result]);
+            outputType = outputType || result.type;
+        }
+        const otherwise = context.parse(args[args.length - 1], args.length - 1, outputType);
+        if (!otherwise)
+            return null;
+        if (!outputType)
+            throw new Error('Can\'t infer output type');
+        return new Case(outputType, branches, otherwise);
+    }
+    evaluate(ctx) {
+        for (const [test, expression] of this.branches) {
+            if (test.evaluate(ctx)) {
+                return expression.evaluate(ctx);
+            }
+        }
+        return this.otherwise.evaluate(ctx);
+    }
+    eachChild(fn) {
+        for (const [test, expression] of this.branches) {
+            fn(test);
+            fn(expression);
+        }
+        fn(this.otherwise);
+    }
+    outputDefined() {
+        return this.branches.every(([_, out]) => out.outputDefined()) && this.otherwise.outputDefined();
     }
 }
-function isExpressionConstant(expression) {
-    if (expression instanceof Var) {
-        return isExpressionConstant(expression.boundExpression);
+
+class Slice {
+    constructor(type, input, beginIndex, endIndex) {
+        this.type = type;
+        this.input = input;
+        this.beginIndex = beginIndex;
+        this.endIndex = endIndex;
     }
-    else if (expression instanceof CompoundExpression && expression.name === 'error') {
-        return false;
-    }
-    else if (expression instanceof CollatorExpression) {
-        // Although the results of a Collator expression with fixed arguments
-        // generally shouldn't change between executions, we can't serialize them
-        // as constant expressions because results change based on environment.
-        return false;
-    }
-    else if (expression instanceof Within) {
-        return false;
-    }
-    const isTypeAnnotation = expression instanceof Coercion ||
-        expression instanceof Assertion;
-    let childrenConstant = true;
-    expression.eachChild(child => {
-        // We can _almost_ assume that if `expressions` children are constant,
-        // they would already have been evaluated to Literal values when they
-        // were parsed.  Type annotations are the exception, because they might
-        // have been inferred and added after a child was parsed.
-        // So we recurse into isConstant() for the children of type annotations,
-        // but otherwise simply check whether they are Literals.
-        if (isTypeAnnotation) {
-            childrenConstant = childrenConstant && isExpressionConstant(child);
+    static parse(args, context) {
+        if (args.length <= 2 || args.length >= 5) {
+            return context.error(`Expected 3 or 4 arguments, but found ${args.length - 1} instead.`);
+        }
+        const input = context.parse(args[1], 1, ValueType);
+        const beginIndex = context.parse(args[2], 2, NumberType);
+        if (!input || !beginIndex)
+            return null;
+        if (!isValidType(input.type, [array$1(ValueType), StringType, ValueType])) {
+            return context.error(`Expected first argument to be of type array or string, but found ${toString$1(input.type)} instead`);
+        }
+        if (args.length === 4) {
+            const endIndex = context.parse(args[3], 3, NumberType);
+            if (!endIndex)
+                return null;
+            return new Slice(input.type, input, beginIndex, endIndex);
         }
         else {
-            childrenConstant = childrenConstant && child instanceof Literal;
+            return new Slice(input.type, input, beginIndex);
         }
-    });
-    if (!childrenConstant) {
+    }
+    evaluate(ctx) {
+        const input = this.input.evaluate(ctx);
+        const beginIndex = this.beginIndex.evaluate(ctx);
+        if (!isValidNativeType(input, ['string', 'array'])) {
+            throw new RuntimeError(`Expected first argument to be of type array or string, but found ${toString$1(typeOf(input))} instead.`);
+        }
+        if (this.endIndex) {
+            const endIndex = this.endIndex.evaluate(ctx);
+            return input.slice(beginIndex, endIndex);
+        }
+        return input.slice(beginIndex);
+    }
+    eachChild(fn) {
+        fn(this.input);
+        fn(this.beginIndex);
+        if (this.endIndex) {
+            fn(this.endIndex);
+        }
+    }
+    outputDefined() {
         return false;
     }
-    return isFeatureConstant(expression) &&
-        isGlobalPropertyConstant(expression, ['zoom', 'heatmap-density', 'line-progress', 'accumulated', 'is-supported-script']);
-}
-function isFeatureConstant(e) {
-    if (e instanceof CompoundExpression) {
-        if (e.name === 'get' && e.args.length === 1) {
-            return false;
-        }
-        else if (e.name === 'feature-state') {
-            return false;
-        }
-        else if (e.name === 'has' && e.args.length === 1) {
-            return false;
-        }
-        else if (e.name === 'properties' ||
-            e.name === 'geometry-type' ||
-            e.name === 'id') {
-            return false;
-        }
-        else if (/^filter-/.test(e.name)) {
-            return false;
-        }
-    }
-    if (e instanceof Within) {
-        return false;
-    }
-    let result = true;
-    e.eachChild(arg => {
-        if (result && !isFeatureConstant(arg)) {
-            result = false;
-        }
-    });
-    return result;
-}
-function isStateConstant(e) {
-    if (e instanceof CompoundExpression) {
-        if (e.name === 'feature-state') {
-            return false;
-        }
-    }
-    let result = true;
-    e.eachChild(arg => {
-        if (result && !isStateConstant(arg)) {
-            result = false;
-        }
-    });
-    return result;
-}
-function isGlobalPropertyConstant(e, properties) {
-    if (e instanceof CompoundExpression && properties.indexOf(e.name) >= 0) {
-        return false;
-    }
-    let result = true;
-    e.eachChild((arg) => {
-        if (result && !isGlobalPropertyConstant(arg, properties)) {
-            result = false;
-        }
-    });
-    return result;
 }
 
 /**
@@ -7656,372 +7439,6 @@ class Coalesce {
     }
 }
 
-class Let {
-    constructor(bindings, result) {
-        this.type = result.type;
-        this.bindings = [].concat(bindings);
-        this.result = result;
-    }
-    evaluate(ctx) {
-        return this.result.evaluate(ctx);
-    }
-    eachChild(fn) {
-        for (const binding of this.bindings) {
-            fn(binding[1]);
-        }
-        fn(this.result);
-    }
-    static parse(args, context) {
-        if (args.length < 4)
-            return context.error(`Expected at least 3 arguments, but found ${args.length - 1} instead.`);
-        const bindings = [];
-        for (let i = 1; i < args.length - 1; i += 2) {
-            const name = args[i];
-            if (typeof name !== 'string') {
-                return context.error(`Expected string, but found ${typeof name} instead.`, i);
-            }
-            if (/[^a-zA-Z0-9_]/.test(name)) {
-                return context.error('Variable names must contain only alphanumeric characters or \'_\'.', i);
-            }
-            const value = context.parse(args[i + 1], i + 1);
-            if (!value)
-                return null;
-            bindings.push([name, value]);
-        }
-        const result = context.parse(args[args.length - 1], args.length - 1, context.expectedType, bindings);
-        if (!result)
-            return null;
-        return new Let(bindings, result);
-    }
-    outputDefined() {
-        return this.result.outputDefined();
-    }
-}
-
-class At {
-    constructor(type, index, input) {
-        this.type = type;
-        this.index = index;
-        this.input = input;
-    }
-    static parse(args, context) {
-        if (args.length !== 3)
-            return context.error(`Expected 2 arguments, but found ${args.length - 1} instead.`);
-        const index = context.parse(args[1], 1, NumberType);
-        const input = context.parse(args[2], 2, array$1(context.expectedType || ValueType));
-        if (!index || !input)
-            return null;
-        const t = input.type;
-        return new At(t.itemType, index, input);
-    }
-    evaluate(ctx) {
-        const index = this.index.evaluate(ctx);
-        const array = this.input.evaluate(ctx);
-        if (index < 0) {
-            throw new RuntimeError(`Array index out of bounds: ${index} < 0.`);
-        }
-        if (index >= array.length) {
-            throw new RuntimeError(`Array index out of bounds: ${index} > ${array.length - 1}.`);
-        }
-        if (index !== Math.floor(index)) {
-            throw new RuntimeError(`Array index must be an integer, but found ${index} instead.`);
-        }
-        return array[index];
-    }
-    eachChild(fn) {
-        fn(this.index);
-        fn(this.input);
-    }
-    outputDefined() {
-        return false;
-    }
-}
-
-class In {
-    constructor(needle, haystack) {
-        this.type = BooleanType;
-        this.needle = needle;
-        this.haystack = haystack;
-    }
-    static parse(args, context) {
-        if (args.length !== 3) {
-            return context.error(`Expected 2 arguments, but found ${args.length - 1} instead.`);
-        }
-        const needle = context.parse(args[1], 1, ValueType);
-        const haystack = context.parse(args[2], 2, ValueType);
-        if (!needle || !haystack)
-            return null;
-        if (!isValidType(needle.type, [BooleanType, StringType, NumberType, NullType, ValueType])) {
-            return context.error(`Expected first argument to be of type boolean, string, number or null, but found ${toString$1(needle.type)} instead`);
-        }
-        return new In(needle, haystack);
-    }
-    evaluate(ctx) {
-        const needle = this.needle.evaluate(ctx);
-        const haystack = this.haystack.evaluate(ctx);
-        if (!haystack)
-            return false;
-        if (!isValidNativeType(needle, ['boolean', 'string', 'number', 'null'])) {
-            throw new RuntimeError(`Expected first argument to be of type boolean, string, number or null, but found ${toString$1(typeOf(needle))} instead.`);
-        }
-        if (!isValidNativeType(haystack, ['string', 'array'])) {
-            throw new RuntimeError(`Expected second argument to be of type array or string, but found ${toString$1(typeOf(haystack))} instead.`);
-        }
-        return haystack.indexOf(needle) >= 0;
-    }
-    eachChild(fn) {
-        fn(this.needle);
-        fn(this.haystack);
-    }
-    outputDefined() {
-        return true;
-    }
-}
-
-class IndexOf {
-    constructor(needle, haystack, fromIndex) {
-        this.type = NumberType;
-        this.needle = needle;
-        this.haystack = haystack;
-        this.fromIndex = fromIndex;
-    }
-    static parse(args, context) {
-        if (args.length <= 2 || args.length >= 5) {
-            return context.error(`Expected 3 or 4 arguments, but found ${args.length - 1} instead.`);
-        }
-        const needle = context.parse(args[1], 1, ValueType);
-        const haystack = context.parse(args[2], 2, ValueType);
-        if (!needle || !haystack)
-            return null;
-        if (!isValidType(needle.type, [BooleanType, StringType, NumberType, NullType, ValueType])) {
-            return context.error(`Expected first argument to be of type boolean, string, number or null, but found ${toString$1(needle.type)} instead`);
-        }
-        if (args.length === 4) {
-            const fromIndex = context.parse(args[3], 3, NumberType);
-            if (!fromIndex)
-                return null;
-            return new IndexOf(needle, haystack, fromIndex);
-        }
-        else {
-            return new IndexOf(needle, haystack);
-        }
-    }
-    evaluate(ctx) {
-        const needle = this.needle.evaluate(ctx);
-        const haystack = this.haystack.evaluate(ctx);
-        if (!isValidNativeType(needle, ['boolean', 'string', 'number', 'null'])) {
-            throw new RuntimeError(`Expected first argument to be of type boolean, string, number or null, but found ${toString$1(typeOf(needle))} instead.`);
-        }
-        if (!isValidNativeType(haystack, ['string', 'array'])) {
-            throw new RuntimeError(`Expected second argument to be of type array or string, but found ${toString$1(typeOf(haystack))} instead.`);
-        }
-        if (this.fromIndex) {
-            const fromIndex = this.fromIndex.evaluate(ctx);
-            return haystack.indexOf(needle, fromIndex);
-        }
-        return haystack.indexOf(needle);
-    }
-    eachChild(fn) {
-        fn(this.needle);
-        fn(this.haystack);
-        if (this.fromIndex) {
-            fn(this.fromIndex);
-        }
-    }
-    outputDefined() {
-        return false;
-    }
-}
-
-class Match {
-    constructor(inputType, outputType, input, cases, outputs, otherwise) {
-        this.inputType = inputType;
-        this.type = outputType;
-        this.input = input;
-        this.cases = cases;
-        this.outputs = outputs;
-        this.otherwise = otherwise;
-    }
-    static parse(args, context) {
-        if (args.length < 5)
-            return context.error(`Expected at least 4 arguments, but found only ${args.length - 1}.`);
-        if (args.length % 2 !== 1)
-            return context.error('Expected an even number of arguments.');
-        let inputType;
-        let outputType;
-        if (context.expectedType && context.expectedType.kind !== 'value') {
-            outputType = context.expectedType;
-        }
-        const cases = {};
-        const outputs = [];
-        for (let i = 2; i < args.length - 1; i += 2) {
-            let labels = args[i];
-            const value = args[i + 1];
-            if (!Array.isArray(labels)) {
-                labels = [labels];
-            }
-            const labelContext = context.concat(i);
-            if (labels.length === 0) {
-                return labelContext.error('Expected at least one branch label.');
-            }
-            for (const label of labels) {
-                if (typeof label !== 'number' && typeof label !== 'string') {
-                    return labelContext.error('Branch labels must be numbers or strings.');
-                }
-                else if (typeof label === 'number' && Math.abs(label) > Number.MAX_SAFE_INTEGER) {
-                    return labelContext.error(`Branch labels must be integers no larger than ${Number.MAX_SAFE_INTEGER}.`);
-                }
-                else if (typeof label === 'number' && Math.floor(label) !== label) {
-                    return labelContext.error('Numeric branch labels must be integer values.');
-                }
-                else if (!inputType) {
-                    inputType = typeOf(label);
-                }
-                else if (labelContext.checkSubtype(inputType, typeOf(label))) {
-                    return null;
-                }
-                if (typeof cases[String(label)] !== 'undefined') {
-                    return labelContext.error('Branch labels must be unique.');
-                }
-                cases[String(label)] = outputs.length;
-            }
-            const result = context.parse(value, i, outputType);
-            if (!result)
-                return null;
-            outputType = outputType || result.type;
-            outputs.push(result);
-        }
-        const input = context.parse(args[1], 1, ValueType);
-        if (!input)
-            return null;
-        const otherwise = context.parse(args[args.length - 1], args.length - 1, outputType);
-        if (!otherwise)
-            return null;
-        if (input.type.kind !== 'value' && context.concat(1).checkSubtype(inputType, input.type)) {
-            return null;
-        }
-        return new Match(inputType, outputType, input, cases, outputs, otherwise);
-    }
-    evaluate(ctx) {
-        const input = this.input.evaluate(ctx);
-        const output = (typeOf(input) === this.inputType && this.outputs[this.cases[input]]) || this.otherwise;
-        return output.evaluate(ctx);
-    }
-    eachChild(fn) {
-        fn(this.input);
-        this.outputs.forEach(fn);
-        fn(this.otherwise);
-    }
-    outputDefined() {
-        return this.outputs.every(out => out.outputDefined()) && this.otherwise.outputDefined();
-    }
-}
-
-class Case {
-    constructor(type, branches, otherwise) {
-        this.type = type;
-        this.branches = branches;
-        this.otherwise = otherwise;
-    }
-    static parse(args, context) {
-        if (args.length < 4)
-            return context.error(`Expected at least 3 arguments, but found only ${args.length - 1}.`);
-        if (args.length % 2 !== 0)
-            return context.error('Expected an odd number of arguments.');
-        let outputType;
-        if (context.expectedType && context.expectedType.kind !== 'value') {
-            outputType = context.expectedType;
-        }
-        const branches = [];
-        for (let i = 1; i < args.length - 1; i += 2) {
-            const test = context.parse(args[i], i, BooleanType);
-            if (!test)
-                return null;
-            const result = context.parse(args[i + 1], i + 1, outputType);
-            if (!result)
-                return null;
-            branches.push([test, result]);
-            outputType = outputType || result.type;
-        }
-        const otherwise = context.parse(args[args.length - 1], args.length - 1, outputType);
-        if (!otherwise)
-            return null;
-        if (!outputType)
-            throw new Error('Can\'t infer output type');
-        return new Case(outputType, branches, otherwise);
-    }
-    evaluate(ctx) {
-        for (const [test, expression] of this.branches) {
-            if (test.evaluate(ctx)) {
-                return expression.evaluate(ctx);
-            }
-        }
-        return this.otherwise.evaluate(ctx);
-    }
-    eachChild(fn) {
-        for (const [test, expression] of this.branches) {
-            fn(test);
-            fn(expression);
-        }
-        fn(this.otherwise);
-    }
-    outputDefined() {
-        return this.branches.every(([_, out]) => out.outputDefined()) && this.otherwise.outputDefined();
-    }
-}
-
-class Slice {
-    constructor(type, input, beginIndex, endIndex) {
-        this.type = type;
-        this.input = input;
-        this.beginIndex = beginIndex;
-        this.endIndex = endIndex;
-    }
-    static parse(args, context) {
-        if (args.length <= 2 || args.length >= 5) {
-            return context.error(`Expected 3 or 4 arguments, but found ${args.length - 1} instead.`);
-        }
-        const input = context.parse(args[1], 1, ValueType);
-        const beginIndex = context.parse(args[2], 2, NumberType);
-        if (!input || !beginIndex)
-            return null;
-        if (!isValidType(input.type, [array$1(ValueType), StringType, ValueType])) {
-            return context.error(`Expected first argument to be of type array or string, but found ${toString$1(input.type)} instead`);
-        }
-        if (args.length === 4) {
-            const endIndex = context.parse(args[3], 3, NumberType);
-            if (!endIndex)
-                return null;
-            return new Slice(input.type, input, beginIndex, endIndex);
-        }
-        else {
-            return new Slice(input.type, input, beginIndex);
-        }
-    }
-    evaluate(ctx) {
-        const input = this.input.evaluate(ctx);
-        const beginIndex = this.beginIndex.evaluate(ctx);
-        if (!isValidNativeType(input, ['string', 'array'])) {
-            throw new RuntimeError(`Expected first argument to be of type array or string, but found ${toString$1(typeOf(input))} instead.`);
-        }
-        if (this.endIndex) {
-            const endIndex = this.endIndex.evaluate(ctx);
-            return input.slice(beginIndex, endIndex);
-        }
-        return input.slice(beginIndex);
-    }
-    eachChild(fn) {
-        fn(this.input);
-        fn(this.beginIndex);
-        if (this.endIndex) {
-            fn(this.endIndex);
-        }
-    }
-    outputDefined() {
-        return false;
-    }
-}
-
 function isComparableType(op, type) {
     if (op === '==' || op === '!=') {
         // equality operator
@@ -8163,6 +7580,52 @@ const LessThan = makeComparison('<', lt, ltCollate);
 const GreaterThan = makeComparison('>', gt, gtCollate);
 const LessThanOrEqual = makeComparison('<=', lteq, lteqCollate);
 const GreaterThanOrEqual = makeComparison('>=', gteq, gteqCollate);
+
+class CollatorExpression {
+    constructor(caseSensitive, diacriticSensitive, locale) {
+        this.type = CollatorType;
+        this.locale = locale;
+        this.caseSensitive = caseSensitive;
+        this.diacriticSensitive = diacriticSensitive;
+    }
+    static parse(args, context) {
+        if (args.length !== 2)
+            return context.error('Expected one argument.');
+        const options = args[1];
+        if (typeof options !== 'object' || Array.isArray(options))
+            return context.error('Collator options argument must be an object.');
+        const caseSensitive = context.parse(options['case-sensitive'] === undefined ? false : options['case-sensitive'], 1, BooleanType);
+        if (!caseSensitive)
+            return null;
+        const diacriticSensitive = context.parse(options['diacritic-sensitive'] === undefined ? false : options['diacritic-sensitive'], 1, BooleanType);
+        if (!diacriticSensitive)
+            return null;
+        let locale = null;
+        if (options['locale']) {
+            locale = context.parse(options['locale'], 1, StringType);
+            if (!locale)
+                return null;
+        }
+        return new CollatorExpression(caseSensitive, diacriticSensitive, locale);
+    }
+    evaluate(ctx) {
+        return new Collator(this.caseSensitive.evaluate(ctx), this.diacriticSensitive.evaluate(ctx), this.locale ? this.locale.evaluate(ctx) : null);
+    }
+    eachChild(fn) {
+        fn(this.caseSensitive);
+        fn(this.diacriticSensitive);
+        if (this.locale) {
+            fn(this.locale);
+        }
+    }
+    outputDefined() {
+        // Technically the set of possible outputs is the combinatoric set of Collators produced
+        // by all possible outputs of locale/caseSensitive/diacriticSensitive
+        // But for the primary use of Collators in comparison operators, we ignore the Collator's
+        // possible outputs anyway, so we can get away with leaving this false for now.
+        return false;
+    }
+}
 
 class NumberFormat {
     constructor(number, locale, currency, minFractionDigits, maxFractionDigits) {
@@ -8387,6 +7850,1115 @@ class Length {
     }
 }
 
+const EXTENT$1 = 8192;
+function getTileCoordinates(p, canonical) {
+    const x = mercatorXfromLng$1(p[0]);
+    const y = mercatorYfromLat$1(p[1]);
+    const tilesAtZoom = Math.pow(2, canonical.z);
+    return [Math.round(x * tilesAtZoom * EXTENT$1), Math.round(y * tilesAtZoom * EXTENT$1)];
+}
+function getLngLatFromTileCoord(coord, canonical) {
+    const tilesAtZoom = Math.pow(2, canonical.z);
+    const x = (coord[0] / EXTENT$1 + canonical.x) / tilesAtZoom;
+    const y = (coord[1] / EXTENT$1 + canonical.y) / tilesAtZoom;
+    return [lngFromMercatorXfromLng(x), latFromMercatorY$1(y)];
+}
+function mercatorXfromLng$1(lng) {
+    return (180 + lng) / 360;
+}
+function lngFromMercatorXfromLng(mercatorX) {
+    return mercatorX * 360 - 180;
+}
+function mercatorYfromLat$1(lat) {
+    return (180 - (180 / Math.PI * Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360)))) / 360;
+}
+function latFromMercatorY$1(mercatorY) {
+    return 360 / Math.PI * Math.atan(Math.exp((180 - mercatorY * 360) * Math.PI / 180)) - 90;
+}
+function updateBBox(bbox, coord) {
+    bbox[0] = Math.min(bbox[0], coord[0]);
+    bbox[1] = Math.min(bbox[1], coord[1]);
+    bbox[2] = Math.max(bbox[2], coord[0]);
+    bbox[3] = Math.max(bbox[3], coord[1]);
+}
+function boxWithinBox(bbox1, bbox2) {
+    if (bbox1[0] <= bbox2[0])
+        return false;
+    if (bbox1[2] >= bbox2[2])
+        return false;
+    if (bbox1[1] <= bbox2[1])
+        return false;
+    if (bbox1[3] >= bbox2[3])
+        return false;
+    return true;
+}
+function rayIntersect(p, p1, p2) {
+    return ((p1[1] > p[1]) !== (p2[1] > p[1])) && (p[0] < (p2[0] - p1[0]) * (p[1] - p1[1]) / (p2[1] - p1[1]) + p1[0]);
+}
+function pointOnBoundary(p, p1, p2) {
+    const x1 = p[0] - p1[0];
+    const y1 = p[1] - p1[1];
+    const x2 = p[0] - p2[0];
+    const y2 = p[1] - p2[1];
+    return (x1 * y2 - x2 * y1 === 0) && (x1 * x2 <= 0) && (y1 * y2 <= 0);
+}
+// a, b are end points for line segment1, c and d are end points for line segment2
+function segmentIntersectSegment(a, b, c, d) {
+    // check if two segments are parallel or not
+    // precondition is end point a, b is inside polygon, if line a->b is
+    // parallel to polygon edge c->d, then a->b won't intersect with c->d
+    const vectorP = [b[0] - a[0], b[1] - a[1]];
+    const vectorQ = [d[0] - c[0], d[1] - c[1]];
+    if (perp(vectorQ, vectorP) === 0)
+        return false;
+    // If lines are intersecting with each other, the relative location should be:
+    // a and b lie in different sides of segment c->d
+    // c and d lie in different sides of segment a->b
+    if (twoSided(a, b, c, d) && twoSided(c, d, a, b))
+        return true;
+    return false;
+}
+function lineIntersectPolygon(p1, p2, polygon) {
+    for (const ring of polygon) {
+        // loop through every edge of the ring
+        for (let j = 0; j < ring.length - 1; ++j) {
+            if (segmentIntersectSegment(p1, p2, ring[j], ring[j + 1])) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+// ray casting algorithm for detecting if point is in polygon
+function pointWithinPolygon(point, rings, trueIfOnBoundary = false) {
+    let inside = false;
+    for (const ring of rings) {
+        for (let j = 0; j < ring.length - 1; j++) {
+            if (pointOnBoundary(point, ring[j], ring[j + 1]))
+                return trueIfOnBoundary;
+            if (rayIntersect(point, ring[j], ring[j + 1]))
+                inside = !inside;
+        }
+    }
+    return inside;
+}
+function pointWithinPolygons(point, polygons) {
+    for (const polygon of polygons) {
+        if (pointWithinPolygon(point, polygon))
+            return true;
+    }
+    return false;
+}
+function lineStringWithinPolygon(line, polygon) {
+    // First, check if geometry points of line segments are all inside polygon
+    for (const point of line) {
+        if (!pointWithinPolygon(point, polygon)) {
+            return false;
+        }
+    }
+    // Second, check if there is line segment intersecting polygon edge
+    for (let i = 0; i < line.length - 1; ++i) {
+        if (lineIntersectPolygon(line[i], line[i + 1], polygon)) {
+            return false;
+        }
+    }
+    return true;
+}
+function lineStringWithinPolygons(line, polygons) {
+    for (const polygon of polygons) {
+        if (lineStringWithinPolygon(line, polygon))
+            return true;
+    }
+    return false;
+}
+function perp(v1, v2) {
+    return (v1[0] * v2[1] - v1[1] * v2[0]);
+}
+// check if p1 and p2 are in different sides of line segment q1->q2
+function twoSided(p1, p2, q1, q2) {
+    // q1->p1 (x1, y1), q1->p2 (x2, y2), q1->q2 (x3, y3)
+    const x1 = p1[0] - q1[0];
+    const y1 = p1[1] - q1[1];
+    const x2 = p2[0] - q1[0];
+    const y2 = p2[1] - q1[1];
+    const x3 = q2[0] - q1[0];
+    const y3 = q2[1] - q1[1];
+    const det1 = (x1 * y3 - x3 * y1);
+    const det2 = (x2 * y3 - x3 * y2);
+    if ((det1 > 0 && det2 < 0) || (det1 < 0 && det2 > 0))
+        return true;
+    return false;
+}
+
+function getTilePolygon(coordinates, bbox, canonical) {
+    const polygon = [];
+    for (let i = 0; i < coordinates.length; i++) {
+        const ring = [];
+        for (let j = 0; j < coordinates[i].length; j++) {
+            const coord = getTileCoordinates(coordinates[i][j], canonical);
+            updateBBox(bbox, coord);
+            ring.push(coord);
+        }
+        polygon.push(ring);
+    }
+    return polygon;
+}
+function getTilePolygons(coordinates, bbox, canonical) {
+    const polygons = [];
+    for (let i = 0; i < coordinates.length; i++) {
+        const polygon = getTilePolygon(coordinates[i], bbox, canonical);
+        polygons.push(polygon);
+    }
+    return polygons;
+}
+function updatePoint(p, bbox, polyBBox, worldSize) {
+    if (p[0] < polyBBox[0] || p[0] > polyBBox[2]) {
+        const halfWorldSize = worldSize * 0.5;
+        let shift = (p[0] - polyBBox[0] > halfWorldSize) ? -worldSize : (polyBBox[0] - p[0] > halfWorldSize) ? worldSize : 0;
+        if (shift === 0) {
+            shift = (p[0] - polyBBox[2] > halfWorldSize) ? -worldSize : (polyBBox[2] - p[0] > halfWorldSize) ? worldSize : 0;
+        }
+        p[0] += shift;
+    }
+    updateBBox(bbox, p);
+}
+function resetBBox(bbox) {
+    bbox[0] = bbox[1] = Infinity;
+    bbox[2] = bbox[3] = -Infinity;
+}
+function getTilePoints(geometry, pointBBox, polyBBox, canonical) {
+    const worldSize = Math.pow(2, canonical.z) * EXTENT$1;
+    const shifts = [canonical.x * EXTENT$1, canonical.y * EXTENT$1];
+    const tilePoints = [];
+    for (const points of geometry) {
+        for (const point of points) {
+            const p = [point.x + shifts[0], point.y + shifts[1]];
+            updatePoint(p, pointBBox, polyBBox, worldSize);
+            tilePoints.push(p);
+        }
+    }
+    return tilePoints;
+}
+function getTileLines(geometry, lineBBox, polyBBox, canonical) {
+    const worldSize = Math.pow(2, canonical.z) * EXTENT$1;
+    const shifts = [canonical.x * EXTENT$1, canonical.y * EXTENT$1];
+    const tileLines = [];
+    for (const line of geometry) {
+        const tileLine = [];
+        for (const point of line) {
+            const p = [point.x + shifts[0], point.y + shifts[1]];
+            updateBBox(lineBBox, p);
+            tileLine.push(p);
+        }
+        tileLines.push(tileLine);
+    }
+    if (lineBBox[2] - lineBBox[0] <= worldSize / 2) {
+        resetBBox(lineBBox);
+        for (const line of tileLines) {
+            for (const p of line) {
+                updatePoint(p, lineBBox, polyBBox, worldSize);
+            }
+        }
+    }
+    return tileLines;
+}
+function pointsWithinPolygons(ctx, polygonGeometry) {
+    const pointBBox = [Infinity, Infinity, -Infinity, -Infinity];
+    const polyBBox = [Infinity, Infinity, -Infinity, -Infinity];
+    const canonical = ctx.canonicalID();
+    if (polygonGeometry.type === 'Polygon') {
+        const tilePolygon = getTilePolygon(polygonGeometry.coordinates, polyBBox, canonical);
+        const tilePoints = getTilePoints(ctx.geometry(), pointBBox, polyBBox, canonical);
+        if (!boxWithinBox(pointBBox, polyBBox))
+            return false;
+        for (const point of tilePoints) {
+            if (!pointWithinPolygon(point, tilePolygon))
+                return false;
+        }
+    }
+    if (polygonGeometry.type === 'MultiPolygon') {
+        const tilePolygons = getTilePolygons(polygonGeometry.coordinates, polyBBox, canonical);
+        const tilePoints = getTilePoints(ctx.geometry(), pointBBox, polyBBox, canonical);
+        if (!boxWithinBox(pointBBox, polyBBox))
+            return false;
+        for (const point of tilePoints) {
+            if (!pointWithinPolygons(point, tilePolygons))
+                return false;
+        }
+    }
+    return true;
+}
+function linesWithinPolygons(ctx, polygonGeometry) {
+    const lineBBox = [Infinity, Infinity, -Infinity, -Infinity];
+    const polyBBox = [Infinity, Infinity, -Infinity, -Infinity];
+    const canonical = ctx.canonicalID();
+    if (polygonGeometry.type === 'Polygon') {
+        const tilePolygon = getTilePolygon(polygonGeometry.coordinates, polyBBox, canonical);
+        const tileLines = getTileLines(ctx.geometry(), lineBBox, polyBBox, canonical);
+        if (!boxWithinBox(lineBBox, polyBBox))
+            return false;
+        for (const line of tileLines) {
+            if (!lineStringWithinPolygon(line, tilePolygon))
+                return false;
+        }
+    }
+    if (polygonGeometry.type === 'MultiPolygon') {
+        const tilePolygons = getTilePolygons(polygonGeometry.coordinates, polyBBox, canonical);
+        const tileLines = getTileLines(ctx.geometry(), lineBBox, polyBBox, canonical);
+        if (!boxWithinBox(lineBBox, polyBBox))
+            return false;
+        for (const line of tileLines) {
+            if (!lineStringWithinPolygons(line, tilePolygons))
+                return false;
+        }
+    }
+    return true;
+}
+class Within {
+    constructor(geojson, geometries) {
+        this.type = BooleanType;
+        this.geojson = geojson;
+        this.geometries = geometries;
+    }
+    static parse(args, context) {
+        if (args.length !== 2)
+            return context.error(`'within' expression requires exactly one argument, but found ${args.length - 1} instead.`);
+        if (isValue(args[1])) {
+            const geojson = args[1];
+            if (geojson.type === 'FeatureCollection') {
+                const polygonsCoords = [];
+                for (const polygon of geojson.features) {
+                    const { type, coordinates } = polygon.geometry;
+                    if (type === 'Polygon') {
+                        polygonsCoords.push(coordinates);
+                    }
+                    if (type === 'MultiPolygon') {
+                        polygonsCoords.push(...coordinates);
+                    }
+                }
+                if (polygonsCoords.length) {
+                    const multipolygonWrapper = {
+                        type: 'MultiPolygon',
+                        coordinates: polygonsCoords
+                    };
+                    return new Within(geojson, multipolygonWrapper);
+                }
+            }
+            else if (geojson.type === 'Feature') {
+                const type = geojson.geometry.type;
+                if (type === 'Polygon' || type === 'MultiPolygon') {
+                    return new Within(geojson, geojson.geometry);
+                }
+            }
+            else if (geojson.type === 'Polygon' || geojson.type === 'MultiPolygon') {
+                return new Within(geojson, geojson);
+            }
+        }
+        return context.error('\'within\' expression requires valid geojson object that contains polygon geometry type.');
+    }
+    evaluate(ctx) {
+        if (ctx.geometry() != null && ctx.canonicalID() != null) {
+            if (ctx.geometryType() === 'Point') {
+                return pointsWithinPolygons(ctx, this.geometries);
+            }
+            else if (ctx.geometryType() === 'LineString') {
+                return linesWithinPolygons(ctx, this.geometries);
+            }
+        }
+        return false;
+    }
+    eachChild() { }
+    outputDefined() {
+        return true;
+    }
+}
+
+let TinyQueue$1 = class TinyQueue {
+    constructor(data = [], compare = defaultCompare$1) {
+        this.data = data;
+        this.length = this.data.length;
+        this.compare = compare;
+
+        if (this.length > 0) {
+            for (let i = (this.length >> 1) - 1; i >= 0; i--) this._down(i);
+        }
+    }
+
+    push(item) {
+        this.data.push(item);
+        this.length++;
+        this._up(this.length - 1);
+    }
+
+    pop() {
+        if (this.length === 0) return undefined;
+
+        const top = this.data[0];
+        const bottom = this.data.pop();
+        this.length--;
+
+        if (this.length > 0) {
+            this.data[0] = bottom;
+            this._down(0);
+        }
+
+        return top;
+    }
+
+    peek() {
+        return this.data[0];
+    }
+
+    _up(pos) {
+        const {data, compare} = this;
+        const item = data[pos];
+
+        while (pos > 0) {
+            const parent = (pos - 1) >> 1;
+            const current = data[parent];
+            if (compare(item, current) >= 0) break;
+            data[pos] = current;
+            pos = parent;
+        }
+
+        data[pos] = item;
+    }
+
+    _down(pos) {
+        const {data, compare} = this;
+        const halfLength = this.length >> 1;
+        const item = data[pos];
+
+        while (pos < halfLength) {
+            let left = (pos << 1) + 1;
+            let best = data[left];
+            const right = left + 1;
+
+            if (right < this.length && compare(data[right], best) < 0) {
+                left = right;
+                best = data[right];
+            }
+            if (compare(best, item) >= 0) break;
+
+            data[pos] = best;
+            pos = left;
+        }
+
+        data[pos] = item;
+    }
+};
+
+function defaultCompare$1(a, b) {
+    return a < b ? -1 : a > b ? 1 : 0;
+}
+
+function quickselect(arr, k, left, right, compare) {
+    quickselectStep(arr, k, left , right || (arr.length - 1), compare || defaultCompare$2);
+}
+
+function quickselectStep(arr, k, left, right, compare) {
+
+    while (right > left) {
+        if (right - left > 600) {
+            var n = right - left + 1;
+            var m = k - left + 1;
+            var z = Math.log(n);
+            var s = 0.5 * Math.exp(2 * z / 3);
+            var sd = 0.5 * Math.sqrt(z * s * (n - s) / n) * (m - n / 2 < 0 ? -1 : 1);
+            var newLeft = Math.max(left, Math.floor(k - m * s / n + sd));
+            var newRight = Math.min(right, Math.floor(k + (n - m) * s / n + sd));
+            quickselectStep(arr, k, newLeft, newRight, compare);
+        }
+
+        var t = arr[k];
+        var i = left;
+        var j = right;
+
+        swap$2(arr, left, k);
+        if (compare(arr[right], t) > 0) swap$2(arr, left, right);
+
+        while (i < j) {
+            swap$2(arr, i, j);
+            i++;
+            j--;
+            while (compare(arr[i], t) < 0) i++;
+            while (compare(arr[j], t) > 0) j--;
+        }
+
+        if (compare(arr[left], t) === 0) swap$2(arr, left, j);
+        else {
+            j++;
+            swap$2(arr, j, right);
+        }
+
+        if (j <= k) left = j + 1;
+        if (k <= j) right = j - 1;
+    }
+}
+
+function swap$2(arr, i, j) {
+    var tmp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = tmp;
+}
+
+function defaultCompare$2(a, b) {
+    return a < b ? -1 : a > b ? 1 : 0;
+}
+
+/**
+ * Classifies an array of rings into polygons with outer rings and holes
+ * @param rings - the rings to classify
+ * @param maxRings - the maximum number of rings to include in a polygon, use 0 to include all rings
+ * @returns an array of polygons with internal rings as holes
+ */
+function classifyRings$1(rings, maxRings) {
+    const len = rings.length;
+    if (len <= 1)
+        return [rings];
+    const polygons = [];
+    let polygon;
+    let ccw;
+    for (const ring of rings) {
+        const area = calculateSignedArea(ring);
+        if (area === 0)
+            continue;
+        ring.area = Math.abs(area);
+        if (ccw === undefined)
+            ccw = area < 0;
+        if (ccw === area < 0) {
+            if (polygon)
+                polygons.push(polygon);
+            polygon = [ring];
+        }
+        else {
+            polygon.push(ring);
+        }
+    }
+    if (polygon)
+        polygons.push(polygon);
+    // Earcut performance degrades with the # of rings in a polygon. For this
+    // reason, we limit strip out all but the `maxRings` largest rings.
+    if (maxRings > 1) {
+        for (let j = 0; j < polygons.length; j++) {
+            if (polygons[j].length <= maxRings)
+                continue;
+            quickselect(polygons[j], maxRings, 1, polygons[j].length - 1, compareAreas);
+            polygons[j] = polygons[j].slice(0, maxRings);
+        }
+    }
+    return polygons;
+}
+function compareAreas(a, b) {
+    return b.area - a.area;
+}
+/**
+ * Returns the signed area for the polygon ring.  Positive areas are exterior rings and
+ * have a clockwise winding.  Negative areas are interior rings and have a counter clockwise
+ * ordering.
+ *
+ * @param ring - Exterior or interior ring
+ * @returns Signed area
+ */
+function calculateSignedArea(ring) {
+    let sum = 0;
+    for (let i = 0, len = ring.length, j = len - 1, p1, p2; i < len; j = i++) {
+        p1 = ring[i];
+        p2 = ring[j];
+        sum += (p2.x - p1.x) * (p1.y + p2.y);
+    }
+    return sum;
+}
+
+// This is taken from https://github.com/mapbox/cheap-ruler/ in order to take only the relevant parts
+// Values that define WGS84 ellipsoid model of the Earth
+const RE = 6378.137; // equatorial radius
+const FE = 1 / 298.257223563; // flattening
+const E2 = FE * (2 - FE);
+const RAD = Math.PI / 180;
+class CheapRuler {
+    constructor(lat) {
+        // Curvature formulas from https://en.wikipedia.org/wiki/Earth_radius#Meridional
+        const m = RAD * RE * 1000;
+        const coslat = Math.cos(lat * RAD);
+        const w2 = 1 / (1 - E2 * (1 - coslat * coslat));
+        const w = Math.sqrt(w2);
+        // multipliers for converting longitude and latitude degrees into distance
+        this.kx = m * w * coslat; // based on normal radius of curvature
+        this.ky = m * w * w2 * (1 - E2); // based on meridonal radius of curvature
+    }
+    /**
+     * Given two points of the form [longitude, latitude], returns the distance.
+     *
+     * @param a - point [longitude, latitude]
+     * @param b - point [longitude, latitude]
+     * @returns distance
+     * @example
+     * const distance = ruler.distance([30.5, 50.5], [30.51, 50.49]);
+     * //=distance
+     */
+    distance(a, b) {
+        const dx = this.wrap(a[0] - b[0]) * this.kx;
+        const dy = (a[1] - b[1]) * this.ky;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+    /**
+     * Returns an object of the form {point, index, t}, where point is closest point on the line
+     * from the given point, index is the start index of the segment with the closest point,
+     * and t is a parameter from 0 to 1 that indicates where the closest point is on that segment.
+     *
+     * @param line - an array of points that form the line
+     * @param p - point [longitude, latitude]
+     * @returns the nearest point, its index in the array and the proportion along the line
+     * @example
+     * const point = ruler.pointOnLine(line, [-67.04, 50.5]).point;
+     * //=point
+     */
+    pointOnLine(line, p) {
+        let minDist = Infinity;
+        let minX, minY, minI, minT;
+        for (let i = 0; i < line.length - 1; i++) {
+            let x = line[i][0];
+            let y = line[i][1];
+            let dx = this.wrap(line[i + 1][0] - x) * this.kx;
+            let dy = (line[i + 1][1] - y) * this.ky;
+            let t = 0;
+            if (dx !== 0 || dy !== 0) {
+                t = (this.wrap(p[0] - x) * this.kx * dx + (p[1] - y) * this.ky * dy) / (dx * dx + dy * dy);
+                if (t > 1) {
+                    x = line[i + 1][0];
+                    y = line[i + 1][1];
+                }
+                else if (t > 0) {
+                    x += (dx / this.kx) * t;
+                    y += (dy / this.ky) * t;
+                }
+            }
+            dx = this.wrap(p[0] - x) * this.kx;
+            dy = (p[1] - y) * this.ky;
+            const sqDist = dx * dx + dy * dy;
+            if (sqDist < minDist) {
+                minDist = sqDist;
+                minX = x;
+                minY = y;
+                minI = i;
+                minT = t;
+            }
+        }
+        return {
+            point: [minX, minY],
+            index: minI,
+            t: Math.max(0, Math.min(1, minT))
+        };
+    }
+    wrap(deg) {
+        while (deg < -180)
+            deg += 360;
+        while (deg > 180)
+            deg -= 360;
+        return deg;
+    }
+}
+
+const MinPointsSize = 100;
+const MinLinePointsSize = 50;
+function compareDistPair(a, b) {
+    return b[0] - a[0];
+}
+function getRangeSize(range) {
+    return range[1] - range[0] + 1;
+}
+function isRangeSafe(range, threshold) {
+    return range[1] >= range[0] && range[1] < threshold;
+}
+function splitRange(range, isLine) {
+    if (range[0] > range[1]) {
+        return [null, null];
+    }
+    const size = getRangeSize(range);
+    if (isLine) {
+        if (size === 2) {
+            return [range, null];
+        }
+        const size1 = Math.floor(size / 2);
+        return [[range[0], range[0] + size1],
+            [range[0] + size1, range[1]]];
+    }
+    if (size === 1) {
+        return [range, null];
+    }
+    const size1 = Math.floor(size / 2) - 1;
+    return [[range[0], range[0] + size1],
+        [range[0] + size1 + 1, range[1]]];
+}
+function getBBox(coords, range) {
+    if (!isRangeSafe(range, coords.length)) {
+        return [Infinity, Infinity, -Infinity, -Infinity];
+    }
+    const bbox = [Infinity, Infinity, -Infinity, -Infinity];
+    for (let i = range[0]; i <= range[1]; ++i) {
+        updateBBox(bbox, coords[i]);
+    }
+    return bbox;
+}
+function getPolygonBBox(polygon) {
+    const bbox = [Infinity, Infinity, -Infinity, -Infinity];
+    for (const ring of polygon) {
+        for (const coord of ring) {
+            updateBBox(bbox, coord);
+        }
+    }
+    return bbox;
+}
+function isValidBBox(bbox) {
+    return bbox[0] !== -Infinity && bbox[1] !== -Infinity && bbox[2] !== Infinity && bbox[3] !== Infinity;
+}
+// Calculate the distance between two bounding boxes.
+// Calculate the delta in x and y direction, and use two fake points {0.0, 0.0}
+// and {dx, dy} to calculate the distance. Distance will be 0.0 if bounding box are overlapping.
+function bboxToBBoxDistance(bbox1, bbox2, ruler) {
+    if (!isValidBBox(bbox1) || !isValidBBox(bbox2)) {
+        return NaN;
+    }
+    let dx = 0.0;
+    let dy = 0.0;
+    // bbox1 in left side
+    if (bbox1[2] < bbox2[0]) {
+        dx = bbox2[0] - bbox1[2];
+    }
+    // bbox1 in right side
+    if (bbox1[0] > bbox2[2]) {
+        dx = bbox1[0] - bbox2[2];
+    }
+    // bbox1 in above side
+    if (bbox1[1] > bbox2[3]) {
+        dy = bbox1[1] - bbox2[3];
+    }
+    // bbox1 in down side
+    if (bbox1[3] < bbox2[1]) {
+        dy = bbox2[1] - bbox1[3];
+    }
+    return ruler.distance([0.0, 0.0], [dx, dy]);
+}
+function pointToLineDistance(point, line, ruler) {
+    const nearestPoint = ruler.pointOnLine(line, point);
+    return ruler.distance(point, nearestPoint.point);
+}
+function segmentToSegmentDistance(p1, p2, q1, q2, ruler) {
+    const dist1 = Math.min(pointToLineDistance(p1, [q1, q2], ruler), pointToLineDistance(p2, [q1, q2], ruler));
+    const dist2 = Math.min(pointToLineDistance(q1, [p1, p2], ruler), pointToLineDistance(q2, [p1, p2], ruler));
+    return Math.min(dist1, dist2);
+}
+function lineToLineDistance(line1, range1, line2, range2, ruler) {
+    const rangeSafe = isRangeSafe(range1, line1.length) && isRangeSafe(range2, line2.length);
+    if (!rangeSafe) {
+        return Infinity;
+    }
+    let dist = Infinity;
+    for (let i = range1[0]; i < range1[1]; ++i) {
+        const p1 = line1[i];
+        const p2 = line1[i + 1];
+        for (let j = range2[0]; j < range2[1]; ++j) {
+            const q1 = line2[j];
+            const q2 = line2[j + 1];
+            if (segmentIntersectSegment(p1, p2, q1, q2)) {
+                return 0.0;
+            }
+            dist = Math.min(dist, segmentToSegmentDistance(p1, p2, q1, q2, ruler));
+        }
+    }
+    return dist;
+}
+function pointsToPointsDistance(points1, range1, points2, range2, ruler) {
+    const rangeSafe = isRangeSafe(range1, points1.length) && isRangeSafe(range2, points2.length);
+    if (!rangeSafe) {
+        return NaN;
+    }
+    let dist = Infinity;
+    for (let i = range1[0]; i <= range1[1]; ++i) {
+        for (let j = range2[0]; j <= range2[1]; ++j) {
+            dist = Math.min(dist, ruler.distance(points1[i], points2[j]));
+            if (dist === 0.0) {
+                return dist;
+            }
+        }
+    }
+    return dist;
+}
+function pointToPolygonDistance(point, polygon, ruler) {
+    if (pointWithinPolygon(point, polygon, true)) {
+        return 0.0;
+    }
+    let dist = Infinity;
+    for (const ring of polygon) {
+        const front = ring[0];
+        const back = ring[ring.length - 1];
+        if (front !== back) {
+            dist = Math.min(dist, pointToLineDistance(point, [back, front], ruler));
+            if (dist === 0.0) {
+                return dist;
+            }
+        }
+        const nearestPoint = ruler.pointOnLine(ring, point);
+        dist = Math.min(dist, ruler.distance(point, nearestPoint.point));
+        if (dist === 0.0) {
+            return dist;
+        }
+    }
+    return dist;
+}
+function lineToPolygonDistance(line, range, polygon, ruler) {
+    if (!isRangeSafe(range, line.length)) {
+        return NaN;
+    }
+    for (let i = range[0]; i <= range[1]; ++i) {
+        if (pointWithinPolygon(line[i], polygon, true)) {
+            return 0.0;
+        }
+    }
+    let dist = Infinity;
+    for (let i = range[0]; i < range[1]; ++i) {
+        const p1 = line[i];
+        const p2 = line[i + 1];
+        for (const ring of polygon) {
+            for (let j = 0, len = ring.length, k = len - 1; j < len; k = j++) {
+                const q1 = ring[k];
+                const q2 = ring[j];
+                if (segmentIntersectSegment(p1, p2, q1, q2)) {
+                    return 0.0;
+                }
+                dist = Math.min(dist, segmentToSegmentDistance(p1, p2, q1, q2, ruler));
+            }
+        }
+    }
+    return dist;
+}
+function polygonIntersect(poly1, poly2) {
+    for (const ring of poly1) {
+        for (const point of ring) {
+            if (pointWithinPolygon(point, poly2, true)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+function polygonToPolygonDistance(polygon1, polygon2, ruler, currentMiniDist = Infinity) {
+    const bbox1 = getPolygonBBox(polygon1);
+    const bbox2 = getPolygonBBox(polygon2);
+    if (currentMiniDist !== Infinity && bboxToBBoxDistance(bbox1, bbox2, ruler) >= currentMiniDist) {
+        return currentMiniDist;
+    }
+    if (boxWithinBox(bbox1, bbox2)) {
+        if (polygonIntersect(polygon1, polygon2)) {
+            return 0.0;
+        }
+    }
+    else if (polygonIntersect(polygon2, polygon1)) {
+        return 0.0;
+    }
+    let dist = Infinity;
+    for (const ring1 of polygon1) {
+        for (let i = 0, len1 = ring1.length, l = len1 - 1; i < len1; l = i++) {
+            const p1 = ring1[l];
+            const p2 = ring1[i];
+            for (const ring2 of polygon2) {
+                for (let j = 0, len2 = ring2.length, k = len2 - 1; j < len2; k = j++) {
+                    const q1 = ring2[k];
+                    const q2 = ring2[j];
+                    if (segmentIntersectSegment(p1, p2, q1, q2)) {
+                        return 0.0;
+                    }
+                    dist = Math.min(dist, segmentToSegmentDistance(p1, p2, q1, q2, ruler));
+                }
+            }
+        }
+    }
+    return dist;
+}
+function updateQueue(distQueue, miniDist, ruler, points, polyBBox, rangeA) {
+    if (!rangeA) {
+        return;
+    }
+    const tempDist = bboxToBBoxDistance(getBBox(points, rangeA), polyBBox, ruler);
+    // Insert new pair to the queue if the bbox distance is less than
+    // miniDist, The pair with biggest distance will be at the top
+    if (tempDist < miniDist) {
+        distQueue.push([tempDist, rangeA, [0, 0]]);
+    }
+}
+function updateQueueTwoSets(distQueue, miniDist, ruler, pointSet1, pointSet2, range1, range2) {
+    if (!range1 || !range2) {
+        return;
+    }
+    const tempDist = bboxToBBoxDistance(getBBox(pointSet1, range1), getBBox(pointSet2, range2), ruler);
+    // Insert new pair to the queue if the bbox distance is less than
+    // miniDist, The pair with biggest distance will be at the top
+    if (tempDist < miniDist) {
+        distQueue.push([tempDist, range1, range2]);
+    }
+}
+// Divide and conquer, the time complexity is O(n*lgn), faster than Brute force
+// O(n*n) Most of the time, use index for in-place processing.
+function pointsToPolygonDistance(points, isLine, polygon, ruler, currentMiniDist = Infinity) {
+    let miniDist = Math.min(ruler.distance(points[0], polygon[0][0]), currentMiniDist);
+    if (miniDist === 0.0) {
+        return miniDist;
+    }
+    const distQueue = new TinyQueue$1([[0, [0, points.length - 1], [0, 0]]], compareDistPair);
+    const polyBBox = getPolygonBBox(polygon);
+    while (distQueue.length > 0) {
+        const distPair = distQueue.pop();
+        if (distPair[0] >= miniDist) {
+            continue;
+        }
+        const range = distPair[1];
+        // In case the set size are relatively small, we could use brute-force directly
+        const threshold = isLine ? MinLinePointsSize : MinPointsSize;
+        if (getRangeSize(range) <= threshold) {
+            if (!isRangeSafe(range, points.length)) {
+                return NaN;
+            }
+            if (isLine) {
+                const tempDist = lineToPolygonDistance(points, range, polygon, ruler);
+                if (isNaN(tempDist) || tempDist === 0.0) {
+                    return tempDist;
+                }
+                miniDist = Math.min(miniDist, tempDist);
+            }
+            else {
+                for (let i = range[0]; i <= range[1]; ++i) {
+                    const tempDist = pointToPolygonDistance(points[i], polygon, ruler);
+                    miniDist = Math.min(miniDist, tempDist);
+                    if (miniDist === 0.0) {
+                        return 0.0;
+                    }
+                }
+            }
+        }
+        else {
+            const newRangesA = splitRange(range, isLine);
+            updateQueue(distQueue, miniDist, ruler, points, polyBBox, newRangesA[0]);
+            updateQueue(distQueue, miniDist, ruler, points, polyBBox, newRangesA[1]);
+        }
+    }
+    return miniDist;
+}
+function pointSetToPointSetDistance(pointSet1, isLine1, pointSet2, isLine2, ruler, currentMiniDist = Infinity) {
+    let miniDist = Math.min(currentMiniDist, ruler.distance(pointSet1[0], pointSet2[0]));
+    if (miniDist === 0.0) {
+        return miniDist;
+    }
+    const distQueue = new TinyQueue$1([[0, [0, pointSet1.length - 1], [0, pointSet2.length - 1]]], compareDistPair);
+    while (distQueue.length > 0) {
+        const distPair = distQueue.pop();
+        if (distPair[0] >= miniDist) {
+            continue;
+        }
+        const rangeA = distPair[1];
+        const rangeB = distPair[2];
+        const threshold1 = isLine1 ? MinLinePointsSize : MinPointsSize;
+        const threshold2 = isLine2 ? MinLinePointsSize : MinPointsSize;
+        // In case the set size are relatively small, we could use brute-force directly
+        if (getRangeSize(rangeA) <= threshold1 && getRangeSize(rangeB) <= threshold2) {
+            if (!isRangeSafe(rangeA, pointSet1.length) && isRangeSafe(rangeB, pointSet2.length)) {
+                return NaN;
+            }
+            let tempDist;
+            if (isLine1 && isLine2) {
+                tempDist = lineToLineDistance(pointSet1, rangeA, pointSet2, rangeB, ruler);
+                miniDist = Math.min(miniDist, tempDist);
+            }
+            else if (isLine1 && !isLine2) {
+                const sublibe = pointSet1.slice(rangeA[0], rangeA[1] + 1);
+                for (let i = rangeB[0]; i <= rangeB[1]; ++i) {
+                    tempDist = pointToLineDistance(pointSet2[i], sublibe, ruler);
+                    miniDist = Math.min(miniDist, tempDist);
+                    if (miniDist === 0.0) {
+                        return miniDist;
+                    }
+                }
+            }
+            else if (!isLine1 && isLine2) {
+                const sublibe = pointSet2.slice(rangeB[0], rangeB[1] + 1);
+                for (let i = rangeA[0]; i <= rangeA[1]; ++i) {
+                    tempDist = pointToLineDistance(pointSet1[i], sublibe, ruler);
+                    miniDist = Math.min(miniDist, tempDist);
+                    if (miniDist === 0.0) {
+                        return miniDist;
+                    }
+                }
+            }
+            else {
+                tempDist = pointsToPointsDistance(pointSet1, rangeA, pointSet2, rangeB, ruler);
+                miniDist = Math.min(miniDist, tempDist);
+            }
+        }
+        else {
+            const newRangesA = splitRange(rangeA, isLine1);
+            const newRangesB = splitRange(rangeB, isLine2);
+            updateQueueTwoSets(distQueue, miniDist, ruler, pointSet1, pointSet2, newRangesA[0], newRangesB[0]);
+            updateQueueTwoSets(distQueue, miniDist, ruler, pointSet1, pointSet2, newRangesA[0], newRangesB[1]);
+            updateQueueTwoSets(distQueue, miniDist, ruler, pointSet1, pointSet2, newRangesA[1], newRangesB[0]);
+            updateQueueTwoSets(distQueue, miniDist, ruler, pointSet1, pointSet2, newRangesA[1], newRangesB[1]);
+        }
+    }
+    return miniDist;
+}
+function pointToGeometryDistance(ctx, geometries) {
+    const tilePoints = ctx.geometry();
+    const pointPosition = tilePoints.flat().map(p => getLngLatFromTileCoord([p.x, p.y], ctx.canonical));
+    if (tilePoints.length === 0) {
+        return NaN;
+    }
+    const ruler = new CheapRuler(pointPosition[0][1]);
+    let dist = Infinity;
+    for (const geometry of geometries) {
+        switch (geometry.type) {
+            case 'Point':
+                dist = Math.min(dist, pointSetToPointSetDistance(pointPosition, false, [geometry.coordinates], false, ruler, dist));
+                break;
+            case 'LineString':
+                dist = Math.min(dist, pointSetToPointSetDistance(pointPosition, false, geometry.coordinates, true, ruler, dist));
+                break;
+            case 'Polygon':
+                dist = Math.min(dist, pointsToPolygonDistance(pointPosition, false, geometry.coordinates, ruler, dist));
+                break;
+        }
+        if (dist === 0.0) {
+            return dist;
+        }
+    }
+    return dist;
+}
+function lineStringToGeometryDistance(ctx, geometries) {
+    const tileLine = ctx.geometry();
+    const linePositions = tileLine.flat().map(p => getLngLatFromTileCoord([p.x, p.y], ctx.canonical));
+    if (tileLine.length === 0) {
+        return NaN;
+    }
+    const ruler = new CheapRuler(linePositions[0][1]);
+    let dist = Infinity;
+    for (const geometry of geometries) {
+        switch (geometry.type) {
+            case 'Point':
+                dist = Math.min(dist, pointSetToPointSetDistance(linePositions, true, [geometry.coordinates], false, ruler, dist));
+                break;
+            case 'LineString':
+                dist = Math.min(dist, pointSetToPointSetDistance(linePositions, true, geometry.coordinates, true, ruler, dist));
+                break;
+            case 'Polygon':
+                dist = Math.min(dist, pointsToPolygonDistance(linePositions, true, geometry.coordinates, ruler, dist));
+                break;
+        }
+        if (dist === 0.0) {
+            return dist;
+        }
+    }
+    return dist;
+}
+function polygonToGeometryDistance(ctx, geometries) {
+    const tilePolygon = ctx.geometry();
+    if (tilePolygon.length === 0 || tilePolygon[0].length === 0) {
+        return NaN;
+    }
+    const polygons = classifyRings$1(tilePolygon, 0).map(polygon => {
+        return polygon.map(ring => {
+            return ring.map(p => getLngLatFromTileCoord([p.x, p.y], ctx.canonical));
+        });
+    });
+    const ruler = new CheapRuler(polygons[0][0][0][1]);
+    let dist = Infinity;
+    for (const geometry of geometries) {
+        for (const polygon of polygons) {
+            switch (geometry.type) {
+                case 'Point':
+                    dist = Math.min(dist, pointsToPolygonDistance([geometry.coordinates], false, polygon, ruler, dist));
+                    break;
+                case 'LineString':
+                    dist = Math.min(dist, pointsToPolygonDistance(geometry.coordinates, true, polygon, ruler, dist));
+                    break;
+                case 'Polygon':
+                    dist = Math.min(dist, polygonToPolygonDistance(polygon, geometry.coordinates, ruler, dist));
+                    break;
+            }
+            if (dist === 0.0) {
+                return dist;
+            }
+        }
+    }
+    return dist;
+}
+function toSimpleGeometry(geometry) {
+    if (geometry.type === 'MultiPolygon') {
+        return geometry.coordinates.map(polygon => {
+            return {
+                type: 'Polygon',
+                coordinates: polygon
+            };
+        });
+    }
+    if (geometry.type === 'MultiLineString') {
+        return geometry.coordinates.map(lineString => {
+            return {
+                type: 'LineString',
+                coordinates: lineString
+            };
+        });
+    }
+    if (geometry.type === 'MultiPoint') {
+        return geometry.coordinates.map(point => {
+            return {
+                type: 'Point',
+                coordinates: point
+            };
+        });
+    }
+    return [geometry];
+}
+class Distance {
+    constructor(geojson, geometries) {
+        this.type = NumberType;
+        this.geojson = geojson;
+        this.geometries = geometries;
+    }
+    static parse(args, context) {
+        if (args.length !== 2)
+            return context.error(`'distance' expression requires exactly one argument, but found ${args.length - 1} instead.`);
+        if (isValue(args[1])) {
+            const geojson = args[1];
+            if (geojson.type === 'FeatureCollection') {
+                return new Distance(geojson, geojson.features.map(feature => toSimpleGeometry(feature.geometry)).flat());
+            }
+            else if (geojson.type === 'Feature') {
+                return new Distance(geojson, toSimpleGeometry(geojson.geometry));
+            }
+            else if ('type' in geojson && 'coordinates' in geojson) {
+                return new Distance(geojson, toSimpleGeometry(geojson));
+            }
+        }
+        return context.error('\'distance\' expression requires valid geojson object that contains polygon geometry type.');
+    }
+    evaluate(ctx) {
+        if (ctx.geometry() != null && ctx.canonicalID() != null) {
+            if (ctx.geometryType() === 'Point') {
+                return pointToGeometryDistance(ctx, this.geometries);
+            }
+            else if (ctx.geometryType() === 'LineString') {
+                return lineStringToGeometryDistance(ctx, this.geometries);
+            }
+            else if (ctx.geometryType() === 'Polygon') {
+                return polygonToGeometryDistance(ctx, this.geometries);
+            }
+        }
+        return NaN;
+    }
+    eachChild() { }
+    outputDefined() {
+        return true;
+    }
+}
+
 const expressions$1 = {
     // special forms
     '==': Equals,
@@ -8423,8 +8995,110 @@ const expressions$1 = {
     'to-number': Coercion,
     'to-string': Coercion,
     'var': Var,
-    'within': Within
+    'within': Within,
+    'distance': Distance
 };
+
+class CompoundExpression {
+    constructor(name, type, evaluate, args) {
+        this.name = name;
+        this.type = type;
+        this._evaluate = evaluate;
+        this.args = args;
+    }
+    evaluate(ctx) {
+        return this._evaluate(ctx, this.args);
+    }
+    eachChild(fn) {
+        this.args.forEach(fn);
+    }
+    outputDefined() {
+        return false;
+    }
+    static parse(args, context) {
+        const op = args[0];
+        const definition = CompoundExpression.definitions[op];
+        if (!definition) {
+            return context.error(`Unknown expression "${op}". If you wanted a literal array, use ["literal", [...]].`, 0);
+        }
+        // Now check argument types against each signature
+        const type = Array.isArray(definition) ?
+            definition[0] : definition.type;
+        const availableOverloads = Array.isArray(definition) ?
+            [[definition[1], definition[2]]] :
+            definition.overloads;
+        const overloads = availableOverloads.filter(([signature]) => (!Array.isArray(signature) || // varags
+            signature.length === args.length - 1 // correct param count
+        ));
+        let signatureContext = null;
+        for (const [params, evaluate] of overloads) {
+            // Use a fresh context for each attempted signature so that, if
+            // we eventually succeed, we haven't polluted `context.errors`.
+            signatureContext = new ParsingContext(context.registry, isExpressionConstant, context.path, null, context.scope);
+            // First parse all the args, potentially coercing to the
+            // types expected by this overload.
+            const parsedArgs = [];
+            let argParseFailed = false;
+            for (let i = 1; i < args.length; i++) {
+                const arg = args[i];
+                const expectedType = Array.isArray(params) ?
+                    params[i - 1] :
+                    params.type;
+                const parsed = signatureContext.parse(arg, 1 + parsedArgs.length, expectedType);
+                if (!parsed) {
+                    argParseFailed = true;
+                    break;
+                }
+                parsedArgs.push(parsed);
+            }
+            if (argParseFailed) {
+                // Couldn't coerce args of this overload to expected type, move
+                // on to next one.
+                continue;
+            }
+            if (Array.isArray(params)) {
+                if (params.length !== parsedArgs.length) {
+                    signatureContext.error(`Expected ${params.length} arguments, but found ${parsedArgs.length} instead.`);
+                    continue;
+                }
+            }
+            for (let i = 0; i < parsedArgs.length; i++) {
+                const expected = Array.isArray(params) ? params[i] : params.type;
+                const arg = parsedArgs[i];
+                signatureContext.concat(i + 1).checkSubtype(expected, arg.type);
+            }
+            if (signatureContext.errors.length === 0) {
+                return new CompoundExpression(op, type, evaluate, parsedArgs);
+            }
+        }
+        if (overloads.length === 1) {
+            context.errors.push(...signatureContext.errors);
+        }
+        else {
+            const expected = overloads.length ? overloads : availableOverloads;
+            const signatures = expected
+                .map(([params]) => stringifySignature(params))
+                .join(' | ');
+            const actualTypes = [];
+            // For error message, re-parse arguments without trying to
+            // apply any coercions
+            for (let i = 1; i < args.length; i++) {
+                const parsed = context.parse(args[i], 1 + actualTypes.length);
+                if (!parsed)
+                    return null;
+                actualTypes.push(toString$1(parsed.type));
+            }
+            context.error(`Expected arguments of type ${signatures}, but found (${actualTypes.join(', ')}) instead.`);
+        }
+        return null;
+    }
+    static register(registry, definitions) {
+        CompoundExpression.definitions = definitions;
+        for (const name in definitions) {
+            registry[name] = CompoundExpression;
+        }
+    }
+}
 function rgba(ctx, [r, g, b, a]) {
     r = r.evaluate(ctx);
     g = g.evaluate(ctx);
@@ -8895,6 +9569,116 @@ CompoundExpression.register(expressions$1, {
         (ctx, [collator]) => collator.evaluate(ctx).resolvedLocale()
     ]
 });
+function stringifySignature(signature) {
+    if (Array.isArray(signature)) {
+        return `(${signature.map(toString$1).join(', ')})`;
+    }
+    else {
+        return `(${toString$1(signature.type)}...)`;
+    }
+}
+function isExpressionConstant(expression) {
+    if (expression instanceof Var) {
+        return isExpressionConstant(expression.boundExpression);
+    }
+    else if (expression instanceof CompoundExpression && expression.name === 'error') {
+        return false;
+    }
+    else if (expression instanceof CollatorExpression) {
+        // Although the results of a Collator expression with fixed arguments
+        // generally shouldn't change between executions, we can't serialize them
+        // as constant expressions because results change based on environment.
+        return false;
+    }
+    else if (expression instanceof Within) {
+        return false;
+    }
+    else if (expression instanceof Distance) {
+        return false;
+    }
+    const isTypeAnnotation = expression instanceof Coercion ||
+        expression instanceof Assertion;
+    let childrenConstant = true;
+    expression.eachChild(child => {
+        // We can _almost_ assume that if `expressions` children are constant,
+        // they would already have been evaluated to Literal values when they
+        // were parsed.  Type annotations are the exception, because they might
+        // have been inferred and added after a child was parsed.
+        // So we recurse into isConstant() for the children of type annotations,
+        // but otherwise simply check whether they are Literals.
+        if (isTypeAnnotation) {
+            childrenConstant = childrenConstant && isExpressionConstant(child);
+        }
+        else {
+            childrenConstant = childrenConstant && child instanceof Literal;
+        }
+    });
+    if (!childrenConstant) {
+        return false;
+    }
+    return isFeatureConstant(expression) &&
+        isGlobalPropertyConstant(expression, ['zoom', 'heatmap-density', 'line-progress', 'accumulated', 'is-supported-script']);
+}
+function isFeatureConstant(e) {
+    if (e instanceof CompoundExpression) {
+        if (e.name === 'get' && e.args.length === 1) {
+            return false;
+        }
+        else if (e.name === 'feature-state') {
+            return false;
+        }
+        else if (e.name === 'has' && e.args.length === 1) {
+            return false;
+        }
+        else if (e.name === 'properties' ||
+            e.name === 'geometry-type' ||
+            e.name === 'id') {
+            return false;
+        }
+        else if (/^filter-/.test(e.name)) {
+            return false;
+        }
+    }
+    if (e instanceof Within) {
+        return false;
+    }
+    if (e instanceof Distance) {
+        return false;
+    }
+    let result = true;
+    e.eachChild(arg => {
+        if (result && !isFeatureConstant(arg)) {
+            result = false;
+        }
+    });
+    return result;
+}
+function isStateConstant(e) {
+    if (e instanceof CompoundExpression) {
+        if (e.name === 'feature-state') {
+            return false;
+        }
+    }
+    let result = true;
+    e.eachChild(arg => {
+        if (result && !isStateConstant(arg)) {
+            result = false;
+        }
+    });
+    return result;
+}
+function isGlobalPropertyConstant(e, properties) {
+    if (e instanceof CompoundExpression && properties.indexOf(e.name) >= 0) {
+        return false;
+    }
+    let result = true;
+    e.eachChild((arg) => {
+        if (result && !isGlobalPropertyConstant(arg, properties)) {
+            result = false;
+        }
+    });
+    return result;
+}
 
 function success(value) {
     return { result: 'success', value };
@@ -9525,7 +10309,7 @@ function compare(a, b) {
 function geometryNeeded(filter) {
     if (!Array.isArray(filter))
         return false;
-    if (filter[0] === 'within')
+    if (filter[0] === 'within' || filter[0] === 'distance')
         return true;
     for (let index = 1; index < filter.length; index++) {
         if (geometryNeeded(filter[index]))
@@ -9552,8 +10336,7 @@ function convertFilter$1(filter) {
                                 op === '!in' ? convertNegation(convertInOp$1(filter[1], filter.slice(2))) :
                                     op === 'has' ? convertHasOp$1(filter[1]) :
                                         op === '!has' ? convertNegation(convertHasOp$1(filter[1])) :
-                                            op === 'within' ? filter :
-                                                true;
+                                            true;
     return converted;
 }
 function convertComparisonOp$1(property, value, op) {
@@ -10676,15 +11459,6 @@ function validateNonExpressionFilter(options) {
                 errors.push(new ValidationError(`${key}[1]`, value[1], `string expected, ${type} found`));
             }
             break;
-        case 'within':
-            type = getType(value[1]);
-            if (value.length !== 2) {
-                errors.push(new ValidationError(key, value, `filter array for "${value[0]}" operator must have 2 elements`));
-            }
-            else if (type !== 'object') {
-                errors.push(new ValidationError(`${key}[1]`, value[1], `object expected, ${type} found`));
-            }
-            break;
     }
     return errors;
 }
@@ -11098,7 +11872,7 @@ function validateSky(options) {
     let errors = [];
     for (const key in sky) {
         if (skySpec[key]) {
-            errors = errors.concat(validate({
+            errors = errors.concat(options.validateSpec({
                 key,
                 value: sky[key],
                 valueSpec: skySpec[key],
@@ -12525,7 +13299,6 @@ class Evented {
      * @param listener - The function to be called when the event is fired.
      * The listener function is called with the data object passed to `fire`,
      * extended with `target` and `type` properties.
-     * @returns `this`
      */
     on(type, listener) {
         this._listeners = this._listeners || {};
@@ -12537,7 +13310,6 @@ class Evented {
      *
      * @param type - The event type to remove listeners for.
      * @param listener - The listener function to remove.
-     * @returns `this`
      */
     off(type, listener) {
         _removeEventListener(type, listener, this._listeners);
@@ -12607,7 +13379,6 @@ class Evented {
     }
     /**
      * Bubble all events fired by this instance of Evented to this parent instance of Evented.
-     * @returns `this`
      */
     setEventedParent(parent, data) {
         this._eventedParent = parent;
@@ -14639,30 +15410,35 @@ register('StructArrayLayout2f1f2i16', StructArrayLayout2f1f2i16);
  * Implementation of the StructArray layout:
  * [0]: Uint8[2]
  * [4]: Float32[2]
+ * [12]: Int16[2]
  *
  */
-class StructArrayLayout2ub2f12 extends StructArray {
+class StructArrayLayout2ub2f2i16 extends StructArray {
     _refreshViews() {
         this.uint8 = new Uint8Array(this.arrayBuffer);
         this.float32 = new Float32Array(this.arrayBuffer);
+        this.int16 = new Int16Array(this.arrayBuffer);
     }
-    emplaceBack(v0, v1, v2, v3) {
+    emplaceBack(v0, v1, v2, v3, v4, v5) {
         const i = this.length;
         this.resize(i + 1);
-        return this.emplace(i, v0, v1, v2, v3);
+        return this.emplace(i, v0, v1, v2, v3, v4, v5);
     }
-    emplace(i, v0, v1, v2, v3) {
-        const o1 = i * 12;
-        const o4 = i * 3;
+    emplace(i, v0, v1, v2, v3, v4, v5) {
+        const o1 = i * 16;
+        const o4 = i * 4;
+        const o2 = i * 8;
         this.uint8[o1 + 0] = v0;
         this.uint8[o1 + 1] = v1;
         this.float32[o4 + 1] = v2;
         this.float32[o4 + 2] = v3;
+        this.int16[o2 + 6] = v4;
+        this.int16[o2 + 7] = v5;
         return i;
     }
 }
-StructArrayLayout2ub2f12.prototype.bytesPerElement = 12;
-register('StructArrayLayout2ub2f12', StructArrayLayout2ub2f12);
+StructArrayLayout2ub2f2i16.prototype.bytesPerElement = 16;
+register('StructArrayLayout2ub2f2i16', StructArrayLayout2ub2f2i16);
 /**
  * @internal
  * Implementation of the StructArray layout:
@@ -15140,7 +15916,7 @@ class CollisionBoxLayoutArray extends StructArrayLayout2i2i2i12 {
 }
 class CollisionCircleLayoutArray extends StructArrayLayout2f1f2i16 {
 }
-class CollisionVertexArray extends StructArrayLayout2ub2f12 {
+class CollisionVertexArray extends StructArrayLayout2ub2f2i16 {
 }
 class QuadTriangleArray extends StructArrayLayout3ui6 {
 }
@@ -15463,10 +16239,10 @@ function sort$1(ids, positions, left, right) {
             while (ids[j] > pivot);
             if (i >= j)
                 break;
-            swap$2(ids, i, j);
-            swap$2(positions, 3 * i, 3 * j);
-            swap$2(positions, 3 * i + 1, 3 * j + 1);
-            swap$2(positions, 3 * i + 2, 3 * j + 2);
+            swap$1(ids, i, j);
+            swap$1(positions, 3 * i, 3 * j);
+            swap$1(positions, 3 * i + 1, 3 * j + 1);
+            swap$1(positions, 3 * i + 2, 3 * j + 2);
         }
         if (j - left < right - j) {
             sort$1(ids, positions, left, j);
@@ -15478,7 +16254,7 @@ function sort$1(ids, positions, left, right) {
         }
     }
 }
-function swap$2(arr, i, j) {
+function swap$1(arr, i, j) {
     const tmp = arr[i];
     arr[i] = arr[j];
     arr[j] = tmp;
@@ -25187,101 +25963,6 @@ earcut.flatten = function (data) {
 var earcutExports = earcut$2.exports;
 var earcut$1 = /*@__PURE__*/getDefaultExportFromCjs$1(earcutExports);
 
-function quickselect(arr, k, left, right, compare) {
-    quickselectStep(arr, k, left || 0, right || (arr.length - 1), compare || defaultCompare$1);
-}
-
-function quickselectStep(arr, k, left, right, compare) {
-
-    while (right > left) {
-        if (right - left > 600) {
-            var n = right - left + 1;
-            var m = k - left + 1;
-            var z = Math.log(n);
-            var s = 0.5 * Math.exp(2 * z / 3);
-            var sd = 0.5 * Math.sqrt(z * s * (n - s) / n) * (m - n / 2 < 0 ? -1 : 1);
-            var newLeft = Math.max(left, Math.floor(k - m * s / n + sd));
-            var newRight = Math.min(right, Math.floor(k + (n - m) * s / n + sd));
-            quickselectStep(arr, k, newLeft, newRight, compare);
-        }
-
-        var t = arr[k];
-        var i = left;
-        var j = right;
-
-        swap$1(arr, left, k);
-        if (compare(arr[right], t) > 0) swap$1(arr, left, right);
-
-        while (i < j) {
-            swap$1(arr, i, j);
-            i++;
-            j--;
-            while (compare(arr[i], t) < 0) i++;
-            while (compare(arr[j], t) > 0) j--;
-        }
-
-        if (compare(arr[left], t) === 0) swap$1(arr, left, j);
-        else {
-            j++;
-            swap$1(arr, j, right);
-        }
-
-        if (j <= k) left = j + 1;
-        if (k <= j) right = j - 1;
-    }
-}
-
-function swap$1(arr, i, j) {
-    var tmp = arr[i];
-    arr[i] = arr[j];
-    arr[j] = tmp;
-}
-
-function defaultCompare$1(a, b) {
-    return a < b ? -1 : a > b ? 1 : 0;
-}
-
-// classifies an array of rings into polygons with outer rings and holes
-function classifyRings$1(rings, maxRings) {
-    const len = rings.length;
-    if (len <= 1)
-        return [rings];
-    const polygons = [];
-    let polygon, ccw;
-    for (let i = 0; i < len; i++) {
-        const area = calculateSignedArea(rings[i]);
-        if (area === 0)
-            continue;
-        rings[i].area = Math.abs(area);
-        if (ccw === undefined)
-            ccw = area < 0;
-        if (ccw === area < 0) {
-            if (polygon)
-                polygons.push(polygon);
-            polygon = [rings[i]];
-        }
-        else {
-            polygon.push(rings[i]);
-        }
-    }
-    if (polygon)
-        polygons.push(polygon);
-    // Earcut performance degrades with the # of rings in a polygon. For this
-    // reason, we limit strip out all but the `maxRings` largest rings.
-    if (maxRings > 1) {
-        for (let j = 0; j < polygons.length; j++) {
-            if (polygons[j].length <= maxRings)
-                continue;
-            quickselect(polygons[j], maxRings, 1, polygons[j].length - 1, compareAreas);
-            polygons[j] = polygons[j].slice(0, maxRings);
-        }
-    }
-    return polygons;
-}
-function compareAreas(a, b) {
-    return b.area - a.area;
-}
-
 function hasPattern(type, layers, options) {
     const patterns = options.patternDependencies;
     let hasPattern = false;
@@ -26785,7 +27466,8 @@ const placementOpacityAttributes = createLayout([
 ], 4);
 const collisionVertexAttributes = createLayout([
     { name: 'a_placed', components: 2, type: 'Uint8' },
-    { name: 'a_shift', components: 2, type: 'Float32' }
+    { name: 'a_shift', components: 2, type: 'Float32' },
+    { name: 'a_box_real', components: 2, type: 'Int16' },
 ]);
 const collisionBox = createLayout([
     // the box is centered around the anchor point
@@ -27939,13 +28621,15 @@ function potpack(boxes) {
 /* eslint-disable key-spacing */
 const IMAGE_PADDING = 1;
 class ImagePosition {
-    constructor(paddedRect, { pixelRatio, version, stretchX, stretchY, content }) {
+    constructor(paddedRect, { pixelRatio, version, stretchX, stretchY, content, textFitWidth, textFitHeight }) {
         this.paddedRect = paddedRect;
         this.pixelRatio = pixelRatio;
         this.stretchX = stretchX;
         this.stretchY = stretchY;
         this.content = content;
         this.version = version;
+        this.textFitWidth = textFitWidth;
+        this.textFitHeight = textFitHeight;
     }
     get tl() {
         return [
@@ -28557,6 +29241,51 @@ function shapeIcon(image, iconOffset, iconAnchor) {
     const y1 = dy - image.displaySize[1] * verticalAlign;
     const y2 = y1 + image.displaySize[1];
     return { image, top: y1, bottom: y2, left: x1, right: x2 };
+}
+/**
+ * Called after a PositionedIcon has already been run through fitIconToText,
+ * but needs further adjustment to apply textFitWidth and textFitHeight.
+ * @param shapedIcon - The icon that will be adjusted.
+ * @returns Extents of the shapedIcon with text fit adjustments if necessary.
+ */
+function applyTextFit(shapedIcon) {
+    var _a, _b;
+    // Assume shapedIcon.image is set or this wouldn't be called.
+    // Size of the icon after it was adjusted using stretchX and Y
+    let iconLeft = shapedIcon.left;
+    let iconTop = shapedIcon.top;
+    let iconWidth = shapedIcon.right - iconLeft;
+    let iconHeight = shapedIcon.bottom - iconTop;
+    // Size of the origional content area
+    const contentWidth = shapedIcon.image.content[2] - shapedIcon.image.content[0];
+    const contentHeight = shapedIcon.image.content[3] - shapedIcon.image.content[1];
+    const textFitWidth = (_a = shapedIcon.image.textFitWidth) !== null && _a !== void 0 ? _a : "stretchOrShrink" /* TextFit.stretchOrShrink */;
+    const textFitHeight = (_b = shapedIcon.image.textFitHeight) !== null && _b !== void 0 ? _b : "stretchOrShrink" /* TextFit.stretchOrShrink */;
+    const contentAspectRatio = contentWidth / contentHeight;
+    // Scale to the proportional axis first note that height takes precidence if
+    // both axes are set to proportional.
+    if (textFitHeight === "proportional" /* TextFit.proportional */) {
+        if ((textFitWidth === "stretchOnly" /* TextFit.stretchOnly */ && iconWidth / iconHeight < contentAspectRatio) || textFitWidth === "proportional" /* TextFit.proportional */) {
+            // Push the width of the icon back out to match the content aspect ratio
+            const newIconWidth = Math.ceil(iconHeight * contentAspectRatio);
+            iconLeft *= newIconWidth / iconWidth;
+            iconWidth = newIconWidth;
+        }
+    }
+    else if (textFitWidth === "proportional" /* TextFit.proportional */) {
+        if (textFitHeight === "stretchOnly" /* TextFit.stretchOnly */ && contentAspectRatio !== 0 && iconWidth / iconHeight > contentAspectRatio) {
+            // Push the height of the icon back out to match the content aspect ratio
+            const newIconHeight = Math.ceil(iconWidth / contentAspectRatio);
+            iconTop *= newIconHeight / iconHeight;
+            iconHeight = newIconHeight;
+        }
+    }
+    else {
+        // If neither textFitHeight nor textFitWidth are proportional then
+        // there is no effect since the content rectangle should be precisely
+        // matched to the content
+    }
+    return { x1: iconLeft, y1: iconTop, x2: iconLeft + iconWidth, y2: iconTop + iconHeight };
 }
 function fitIconToText(shapedIcon, shapedText, textFit, padding, iconOffset, fontScale) {
     const image = shapedIcon.image;
@@ -30202,8 +30931,12 @@ function getIconQuads(shapedIcon, iconRotate, isSDFIcon, hasIconTextFit) {
     const pixelRatio = image.pixelRatio;
     const imageWidth = image.paddedRect.w - 2 * border;
     const imageHeight = image.paddedRect.h - 2 * border;
-    const iconWidth = shapedIcon.right - shapedIcon.left;
-    const iconHeight = shapedIcon.bottom - shapedIcon.top;
+    let icon = {
+        x1: shapedIcon.left,
+        y1: shapedIcon.top,
+        x2: shapedIcon.right,
+        y2: shapedIcon.bottom
+    };
     const stretchX = image.stretchX || [[0, imageWidth]];
     const stretchY = image.stretchY || [[0, imageHeight]];
     const reduceRanges = (sum, range) => sum + range[1] - range[0];
@@ -30221,23 +30954,33 @@ function getIconQuads(shapedIcon, iconRotate, isSDFIcon, hasIconTextFit) {
     let fixedContentHeight = fixedHeight;
     if (image.content && hasIconTextFit) {
         const content = image.content;
+        const contentWidth = content[2] - content[0];
+        const contentHeight = content[3] - content[1];
+        // Constrict content area to fit target aspect ratio
+        if (image.textFitWidth || image.textFitHeight) {
+            icon = applyTextFit(shapedIcon);
+        }
         stretchOffsetX = sumWithinRange(stretchX, 0, content[0]);
         stretchOffsetY = sumWithinRange(stretchY, 0, content[1]);
         stretchContentWidth = sumWithinRange(stretchX, content[0], content[2]);
         stretchContentHeight = sumWithinRange(stretchY, content[1], content[3]);
         fixedOffsetX = content[0] - stretchOffsetX;
         fixedOffsetY = content[1] - stretchOffsetY;
-        fixedContentWidth = content[2] - content[0] - stretchContentWidth;
-        fixedContentHeight = content[3] - content[1] - stretchContentHeight;
+        fixedContentWidth = contentWidth - stretchContentWidth;
+        fixedContentHeight = contentHeight - stretchContentHeight;
     }
+    const iconLeft = icon.x1;
+    const iconTop = icon.y1;
+    const iconWidth = icon.x2 - iconLeft;
+    const iconHeight = icon.y2 - iconTop;
     const makeBox = (left, top, right, bottom) => {
-        const leftEm = getEmOffset(left.stretch - stretchOffsetX, stretchContentWidth, iconWidth, shapedIcon.left);
+        const leftEm = getEmOffset(left.stretch - stretchOffsetX, stretchContentWidth, iconWidth, iconLeft);
         const leftPx = getPxOffset(left.fixed - fixedOffsetX, fixedContentWidth, left.stretch, stretchWidth);
-        const topEm = getEmOffset(top.stretch - stretchOffsetY, stretchContentHeight, iconHeight, shapedIcon.top);
+        const topEm = getEmOffset(top.stretch - stretchOffsetY, stretchContentHeight, iconHeight, iconTop);
         const topPx = getPxOffset(top.fixed - fixedOffsetY, fixedContentHeight, top.stretch, stretchHeight);
-        const rightEm = getEmOffset(right.stretch - stretchOffsetX, stretchContentWidth, iconWidth, shapedIcon.left);
+        const rightEm = getEmOffset(right.stretch - stretchOffsetX, stretchContentWidth, iconWidth, iconLeft);
         const rightPx = getPxOffset(right.fixed - fixedOffsetX, fixedContentWidth, right.stretch, stretchWidth);
-        const bottomEm = getEmOffset(bottom.stretch - stretchOffsetY, stretchContentHeight, iconHeight, shapedIcon.top);
+        const bottomEm = getEmOffset(bottom.stretch - stretchOffsetY, stretchContentHeight, iconHeight, iconTop);
         const bottomPx = getPxOffset(bottom.fixed - fixedOffsetY, fixedContentHeight, bottom.stretch, stretchHeight);
         const tl = new Point$3(leftEm, topEm);
         const tr = new Point$3(rightEm, topEm);
@@ -30429,6 +31172,7 @@ class CollisionFeature {
      * @param alignLine - Whether the label is aligned with the line or the viewport.
      */
     constructor(collisionBoxArray, anchor, featureIndex, sourceLayerIndex, bucketIndex, shaped, boxScale, padding, alignLine, rotate) {
+        var _a;
         this.boxStartIndex = collisionBoxArray.length;
         if (alignLine) {
             // Compute height of the shape in glyph metrics and apply collision padding.
@@ -30448,26 +31192,34 @@ class CollisionFeature {
             }
         }
         else {
+            const icon = ((_a = shaped.image) === null || _a === void 0 ? void 0 : _a.content) && (shaped.image.textFitWidth || shaped.image.textFitHeight) ?
+                applyTextFit(shaped) :
+                {
+                    x1: shaped.left,
+                    y1: shaped.top,
+                    x2: shaped.right,
+                    y2: shaped.bottom
+                };
             // margin is in CSS order: [top, right, bottom, left]
-            let y1 = shaped.top * boxScale - padding[0];
-            let y2 = shaped.bottom * boxScale + padding[2];
-            let x1 = shaped.left * boxScale - padding[3];
-            let x2 = shaped.right * boxScale + padding[1];
+            icon.y1 = icon.y1 * boxScale - padding[0];
+            icon.y2 = icon.y2 * boxScale + padding[2];
+            icon.x1 = icon.x1 * boxScale - padding[3];
+            icon.x2 = icon.x2 * boxScale + padding[1];
             const collisionPadding = shaped.collisionPadding;
             if (collisionPadding) {
-                x1 -= collisionPadding[0] * boxScale;
-                y1 -= collisionPadding[1] * boxScale;
-                x2 += collisionPadding[2] * boxScale;
-                y2 += collisionPadding[3] * boxScale;
+                icon.x1 -= collisionPadding[0] * boxScale;
+                icon.y1 -= collisionPadding[1] * boxScale;
+                icon.x2 += collisionPadding[2] * boxScale;
+                icon.y2 += collisionPadding[3] * boxScale;
             }
             if (rotate) {
                 // Account for *-rotate in point collision boxes
                 // See https://github.com/mapbox/mapbox-gl-js/issues/6075
                 // Doesn't account for icon-text-fit
-                const tl = new Point$3(x1, y1);
-                const tr = new Point$3(x2, y1);
-                const bl = new Point$3(x1, y2);
-                const br = new Point$3(x2, y2);
+                const tl = new Point$3(icon.x1, icon.y1);
+                const tr = new Point$3(icon.x2, icon.y1);
+                const bl = new Point$3(icon.x1, icon.y2);
+                const br = new Point$3(icon.x2, icon.y2);
                 const rotateRadians = rotate * Math.PI / 180;
                 tl._rotate(rotateRadians);
                 tr._rotate(rotateRadians);
@@ -30476,12 +31228,12 @@ class CollisionFeature {
                 // Collision features require an "on-axis" geometry,
                 // so take the envelope of the rotated geometry
                 // (may be quite large for wide labels rotated 45 degrees)
-                x1 = Math.min(tl.x, tr.x, bl.x, br.x);
-                x2 = Math.max(tl.x, tr.x, bl.x, br.x);
-                y1 = Math.min(tl.y, tr.y, bl.y, br.y);
-                y2 = Math.max(tl.y, tr.y, bl.y, br.y);
+                icon.x1 = Math.min(tl.x, tr.x, bl.x, br.x);
+                icon.x2 = Math.max(tl.x, tr.x, bl.x, br.x);
+                icon.y1 = Math.min(tl.y, tr.y, bl.y, br.y);
+                icon.y2 = Math.max(tl.y, tr.y, bl.y, br.y);
             }
-            collisionBoxArray.emplaceBack(anchor.x, anchor.y, x1, y1, x2, y2, featureIndex, sourceLayerIndex, bucketIndex);
+            collisionBoxArray.emplaceBack(anchor.x, anchor.y, icon.x1, icon.y1, icon.x2, icon.y2, featureIndex, sourceLayerIndex, bucketIndex);
         }
         this.boxEndIndex = collisionBoxArray.length;
     }
@@ -34516,7 +35268,7 @@ class GeoJSONWorkerSource extends VectorTileWorkerSource {
      * preparatory method must be called before {@link GeoJSONWorkerSource#loadTile}
      * can correctly serve up tiles.
      *
-     * Defers to {@link GeoJSONWorkerSource#loadGeoJSON} for the fetching/parsing,
+     * Defers to {@link GeoJSONWorkerSource#loadAndProcessGeoJSON} for the pre-processing.
      *
      * When a `loadData` request comes in while a previous one is being processed,
      * the previous one is aborted.
@@ -34532,22 +35284,10 @@ class GeoJSONWorkerSource extends VectorTileWorkerSource {
                 new RequestPerformance(params.request) : false;
             this._pendingRequest = new AbortController();
             try {
-                let data = yield this.loadGeoJSON(params, this._pendingRequest);
-                delete this._pendingRequest;
-                if (typeof data !== 'object') {
-                    throw new Error(`Input data given to '${params.source}' is not a valid GeoJSON object.`);
-                }
-                rewind$2(data, true);
-                if (params.filter) {
-                    const compiled = createExpression(params.filter, { type: 'boolean', 'property-type': 'data-driven', overridable: false, transition: false });
-                    if (compiled.result === 'error')
-                        throw new Error(compiled.value.map(err => `${err.key}: ${err.message}`).join(', '));
-                    const features = data.features.filter(feature => compiled.value.evaluate({ zoom: 0 }, feature));
-                    data = { type: 'FeatureCollection', features };
-                }
+                this._pendingData = this.loadAndProcessGeoJSON(params, this._pendingRequest);
                 this._geoJSONIndex = params.cluster ?
-                    new Supercluster(getSuperclusterOptions(params)).load(data.features) :
-                    geojsonvt(data, params.geojsonVtOptions);
+                    new Supercluster(getSuperclusterOptions(params)).load((yield this._pendingData).features) :
+                    geojsonvt(yield this._pendingData, params.geojsonVtOptions);
                 this.loaded = {};
                 const result = {};
                 if (perf) {
@@ -34571,6 +35311,16 @@ class GeoJSONWorkerSource extends VectorTileWorkerSource {
         });
     }
     /**
+     * Allows to get the source's actual GeoJSON.
+     *
+     * @returns a promise which is resolved with the source's actual GeoJSON
+     */
+    getData() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this._pendingData;
+        });
+    }
+    /**
     * Implements {@link WorkerSource#reloadTile}.
     *
     * If the tile is loaded, uses the implementation in VectorTileWorkerSource.
@@ -34587,6 +35337,33 @@ class GeoJSONWorkerSource extends VectorTileWorkerSource {
         else {
             return this.loadTile(params);
         }
+    }
+    /**
+     * Fetch, parse and process GeoJSON according to the given params.
+     *
+     * Defers to {@link GeoJSONWorkerSource#loadGeoJSON} for the fetching and parsing.
+     *
+     * @param params - the parameters
+     * @param abortController - the abort controller that allows aborting this operation
+     * @returns a promise that is resolved with the processes GeoJSON
+     */
+    loadAndProcessGeoJSON(params, abortController) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let data = yield this.loadGeoJSON(params, abortController);
+            delete this._pendingRequest;
+            if (typeof data !== 'object') {
+                throw new Error(`Input data given to '${params.source}' is not a valid GeoJSON object.`);
+            }
+            rewind$2(data, true);
+            if (params.filter) {
+                const compiled = createExpression(params.filter, { type: 'boolean', 'property-type': 'data-driven', overridable: false, transition: false });
+                if (compiled.result === 'error')
+                    throw new Error(compiled.value.map(err => `${err.key}: ${err.message}`).join(', '));
+                const features = data.features.filter(feature => compiled.value.evaluate({ zoom: 0 }, feature));
+                data = { type: 'FeatureCollection', features };
+            }
+            return data;
+        });
     }
     /**
      * Fetch and parse GeoJSON according to the given params.
@@ -34720,6 +35497,9 @@ class Worker {
         }));
         this.actor.registerMessageHandler("LD" /* MessageType.loadData */, (mapId, params) => {
             return this._getWorkerSource(mapId, params.type, params.source).loadData(params);
+        });
+        this.actor.registerMessageHandler("GD" /* MessageType.getData */, (mapId, params) => {
+            return this._getWorkerSource(mapId, params.type, params.source).getData();
         });
         this.actor.registerMessageHandler("LT" /* MessageType.loadTile */, (mapId, params) => {
             return this._getWorkerSource(mapId, params.type, params.source).loadTile(params);
