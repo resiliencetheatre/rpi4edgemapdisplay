@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>EdgeMap V</title>
+    <title>EdgeMap</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
     <script src="js/maplibre-gl.js"></script>
     <link href="js/maplibre-gl.css" rel="stylesheet" />

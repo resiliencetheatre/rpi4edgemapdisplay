@@ -1084,6 +1084,7 @@ function openMessageEntryBox() {
         fadeOut(userlistbuttonDiv ,200);
         fadeOut(radiolistbuttonDiv ,200);
         fadeOut(radiolistblockDiv ,200);
+        fadeOut(videoconferenceButton ,200);
          
     }
     document.getElementById("msgInput").focus();
@@ -1096,6 +1097,7 @@ function closeMessageEntryBox() {
       fadeOut(sensorDiv,200);
       fadeOut(cameracontrol,200);
       fadeOut(userlistbuttonDiv ,200);
+      fadeOut(videoconferenceButton ,200);
     } else {
       if (logDiv.style.display !== "none" ) {      
         fadeOut(logDiv,200);
@@ -1105,6 +1107,7 @@ function closeMessageEntryBox() {
         fadeIn(cameracontrol,200);
         fadeIn(userlistbuttonDiv ,200);
         fadeIn(radiolistbuttonDiv ,200);
+        fadeIn(videoconferenceButton ,200);
         
       } else {
         fadeIn(logDiv,200);
@@ -1114,6 +1117,7 @@ function closeMessageEntryBox() {
         fadeOut(userlistbuttonDiv,200);
         fadeOut(radiolistbuttonDiv ,200);
         fadeOut(radiolistblockDiv ,200);
+        fadeOut(videoconferenceButton ,200);
       }
     }
 }
