@@ -22,5 +22,8 @@ openssl x509 -req -in edgemap.csr -copy_extensions copy \
 # Copy resulted files
 cp myCA.crt edgemap.crt edgemap.key /etc/apache2
 
+# Copy CA for client download via http://edgemap/myCA.crt
+cp myCA.crt /usr/htdocs/
+
 * Remember to restart wss-* services and apache
 

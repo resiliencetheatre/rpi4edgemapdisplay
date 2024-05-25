@@ -1,0 +1,5 @@
+config BR2_PACKAGE_SAMPLICATOR
+        bool "samplicator" 
+        help 
+              UDP Samplicator 
+              https://github.com/resiliencetheatre/samplicator

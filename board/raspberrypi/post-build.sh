@@ -9,3 +9,6 @@ if [ -e ${TARGET_DIR}/etc/inittab ]; then
 	sed -i '/GENERIC_SERIAL/a\
 tty1::respawn:/sbin/getty -L  tty1 0 vt100 # HDMI console' ${TARGET_DIR}/etc/inittab
 fi
+
+# Remove janus-gateway.service
+rm ${TARGET_DIR}/etc/systemd/system/multi-user.target.wants/janus-gateway.service

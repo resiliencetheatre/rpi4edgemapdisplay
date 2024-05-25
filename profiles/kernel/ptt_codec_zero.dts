@@ -1,0 +1,37 @@
+    /dts-v1/;
+    /plugin/;
+    / {
+       compatible = "brcm,bcm2835", "brcm,bcm2708", "brcm,bcm2709";
+       
+       fragment@0 {
+          target-path = "/";
+          __overlay__ {
+             keypad: ptt_keys {
+                compatible = "gpio-keys";
+                #address-cells = <1>;
+                #size-cells = <0>;
+		#autorepeat;
+                button@27 {
+                   label = "PTT 1";
+                   linux,code = <28>;
+                   gpios = <&gpio 27 1>;
+                };
+                button@10 {
+                   label = "PTT 2";
+                   linux,code = <108>;
+                   gpios = <&gpio 10 1>;
+                };
+                button@9 {
+                   label = "PTT 3";
+                   linux,code = <103>;
+                   gpios = <&gpio 9 1>;
+                };
+                button@11 {
+                   label = "PTT 4";
+                   linux,code = <14>;
+                   gpios = <&gpio 11 1>;
+                };
+             };
+          };
+       };
+    };
