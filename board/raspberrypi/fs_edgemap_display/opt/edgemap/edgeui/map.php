@@ -75,7 +75,7 @@
         <tr valign="top" >
             <td width=5% >
                 <div class="tooltip"> 
-                    <i id="msgSocketStatus" style="display: none; " class="feather-small" data-feather="message-square"></i>
+                    <i id="msgSocketStatus" style="display: none; padding-left: 5px; padding-top:5px;" class="feather-small" data-feather="message-square"></i>
                     <span class="tooltiptext">Message socket connected</span>
                 </div>
             </td>
@@ -84,11 +84,24 @@
                     <i id="highRateSocketStatus" style="display: none; "  class="feather-small" data-feather="map-pin" ></i>
                     <span class="tooltiptext">Highrate socket connected</span>
                 </div>
+            </td>            
+            
+            <td >
+                <table>
+                    <tr><td id="securePttTx" class="mapSecurepttTransmissionStatus">TX</div></td></tr>  
+                    <tr><td id="securePttRx" class="mapSecurepttTransmissionStatus">RX</div></td></tr>
+                </table>
             </td>
-
             <td width=5% >
                 <div class="tooltip"> 
-                    <i id="gpsSocketStatus" style="display: none; "  class="feather-small" data-feather="navigation" ></i>
+                    <i id="securePttStatus" style="color: #0F0; padding-top:5px;"  class="feather-small" data-feather="radio" ></i>
+                    <span class="tooltiptext">SecurePTT</span>
+                </div>
+            </td>
+            
+            <td width=5% >
+                <div class="tooltip"> 
+                    <i id="gpsSocketStatus" style="display: none; padding-top:5px;"  class="feather-small" data-feather="navigation" ></i>
                     <span class="tooltiptext">Local GPS connected</span>
                 </div>
             </td>
@@ -104,7 +117,7 @@
             <td width=40% >
                 <center>
                 <div class="tooltip">
-                    <span id="callSignDisplay" style="padding-right: 5px;" ></span> 
+                    <span id="callSignDisplay" style="padding-right: 5px; padding-top:5px;" ></span> 
                     <span class="tooltiptext">Your callsign</span>
                 </div>
                 </center>
@@ -132,6 +145,29 @@
     </center>
     </div>
 
+
+
+    
+
+    <div class="map-secureptt-overlay">
+        <table width=100%>
+            <tr style="vertical-align: middle;">
+                <td class="secureptt-icon" width=5%>
+                    <div class="tooltipright"> 
+                        <i id="" class="feather-small" data-feather="radio" ></i>
+                        <span class="tooltiptextright">SecurePTT</span>
+                    </div>
+                </td>
+                <td class="secureptt-callsign-present">Alpha</td>
+                <td></td>
+                <td class="secureptt-callsign">Bravo</td>
+                <td></td>
+                <td class="secureptt-callsign">Charlie</td>
+                <td></td>
+                <td class="secureptt-callsign">Delta</td>
+            </tr>
+        </table>
+    </div>
     
 
     <div class="map-top-mobile-overlay">
@@ -592,6 +628,7 @@
     Highrate marker     7890    8890
     Messaging           7990    8990
     Meshtastic status   7995    8995
+    SecurePTT status    7996    8996
     */
 
     // Websocket for locally attached GPS
@@ -601,7 +638,7 @@
         gpsSocket = new WebSocket(wsProtocol+wsHost+':8790');
     
     gpsSocket.onopen = function(event) {
-        document.getElementById('gpsSocketStatus').style="display:block;";
+        document.getElementById('gpsSocketStatus').style="display:block; padding-top:5px;";
         gpsSocketConnected = true;
     };    
     gpsSocket.onmessage = function(event) {
@@ -653,8 +690,52 @@
         msgSocket = new WebSocket(wsProtocol+wsHost+':8990');
 
     msgSocket.onopen = function(event) {
-        document.getElementById('msgSocketStatus').style="display:block;"; 
+        document.getElementById('msgSocketStatus').style="display:block; padding-left: 5px; padding-top:5px;"; 
         highrateSocketConnected = true;
+    };
+    
+    // Websocket for secureptt status (/tmp/secureptt)
+    if ( wsProtocol == "ws://" )
+        securePttStatusSocket = new WebSocket(wsProtocol+wsHost+':7996');
+    if ( wsProtocol == "wss://" )
+        securePttStatusSocket = new WebSocket(wsProtocol+wsHost+':8996');
+        
+    securePttStatusSocket.onopen = function(event) {
+        document.getElementById('securePttStatus').style="display:block; padding-top:5px;";
+        var style="font: 8px 'Helvetica Neue', Arial, Helvetica, sans-serif;padding: 1px;border: 1px solid #0E0;color: #0F0;background-color: transparent;";
+        document.getElementById('securePttTx').style = style;
+        document.getElementById('securePttRx').style = style;
+    };
+    
+    securePttStatusSocket.onmessage = function(event) {
+        var incomingMessage = event.data;
+        var trimmedString = incomingMessage.substring(0, 80);
+        if ( trimmedString === "tx-on" )
+        {
+            var style="font: 8px 'Helvetica Neue', Arial, Helvetica, sans-serif;padding: 1px;border: 1px solid #0E0;color: #0F0;background-color: #D00;";
+            document.getElementById('securePttTx').style = style;
+        }
+        if ( trimmedString === "tx-off" )
+        {
+            var style="font: 8px 'Helvetica Neue', Arial, Helvetica, sans-serif;padding: 1px;border: 1px solid #0E0;color: #0F0;background-color: transparent;";
+            document.getElementById('securePttTx').style = style;
+        }
+        if ( trimmedString === "rx-on" )
+        {
+            var style="font: 8px 'Helvetica Neue', Arial, Helvetica, sans-serif;padding: 1px;border: 1px solid #0E0;color: #0F0;background-color: #D00;";
+            document.getElementById('securePttRx').style = style;
+        }
+        if ( trimmedString === "rx-off" )
+        {
+            var style="font: 8px 'Helvetica Neue', Arial, Helvetica, sans-serif;padding: 1px;border: 1px solid #0E0;color: #0F0;background-color: transparent;";
+            document.getElementById('securePttRx').style = style;
+        }
+    };
+    
+    securePttStatusSocket.onclose = function(event) {
+        document.getElementById('securePttStatus').style="display:none;";
+        document.getElementById('securePttTx').style = "display:none;"
+        document.getElementById('securePttRx').style = "display:none;"
     };
     
     // Websocket for 'status' from meshpipe
@@ -664,7 +745,7 @@
         meshtasticStatusSocket = new WebSocket(wsProtocol+wsHost+':8995');
         
     meshtasticStatusSocket.onopen = function(event) {
-        document.getElementById('meshtasticStatus').style="display:block;"; 
+        document.getElementById('meshtasticStatus').style="display:block; padding-top:5px;"; 
         document.getElementById('meshtasticButton').style="display:block;";
         fadeOut(radioNotifyDotDiv,50);
     };
