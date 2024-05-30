@@ -1,0 +1,15 @@
+[Unit]
+Description=gwsocket for secureptt (7996)
+After=multi-user.target
+Conflicts=ws-secureptt.service
+
+[Service]
+WorkingDirectory=/opt/edgemap
+KillMode=process
+ExecStart=gwsocket -p 7996 --pipein=/tmp/secureptt
+Restart=always
+RestartSec=1
+TimeoutStartSec=5
+
+# [Install]
+# WantedBy=multi-user.target

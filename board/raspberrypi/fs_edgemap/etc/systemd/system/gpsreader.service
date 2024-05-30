@@ -1,0 +1,14 @@
+[Unit]
+Description=gpsreader (gpsd to edgemap)
+After=multi-user.target gpsd.service wss-gpssocket.service
+
+[Service]
+WorkingDirectory=/opt/edgemap
+KillMode=process
+ExecStart=/usr/bin/gpsreader
+Restart=always
+RestartSec=10
+TimeoutStartSec=10
+
+# [Install]
+# WantedBy=multi-user.target

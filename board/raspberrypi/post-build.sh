@@ -11,4 +11,4 @@ tty1::respawn:/sbin/getty -L  tty1 0 vt100 # HDMI console' ${TARGET_DIR}/etc/ini
 fi
 
 # Remove janus-gateway.service
-rm ${TARGET_DIR}/etc/systemd/system/multi-user.target.wants/janus-gateway.service
+# rm ${TARGET_DIR}/etc/systemd/system/multi-user.target.wants/janus-gateway.service

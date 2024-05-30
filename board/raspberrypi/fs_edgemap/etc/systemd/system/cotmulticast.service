@@ -1,0 +1,12 @@
+[Unit]
+Description=CoT receiver for Silvus
+After=multi-user.target taky.service
+
+[Service]
+WorkingDirectory=/opt/edgemap/cotmulticast
+KillMode=process
+ExecStart=cotmulticast -i cotmulticast.ini > /dev/null 2>&1
+Restart=always
+RestartSec=5
+TimeoutStartSec=5
+

@@ -1,0 +1,14 @@
+[Unit]
+Description=tacmsgrouter
+After=multi-user.target ws-msgchannel.service
+
+[Service]
+WorkingDirectory=/opt/edgemap/tacmsgrouter
+KillMode=process
+ExecStart=tacmsgrouter -i tacmsgrouter.ini
+Restart=always
+RestartSec=1
+TimeoutStartSec=5
+
+# [Install]
+# WantedBy=multi-user.target
