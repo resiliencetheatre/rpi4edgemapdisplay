@@ -67,7 +67,7 @@ To save bandwidth on Meshtastic communication, some of messaging channel functio
 
 SecurePTT branch contains possbility to use small scale demo of full duplex Push-To-Talk (PTT) with exclusive level of security, where PTT streams are encrypted with One-Time-Pad (OTP). This functionality can be configured to following modes, depending on use case:
 
-* Global unicat SecurePTT coverage via routing gateway servers 
+* Global unicast SecurePTT coverage via routing gateway servers 
 * Global multicast SecurePTT coverage via routing gateway servers 
 * Local MESH/MANET network segments 
 
