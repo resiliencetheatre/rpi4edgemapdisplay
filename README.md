@@ -127,10 +127,10 @@ git checkout secureptt
 cd ~/build-directory
 ```
 
-Current build uses master branch of buildroot. Build is tested with 459c8c95c76cf442debee5bed516a746c24a4aca.
+Current build uses master branch of buildroot (139e47861724cfdd82f4e77396e34c43f7f4825f).
 
 Modify `rpi-firmware` package file and change firmware version tag to
-match kernel version (6.6.30) we're using. 
+match kernel version (6.1.92) we're using. 
 
 ```
 # package/rpi-firmware/rpi-firmware.mk
