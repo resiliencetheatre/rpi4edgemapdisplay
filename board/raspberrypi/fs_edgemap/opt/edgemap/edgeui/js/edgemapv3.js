@@ -1047,11 +1047,30 @@ function closeCoordinateSearchEntryBox() {
 function openCallSignEntryBox() {
     fadeIn(callSignEntryBoxDiv,200);
 }
+
 function closeCallSignEntryBox() {
     fadeOut(callSignEntryBoxDiv,200);
     var newCallSign=document.getElementById('myCallSign').value; 
     document.getElementById('myCallSign').value = newCallSign;
     document.getElementById('callSignDisplay').innerHTML = newCallSign;
+    
+    // Save changes to "/opt/edgemap-persist/callsign.txt"
+    fetch('save_callsign.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ data: newCallSign })
+    })
+    .then(response => response.text())
+    .then(data => {
+        console.log('Data saved:', data);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+    
+    
 }
 
 function openRadioList() {
@@ -1332,3 +1351,37 @@ function check_lat_lon(lat, lon) {
   let validLon = regexLon.test(lon);
   return (validLat && validLon);
 }
+
+// 
+// Loads possibly persisted call sign at:
+// /opt/edgemap-persist/callsign.txt
+//
+function loadCallSign() {
+    fetch('load_callsign.php')
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('myCallSign').value = data.data;
+        document.getElementById('callSignDisplay').innerHTML = data.data;
+        return data.data;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        return;
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

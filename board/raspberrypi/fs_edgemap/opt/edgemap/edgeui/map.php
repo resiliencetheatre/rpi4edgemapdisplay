@@ -29,18 +29,15 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="app-icon/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
-    
     <script type="text/javascript" src="videoroom/js/adapter.min.js" ></script>
     <script type="text/javascript" src="videoroom/js/jquery.min.js" ></script>
     <script type="text/javascript" src="videoroom/js/jquery.blockUI.min.js" ></script>
     <script type="text/javascript" src="videoroom/js/spin.min.js" ></script>
     <script type="text/javascript" src="videoroom/janusv3.js" ></script>
     <script type="text/javascript" src="videoroom/videoroomtestv3.js"></script>
-    
-    
 </head>
 
-<body  style="background-color:#000000" >
+<body  style="background-color:#000000" >   
     <div id="map"></div>
     <pre id="features"></pre>
     <pre id="coordinates" class="coordinates"></pre>
@@ -446,8 +443,10 @@
     <div id="lon_localgps" style="display: none;"></div>
     <div id="speed_localgps" style="display: none;"></div>
     <div id="mode_localgps" style="display: none;"></div>
-<script>
     
+
+    
+<script>    
 /*
      _____    _                                  
     | ____|__| | __ _  ___ _ __ ___   __ _ _ __  
@@ -522,11 +521,15 @@
 	var dragPopups = [];
 	var indexOfDraggedMarker;
 	var lastDraggedMarkerId;
-	
+
+
+	//
 	// Generate random callsign for a demo
+    // 
 	var callSign = genCallSign();
 	document.getElementById('myCallSign').value = callSign;
-    document.getElementById('callSignDisplay').innerHTML = callSign; 
+    document.getElementById('callSignDisplay').innerHTML = callSign;
+    
     
     // populate callsign and default lat,lon into image upload form
     const formInfo = document.forms['uploadform'];
@@ -1211,7 +1214,12 @@
         console.log("Map loaded.");
         // Send join message for a demo (without location)
         sendMessage ( callSign + `|joinMessage||joined to mission map` + '\n');
-        mapLoaded = true;        
+        mapLoaded = true;
+        
+        // Load callsign if changed
+        loadCallSign();
+        
+            
     }); 
     
     // 
