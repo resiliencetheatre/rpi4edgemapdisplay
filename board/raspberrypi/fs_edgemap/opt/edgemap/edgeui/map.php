@@ -683,7 +683,7 @@
         
     highrateSocket.onopen = function(event) {
         document.getElementById('highRateSocketStatus').style="display:block;";
-        msgSocketConnected = true;
+        highrateSocketConnected = true;
     };
     
     // Websocket for messaging
@@ -694,7 +694,7 @@
 
     msgSocket.onopen = function(event) {
         document.getElementById('msgSocketStatus').style="display:block; padding-left: 5px; padding-top:5px;"; 
-        highrateSocketConnected = true;
+        msgSocketConnected = true;
     };
     
     // Websocket for secureptt status (/tmp/secureptt)
@@ -1212,15 +1212,12 @@
         }
         
         console.log("Map loaded.");
-        // Send join message for a demo (without location)
-        sendMessage ( callSign + `|joinMessage||joined to mission map` + '\n');
-        mapLoaded = true;
-        
         // Load callsign if changed
         loadCallSign();
-        
-            
-    }); 
+        // Send join message for a demo (without location)
+        // sendMessage ( callSign + `|joinMessage||joined to mission map` + '\n');
+        mapLoaded = true;
+    });
     
     // 
     // map feature debug if off by default (use D to enable)

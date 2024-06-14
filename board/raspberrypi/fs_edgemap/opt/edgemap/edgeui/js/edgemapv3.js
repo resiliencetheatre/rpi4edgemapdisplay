@@ -1360,6 +1360,7 @@ function loadCallSign() {
     fetch('load_callsign.php')
     .then(response => response.json())
     .then(data => {
+        callSign = data.data;
         document.getElementById('myCallSign').value = data.data;
         document.getElementById('callSignDisplay').innerHTML = data.data;
         return data.data;
