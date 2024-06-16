@@ -1,6 +1,6 @@
 /**
  * MapLibre GL JS
- * @license 3-Clause BSD. Full text of license: https://github.com/maplibre/maplibre-gl-js/blob/v4.3.1/LICENSE.txt
+ * @license 3-Clause BSD. Full text of license: https://github.com/maplibre/maplibre-gl-js/blob/v4.4.0/LICENSE.txt
  */
 var maplibregl = (function () {
 'use strict';
@@ -235,8 +235,9 @@ function __await(v) {
 function __asyncGenerator(thisArg, _arguments, generator) {
     if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
     var g = generator.apply(thisArg, _arguments || []), i, q = [];
-    return i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i;
-    function verb(n) { if (g[n]) i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; }
+    return i = {}, verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function () { return this; }, i;
+    function awaitReturn(f) { return function (v) { return Promise.resolve(v).then(f, reject); }; }
+    function verb(n, f) { if (g[n]) { i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; if (f) i[n] = f(i[n]); } }
     function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
     function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r); }
     function fulfill(value) { resume("next", value); }
@@ -302,7 +303,7 @@ function __classPrivateFieldIn(state, receiver) {
 function __addDisposableResource(env, value, async) {
     if (value !== null && value !== void 0) {
         if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
-        var dispose;
+        var dispose, inner;
         if (async) {
             if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
             dispose = value[Symbol.asyncDispose];
@@ -310,14 +311,17 @@ function __addDisposableResource(env, value, async) {
         if (dispose === void 0) {
             if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
             dispose = value[Symbol.dispose];
+            if (async) inner = dispose;
         }
         if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
+        if (inner) dispose = function() { try { inner.call(this); } catch (e) { return Promise.reject(e); } };
         env.stack.push({ value: value, dispose: dispose, async: async });
     }
     else if (async) {
         env.stack.push({ async: true });
     }
     return value;
+
 }
 
 var _SuppressedError = typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
@@ -1097,7 +1101,7 @@ function warnOnce(message) {
  *
  * @returns true for a counter clockwise set of points
  */
-// http://bryceboe.com/2006/10/23/line-segment-intersection-algorithm/
+// https://bryceboe.com/2006/10/23/line-segment-intersection-algorithm/
 function isCounterClockwise(a, b, c) {
     return (c.y - a.y) * (b.x - a.x) > (b.y - a.y) * (c.x - a.x);
 }
@@ -1653,6 +1657,9 @@ var $root = {
 	},
 	sky: {
 		type: "sky"
+	},
+	projection: {
+		type: "projection"
 	},
 	terrain: {
 		type: "terrain"
@@ -3297,6 +3304,18 @@ var sky = {
 		},
 		transition: true
 	},
+	"horizon-color": {
+		type: "color",
+		"property-type": "data-constant",
+		"default": "#ffffff",
+		expression: {
+			interpolated: true,
+			parameters: [
+				"zoom"
+			]
+		},
+		transition: true
+	},
 	"fog-color": {
 		type: "color",
 		"property-type": "data-constant",
@@ -3309,7 +3328,7 @@ var sky = {
 		},
 		transition: true
 	},
-	"fog-blend": {
+	"fog-ground-blend": {
 		type: "number",
 		"property-type": "data-constant",
 		"default": 0.5,
@@ -3323,7 +3342,35 @@ var sky = {
 		},
 		transition: true
 	},
-	"horizon-blend": {
+	"horizon-fog-blend": {
+		type: "number",
+		"property-type": "data-constant",
+		"default": 0.8,
+		minimum: 0,
+		maximum: 1,
+		expression: {
+			interpolated: true,
+			parameters: [
+				"zoom"
+			]
+		},
+		transition: true
+	},
+	"sky-horizon-blend": {
+		type: "number",
+		"property-type": "data-constant",
+		"default": 0.8,
+		minimum: 0,
+		maximum: 1,
+		expression: {
+			interpolated: true,
+			parameters: [
+				"zoom"
+			]
+		},
+		transition: true
+	},
+	"atmosphere-blend": {
 		type: "number",
 		"property-type": "data-constant",
 		"default": 0.8,
@@ -3347,6 +3394,18 @@ var terrain = {
 		type: "number",
 		minimum: 0,
 		"default": 1
+	}
+};
+var projection$1 = {
+	type: {
+		type: "enum",
+		"default": "mercator",
+		values: {
+			mercator: {
+			},
+			globe: {
+			}
+		}
 	}
 };
 var paint$9 = [
@@ -4567,6 +4626,7 @@ var v8Spec = {
 	light: light,
 	sky: sky,
 	terrain: terrain,
+	projection: projection$1,
 	paint: paint$9,
 	paint_fill: paint_fill,
 	"paint_fill-extrusion": {
@@ -5060,6 +5120,9 @@ function diffStyles(before, after) {
         }
         if (!deepEqual(before.sky, after.sky)) {
             commands.push({ command: 'setSky', args: [after.sky] });
+        }
+        if (!deepEqual(before.projection, after.projection)) {
+            commands.push({ command: 'setProjection', args: [after.projection] });
         }
         // Handle changes to `sources`
         // If a source is to be removed, we also--before the removeSource
@@ -12037,6 +12100,36 @@ function validateSprite(options) {
     }
 }
 
+function validateProjection(options) {
+    const projection = options.value;
+    const styleSpec = options.styleSpec;
+    const projectionSpec = styleSpec.projection;
+    const style = options.style;
+    const rootType = getType(projection);
+    if (projection === undefined) {
+        return [];
+    }
+    else if (rootType !== 'object') {
+        return [new ValidationError('projection', projection, `object expected, ${rootType} found`)];
+    }
+    let errors = [];
+    for (const key in projection) {
+        if (projectionSpec[key]) {
+            errors = errors.concat(options.validateSpec({
+                key,
+                value: projection[key],
+                valueSpec: projectionSpec[key],
+                style,
+                styleSpec
+            }));
+        }
+        else {
+            errors = errors.concat([new ValidationError(key, projection[key], `unknown property "${key}"`)]);
+        }
+    }
+    return errors;
+}
+
 const VALIDATORS = {
     '*'() {
         return [];
@@ -12055,6 +12148,7 @@ const VALIDATORS = {
     'light': validateLight$1,
     'sky': validateSky,
     'terrain': validateTerrain$1,
+    'projection': validateProjection,
     'string': validateString,
     'formatted': validateFormatted,
     'resolvedImage': validateImage,
@@ -12714,7 +12808,8 @@ function makeFetchRequest(requestParameters, abortController) {
             referrer: getReferrer(),
             signal: abortController.signal
         });
-        if (requestParameters.type === 'json') {
+        // If the user has already set an Accept header, do not overwrite it here
+        if (requestParameters.type === 'json' && !request.headers.has('Accept')) {
             request.headers.set('Accept', 'application/json');
         }
         const response = yield fetch(request);
@@ -12741,6 +12836,7 @@ function makeFetchRequest(requestParameters, abortController) {
 }
 function makeXMLHttpRequest(requestParameters, abortController) {
     return new Promise((resolve, reject) => {
+        var _a;
         const xhr = new XMLHttpRequest();
         xhr.open(requestParameters.method || 'GET', requestParameters.url, true);
         if (requestParameters.type === 'arrayBuffer' || requestParameters.type === 'image') {
@@ -12751,7 +12847,10 @@ function makeXMLHttpRequest(requestParameters, abortController) {
         }
         if (requestParameters.type === 'json') {
             xhr.responseType = 'text';
-            xhr.setRequestHeader('Accept', 'application/json');
+            // Do not overwrite the user-provided Accept header
+            if (!((_a = requestParameters.headers) === null || _a === void 0 ? void 0 : _a.Accept)) {
+                xhr.setRequestHeader('Accept', 'application/json');
+            }
         }
         xhr.withCredentials = requestParameters.credentials === 'include';
         xhr.onerror = () => {
@@ -13082,7 +13181,7 @@ class ThrottledInvoker {
 }
 
 /**
- * An implementation of the [Actor design pattern](http://en.wikipedia.org/wiki/Actor_model)
+ * An implementation of the [Actor design pattern](https://en.wikipedia.org/wiki/Actor_model)
  * that maintains the relationship between asynchronous tasks and the objects
  * that spin them off - in this case, tasks like parsing parts of styles,
  * owned by the styles
@@ -13436,8 +13535,8 @@ class ZoomHistory {
     }
 }
 
-// The following table comes from <http://www.unicode.org/Public/12.0.0/ucd/Blocks.txt>.
-// Keep it synchronized with <http://www.unicode.org/Public/UCD/latest/ucd/Blocks.txt>.
+// The following table comes from <https://www.unicode.org/Public/12.0.0/ucd/Blocks.txt>.
+// Keep it synchronized with <https://www.unicode.org/Public/UCD/latest/ucd/Blocks.txt>.
 const unicodeBlockLookup = {
     // 'Basic Latin': (char) => char >= 0x0000 && char <= 0x007F,
     'Latin-1 Supplement': (char) => char >= 0x0080 && char <= 0x00FF,
@@ -13823,9 +13922,9 @@ function charAllowsIdeographicBreaking(char) {
     return false;
 }
 // The following logic comes from
-// <http://www.unicode.org/Public/12.0.0/ucd/VerticalOrientation.txt>.
+// <https://www.unicode.org/Public/12.0.0/ucd/VerticalOrientation.txt>.
 // Keep it synchronized with
-// <http://www.unicode.org/Public/UCD/latest/ucd/VerticalOrientation.txt>.
+// <https://www.unicode.org/Public/UCD/latest/ucd/VerticalOrientation.txt>.
 // The data file denotes with “U” or “Tu” any codepoint that may be drawn
 // upright in vertical text but does not distinguish between upright and
 // “neutral” characters.
@@ -13945,7 +14044,7 @@ function charHasUprightVerticalOrientation(char) {
  *
  * A character has neutral orientation if it may be drawn rotated or unrotated
  * when the line is oriented vertically, depending on the orientation of the
- * adjacent characters. For example, along a verticlly oriented line, the vulgar
+ * adjacent characters. For example, along a vertically oriented line, the vulgar
  * fraction ½ is drawn upright among Chinese characters but rotated among Latin
  * letters. A neutrally oriented character does not influence whether an
  * adjacent character is drawn upright or rotated.
@@ -14083,7 +14182,7 @@ function charInSupportedScript(char, canRenderRTL) {
         unicodeBlockLookup['Khmer'](char)) {
         // These blocks cover common scripts that require
         // complex text shaping, based on unicode script metadata:
-        // http://www.unicode.org/repos/cldr/trunk/common/properties/scriptMetadata.txt
+        // https://www.unicode.org/repos/cldr/trunk/common/properties/scriptMetadata.txt
         // where "Web Rank <= 32" "Shaping Required = YES"
         return false;
     }
@@ -14901,7 +15000,7 @@ const RESIZE_MULTIPLIER = 5;
  * we implement a more specific subclass that inherits from one of the
  * StructArrayLayouts and adds a `get(i): T` accessor that returns a structured
  * object whose properties are proxies into the underlying memory space for the
- * i-th element.  This affords the convience of working with (seemingly) plain
+ * i-th element.  This affords the convenience of working with (seemingly) plain
  * Javascript objects without the overhead of serializing/deserializing them
  * into ArrayBuffers for efficient web worker transfer.
  */
@@ -14946,7 +15045,7 @@ class StructArray {
         }
     }
     /**
-     * Resets the length of the array to 0 without de-allocating capcacity.
+     * Resets the length of the array to 0 without de-allocating capacity.
      */
     clear() {
         this.length = 0;
@@ -16744,7 +16843,7 @@ class ProgramConfiguration {
     }
     setUniforms(context, binderUniforms, properties, globals) {
         // Uniform state bindings are owned by the Program, but we set them
-        // from within the ProgramConfiguraton's binder members.
+        // from within the ProgramConfiguration's binder members.
         for (const { name, property, binding } of binderUniforms) {
             this.binders[property].setUniform(binding, globals, properties.get(property), name);
         }
@@ -17168,7 +17267,7 @@ function pointIntersectsBufferedLine(p, line, radius) {
     }
     return false;
 }
-// Code from http://stackoverflow.com/a/1501725/331379.
+// Code from https://stackoverflow.com/a/1501725/331379.
 function distToSegmentSquared(p, v, w) {
     const l2 = v.distSqr(w);
     if (l2 === 0)
@@ -26610,8 +26709,8 @@ class FillExtrusionBucket {
         this.centroidVertexBuffer.destroy();
     }
     addFeature(feature, geometry, index, canonical, imagePositions) {
-        const centroid = { x: 0, y: 0, vertexCount: 0 };
         for (const polygon of classifyRings$1(geometry, EARCUT_MAX_RINGS)) {
+            const centroid = { x: 0, y: 0, vertexCount: 0 };
             let numVertices = 0;
             for (const ring of polygon) {
                 numVertices += ring.length;
@@ -26696,10 +26795,12 @@ class FillExtrusionBucket {
             }
             segment.primitiveLength += indices.length / 3;
             segment.vertexLength += numVertices;
-        }
-        // remember polygon centroid to calculate elevation in GPU
-        for (let i = 0; i < centroid.vertexCount; i++) {
-            this.centroidVertexArray.emplaceBack(Math.floor(centroid.x / centroid.vertexCount), Math.floor(centroid.y / centroid.vertexCount));
+            // remember polygon centroid to calculate elevation in GPU
+            for (let i = 0; i < centroid.vertexCount; i++) {
+                const averageX = Math.floor(centroid.x / centroid.vertexCount);
+                const averageY = Math.floor(centroid.y / centroid.vertexCount);
+                this.centroidVertexArray.emplaceBack(averageX, averageY);
+            }
         }
         this.programConfigurations.populatePaintArrays(this.layoutVertexArray.length, feature, index, imagePositions, canonical);
     }
@@ -28865,7 +28966,7 @@ function breakLines(input, lineBreakPoints) {
     }
     return lines;
 }
-function shapeText(text, glyphMap, glyphPositions, imagePositions, defaultFontStack, maxWidth, lineHeight, textAnchor, textJustify, spacing, translate, writingMode, allowVerticalPlacement, symbolPlacement, layoutTextSize, layoutTextSizeThisZoom) {
+function shapeText(text, glyphMap, glyphPositions, imagePositions, defaultFontStack, maxWidth, lineHeight, textAnchor, textJustify, spacing, translate, writingMode, allowVerticalPlacement, layoutTextSize, layoutTextSizeThisZoom) {
     const logicalInput = TaggedString.fromFeature(text, defaultFontStack);
     if (writingMode === WritingMode.vertical) {
         logicalInput.verticalizePunctuation();
@@ -28875,7 +28976,7 @@ function shapeText(text, glyphMap, glyphPositions, imagePositions, defaultFontSt
     if (processBidirectionalText && logicalInput.sections.length === 1) {
         // Bidi doesn't have to be style-aware
         lines = [];
-        const untaggedLines = processBidirectionalText(logicalInput.toString(), determineLineBreaks(logicalInput, spacing, maxWidth, glyphMap, imagePositions, symbolPlacement, layoutTextSize));
+        const untaggedLines = processBidirectionalText(logicalInput.toString(), determineLineBreaks(logicalInput, spacing, maxWidth, glyphMap, imagePositions, layoutTextSize));
         for (const line of untaggedLines) {
             const taggedLine = new TaggedString();
             taggedLine.text = line;
@@ -28890,7 +28991,7 @@ function shapeText(text, glyphMap, glyphPositions, imagePositions, defaultFontSt
         // Need version of mapbox-gl-rtl-text with style support for combining RTL text
         // with formatting
         lines = [];
-        const processedLines = processStyledBidirectionalText(logicalInput.text, logicalInput.sectionIndex, determineLineBreaks(logicalInput, spacing, maxWidth, glyphMap, imagePositions, symbolPlacement, layoutTextSize));
+        const processedLines = processStyledBidirectionalText(logicalInput.text, logicalInput.sectionIndex, determineLineBreaks(logicalInput, spacing, maxWidth, glyphMap, imagePositions, layoutTextSize));
         for (const line of processedLines) {
             const taggedLine = new TaggedString();
             taggedLine.text = line[0];
@@ -28900,7 +29001,7 @@ function shapeText(text, glyphMap, glyphPositions, imagePositions, defaultFontSt
         }
     }
     else {
-        lines = breakLines(logicalInput, determineLineBreaks(logicalInput, spacing, maxWidth, glyphMap, imagePositions, symbolPlacement, layoutTextSize));
+        lines = breakLines(logicalInput, determineLineBreaks(logicalInput, spacing, maxWidth, glyphMap, imagePositions, layoutTextSize));
     }
     const positionedLines = [];
     const shaping = {
@@ -28933,7 +29034,6 @@ const breakable = {
     [0x0a]: true, // newline
     [0x20]: true, // space
     [0x26]: true, // ampersand
-    [0x28]: true, // left parenthesis
     [0x29]: true, // right parenthesis
     [0x2b]: true, // plus sign
     [0x2d]: true, // hyphen-minus
@@ -28947,6 +29047,10 @@ const breakable = {
     // Many other characters may be reasonable breakpoints
     // Consider "neutral orientation" characters at scriptDetection.charHasNeutralVerticalOrientation
     // See https://github.com/mapbox/mapbox-gl-js/issues/3658
+};
+// Allow breaks depending on the following character
+const breakableBefore = {
+    [0x28]: true, // left parenthesis
 };
 function getGlyphAdvance(codePoint, section, glyphMap, imagePositions, spacing, layoutTextSize) {
     if (!section.imageName) {
@@ -29034,9 +29138,7 @@ function leastBadBreaks(lastLineBreak) {
     }
     return leastBadBreaks(lastLineBreak.priorBreak).concat(lastLineBreak.index);
 }
-function determineLineBreaks(logicalInput, spacing, maxWidth, glyphMap, imagePositions, symbolPlacement, layoutTextSize) {
-    if (symbolPlacement !== 'point')
-        return [];
+function determineLineBreaks(logicalInput, spacing, maxWidth, glyphMap, imagePositions, layoutTextSize) {
     if (!logicalInput)
         return [];
     const potentialLineBreaks = [];
@@ -29052,7 +29154,7 @@ function determineLineBreaks(logicalInput, spacing, maxWidth, glyphMap, imagePos
         // surrounding spaces.
         if ((i < logicalInput.length() - 1)) {
             const ideographicBreak = charAllowsIdeographicBreaking(codePoint);
-            if (breakable[codePoint] || ideographicBreak || section.imageName) {
+            if (breakable[codePoint] || ideographicBreak || section.imageName || (i !== logicalInput.length() - 2 && breakableBefore[logicalInput.getCharCode(i + 1)])) {
                 potentialLineBreaks.push(evaluateBreak(i + 1, currentX, targetWidth, potentialLineBreaks, calculatePenalty(codePoint, logicalInput.getCharCode(i + 1), ideographicBreak && hasServerSuggestedBreakpoints), false));
             }
         }
@@ -29256,13 +29358,13 @@ function applyTextFit(shapedIcon) {
     let iconTop = shapedIcon.top;
     let iconWidth = shapedIcon.right - iconLeft;
     let iconHeight = shapedIcon.bottom - iconTop;
-    // Size of the origional content area
+    // Size of the original content area
     const contentWidth = shapedIcon.image.content[2] - shapedIcon.image.content[0];
     const contentHeight = shapedIcon.image.content[3] - shapedIcon.image.content[1];
     const textFitWidth = (_a = shapedIcon.image.textFitWidth) !== null && _a !== void 0 ? _a : "stretchOrShrink" /* TextFit.stretchOrShrink */;
     const textFitHeight = (_b = shapedIcon.image.textFitHeight) !== null && _b !== void 0 ? _b : "stretchOrShrink" /* TextFit.stretchOrShrink */;
     const contentAspectRatio = contentWidth / contentHeight;
-    // Scale to the proportional axis first note that height takes precidence if
+    // Scale to the proportional axis first note that height takes precedence if
     // both axes are set to proportional.
     if (textFitHeight === "proportional" /* TextFit.proportional */) {
         if ((textFitWidth === "stretchOnly" /* TextFit.stretchOnly */ && iconWidth / iconHeight < contentAspectRatio) || textFitWidth === "proportional" /* TextFit.proportional */) {
@@ -29729,7 +29831,7 @@ class SymbolBucket {
         this.icon.programConfigurations.updatePaintArrays(states, vtLayer, this.layers, imagePositions);
     }
     isEmpty() {
-        // When the bucket encounters only rtl-text but the plugin isnt loaded, no symbol instances will be created.
+        // When the bucket encounters only rtl-text but the plugin isn't loaded, no symbol instances will be created.
         // In order for the bucket to be serialized, and not discarded as an empty bucket both checks are necessary.
         return this.symbolInstances.length === 0 && !this.hasRTLText;
     }
@@ -30212,17 +30314,17 @@ class SymbolStyleLayer extends StyleLayer {
             if (!SymbolStyleLayer.hasPaintOverride(this.layout, overridable)) {
                 continue;
             }
-            const overriden = this.paint.get(overridable);
-            const override = new FormatSectionOverride(overriden);
-            const styleExpression = new StyleExpression(override, overriden.property.specification);
+            const overridden = this.paint.get(overridable);
+            const override = new FormatSectionOverride(overridden);
+            const styleExpression = new StyleExpression(override, overridden.property.specification);
             let expression = null;
-            if (overriden.value.kind === 'constant' || overriden.value.kind === 'source') {
+            if (overridden.value.kind === 'constant' || overridden.value.kind === 'source') {
                 expression = new ZoomConstantExpression('source', styleExpression);
             }
             else {
-                expression = new ZoomDependentExpression('composite', styleExpression, overriden.value.zoomStops);
+                expression = new ZoomDependentExpression('composite', styleExpression, overridden.value.zoomStops);
             }
-            this.paint._values[overridable] = new PossiblyEvaluatedPropertyValue(overriden.property, expression, overriden.parameters);
+            this.paint._values[overridable] = new PossiblyEvaluatedPropertyValue(overridden.property, expression, overridden.parameters);
         }
     }
     _handleOverridablePaintPropertyUpdate(name, oldValue, newValue) {
@@ -30795,7 +30897,7 @@ function getCenterAnchor(line, maxAngle, shapedText, shapedIcon, glyphSize, boxS
 }
 function getAnchors(line, spacing, maxAngle, shapedText, shapedIcon, glyphSize, boxScale, overscaling, tileExtent) {
     // Resample a line to get anchor points for labels and check that each
-    // potential label passes text-max-angle check and has enough froom to fit
+    // potential label passes text-max-angle check and has enough room to fit
     // on the line.
     const angleWindowSize = getAngleWindowSize(shapedText, glyphSize, boxScale);
     const shapedLabelLength = getShapedLabelLength(shapedText, shapedIcon);
@@ -31319,13 +31421,13 @@ function defaultCompare(a, b) {
 }
 
 /**
- * Finds an approximation of a polygon's Pole Of Inaccessibiliy https://en.wikipedia.org/wiki/Pole_of_inaccessibility
- * This is a copy of http://github.com/mapbox/polylabel adapted to use Points
+ * Finds an approximation of a polygon's Pole Of Inaccessibility https://en.wikipedia.org/wiki/Pole_of_inaccessibility
+ * This is a copy of https://github.com/mapbox/polylabel adapted to use Points
  *
  * @param polygonRings - first item in array is the outer ring followed optionally by the list of holes, should be an element of the result of util/classify_rings
  * @param precision - Specified in input coordinate units. If 0 returns after first run, if `> 0` repeatedly narrows the search space until the radius of the area searched for the best pole is less than precision
  * @param debug - Print some statistics to the console during execution
- * @returns Pole of Inaccessibiliy.
+ * @returns Pole of Inaccessibility.
  */
 function findPoleOfInaccessibility(polygonRings, precision = 1, debug = false) {
     // find the bounding box of the outer ring
@@ -31637,13 +31739,13 @@ function performSymbolLayout(args) {
             const symbolPlacement = layout.get('symbol-placement');
             const maxWidth = symbolPlacement === 'point' ?
                 layout.get('text-max-width').evaluate(feature, {}, args.canonical) * ONE_EM :
-                0;
+                Infinity;
             const addVerticalShapingForPointLabelIfNeeded = () => {
                 if (args.bucket.allowVerticalPlacement && allowsVerticalWritingMode(unformattedText)) {
                     // Vertical POI label placement is meant to be used for scripts that support vertical
                     // writing mode, thus, default left justification is used. If Latin
                     // scripts would need to be supported, this should take into account other justifications.
-                    shapedTextOrientations.vertical = shapeText(text, args.glyphMap, args.glyphPositions, args.imagePositions, fontstack, maxWidth, lineHeight, textAnchor, 'left', spacingIfAllowed, textOffset, WritingMode.vertical, true, symbolPlacement, layoutTextSize, layoutTextSizeThisZoom);
+                    shapedTextOrientations.vertical = shapeText(text, args.glyphMap, args.glyphPositions, args.imagePositions, fontstack, maxWidth, lineHeight, textAnchor, 'left', spacingIfAllowed, textOffset, WritingMode.vertical, true, layoutTextSize, layoutTextSizeThisZoom);
                 }
             };
             // If this layer uses text-variable-anchor, generate shapings for all justification possibilities.
@@ -31669,7 +31771,7 @@ function performSymbolLayout(args) {
                     else {
                         // If using text-variable-anchor for the layer, we use a center anchor for all shapings and apply
                         // the offsets for the anchor in the placement step.
-                        const shaping = shapeText(text, args.glyphMap, args.glyphPositions, args.imagePositions, fontstack, maxWidth, lineHeight, 'center', justification, spacingIfAllowed, textOffset, WritingMode.horizontal, false, symbolPlacement, layoutTextSize, layoutTextSizeThisZoom);
+                        const shaping = shapeText(text, args.glyphMap, args.glyphPositions, args.imagePositions, fontstack, maxWidth, lineHeight, 'center', justification, spacingIfAllowed, textOffset, WritingMode.horizontal, false, layoutTextSize, layoutTextSizeThisZoom);
                         if (shaping) {
                             shapedTextOrientations.horizontal[justification] = shaping;
                             singleLine = shaping.positionedLines.length === 1;
@@ -31683,14 +31785,14 @@ function performSymbolLayout(args) {
                     textJustify = getAnchorJustification(textAnchor);
                 }
                 // Horizontal point or line label.
-                const shaping = shapeText(text, args.glyphMap, args.glyphPositions, args.imagePositions, fontstack, maxWidth, lineHeight, textAnchor, textJustify, spacingIfAllowed, textOffset, WritingMode.horizontal, false, symbolPlacement, layoutTextSize, layoutTextSizeThisZoom);
+                const shaping = shapeText(text, args.glyphMap, args.glyphPositions, args.imagePositions, fontstack, maxWidth, lineHeight, textAnchor, textJustify, spacingIfAllowed, textOffset, WritingMode.horizontal, false, layoutTextSize, layoutTextSizeThisZoom);
                 if (shaping)
                     shapedTextOrientations.horizontal[textJustify] = shaping;
                 // Vertical point label (if allowVerticalPlacement is enabled).
                 addVerticalShapingForPointLabelIfNeeded();
                 // Verticalized line label.
                 if (allowsVerticalWritingMode(unformattedText) && textAlongLine && keepUpright) {
-                    shapedTextOrientations.vertical = shapeText(text, args.glyphMap, args.glyphPositions, args.imagePositions, fontstack, maxWidth, lineHeight, textAnchor, textJustify, spacingIfAllowed, textOffset, WritingMode.vertical, false, symbolPlacement, layoutTextSize, layoutTextSizeThisZoom);
+                    shapedTextOrientations.vertical = shapeText(text, args.glyphMap, args.glyphPositions, args.imagePositions, fontstack, maxWidth, lineHeight, textAnchor, textJustify, spacingIfAllowed, textOffset, WritingMode.vertical, false, layoutTextSize, layoutTextSizeThisZoom);
                 }
             }
         }
@@ -31926,13 +32028,13 @@ function addSymbol(bucket, anchor, line, shapedTextOrientations, shapedIcon, ima
             }
         }
         bucket.addSymbols(bucket.icon, iconQuads, iconSizeData, iconOffset, iconAlongLine, feature, WritingMode.none, anchor, lineArray.lineStartIndex, lineArray.lineLength, 
-        // The icon itself does not have an associated symbol since the text isnt placed yet
+        // The icon itself does not have an associated symbol since the text isn't placed yet
         -1, canonical);
         placedIconSymbolIndex = bucket.icon.placedSymbolArray.length - 1;
         if (verticalIconQuads) {
             numVerticalIconVertices = verticalIconQuads.length * 4;
             bucket.addSymbols(bucket.icon, verticalIconQuads, iconSizeData, iconOffset, iconAlongLine, feature, WritingMode.vertical, anchor, lineArray.lineStartIndex, lineArray.lineLength, 
-            // The icon itself does not have an associated symbol since the text isnt placed yet
+            // The icon itself does not have an associated symbol since the text isn't placed yet
             -1, canonical);
             verticalPlacedIconSymbolIndex = bucket.icon.placedSymbolArray.length - 1;
         }
@@ -32263,12 +32365,12 @@ class LngLat {
 /*
  * The average circumference of the world in meters.
  */
-const earthCircumfrence = 2 * Math.PI * earthRadius; // meters
+const earthCircumference = 2 * Math.PI * earthRadius; // meters
 /*
  * The circumference at a line of latitude in meters.
  */
 function circumferenceAtLatitude(latitude) {
-    return earthCircumfrence * Math.cos(latitude * Math.PI / 180);
+    return earthCircumference * Math.cos(latitude * Math.PI / 180);
 }
 function mercatorXfromLng(lng) {
     return (180 + lng) / 360;
@@ -32387,7 +32489,7 @@ class MercatorCoordinate {
      */
     meterInMercatorCoordinateUnits() {
         // 1 meter / circumference at equator in meters * Mercator projection scale factor at this latitude
-        return 1 / earthCircumfrence * mercatorScale(latFromMercatorY(this.y));
+        return 1 / earthCircumference * mercatorScale(latFromMercatorY(this.y));
     }
 }
 
@@ -32846,7 +32948,7 @@ class VectorTileWorkerSource {
                     errorMessage += 'please make sure the data is not gzipped and that you have configured the relevant header in the server';
                 }
                 else {
-                    errorMessage += `got error: ${ex.messge}`;
+                    errorMessage += `got error: ${ex.message}`;
                 }
                 throw new Error(errorMessage);
             }
@@ -32967,7 +33069,7 @@ class VectorTileWorkerSource {
 
 /**
  * DEMData is a data structure for decoding, backfilling, and storing elevation data for processing in the hillshade shaders
- * data can be populated either from a pngraw image tile or from serliazed data sent back from a worker. When data is initially
+ * data can be populated either from a pngraw image tile or from serialized data sent back from a worker. When data is initially
  * loaded from a image tile, we decode the pixel values using the appropriate decoding formula, but we store the
  * elevation data as an Int32 value. we add 65536 (2^16) to eliminate negative values and enable the use of
  * integer overflow when creating the texture used in the hillshadePrepare step.
@@ -35454,7 +35556,7 @@ function getSuperclusterOptions({ superclusterOptions, clusterProperties }) {
 }
 
 /**
- * The Worker class responsidble for background thread related execution
+ * The Worker class responsible for background thread related execution
  */
 class Worker {
     constructor(self) {

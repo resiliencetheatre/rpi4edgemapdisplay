@@ -102,533 +102,43 @@ export declare class AJAXError extends Error {
 	constructor(status: number, statusText: string, url: string, body: Blob);
 }
 /**
- * A type of MapLibre resource.
+ * This method type is used to register a protocol handler.
+ * Use the abort controller for aborting requests.
+ * Return a promise with the relevant resource response.
  */
-export declare const enum ResourceType {
-	Glyphs = "Glyphs",
-	Image = "Image",
-	Source = "Source",
-	SpriteImage = "SpriteImage",
-	SpriteJSON = "SpriteJSON",
-	Style = "Style",
-	Tile = "Tile",
-	Unknown = "Unknown"
-}
+export type AddProtocolAction = (requestParameters: RequestParameters, abortController: AbortController) => Promise<GetResourceResponse<any>>;
 /**
- * This function is used to tranform a request.
- * It is used just before executing the relevant request.
+ * This is a global config object used to store the configuration
+ * It is available in the workers as well.
+ * Only serializable data should be stored in it.
  */
-export type RequestTransformFunction = (url: string, resourceType?: ResourceType) => RequestParameters | undefined;
-declare class RequestManager {
-	_transformRequestFn: RequestTransformFunction;
-	constructor(transformRequestFn?: RequestTransformFunction);
-	transformRequest(url: string, type: ResourceType): RequestParameters;
-	setTransformRequest(transformRequest: RequestTransformFunction): void;
-}
-/**
- * A listener method used as a callback to events
- */
-export type Listener = (a: any) => any;
-export type Listeners = {
-	[_: string]: Array<Listener>;
+export type Config = {
+	MAX_PARALLEL_IMAGE_REQUESTS: number;
+	MAX_PARALLEL_IMAGE_REQUESTS_PER_FRAME: number;
+	MAX_TILE_CACHE_ZOOM_LEVELS: number;
+	REGISTERED_PROTOCOLS: {
+		[x: string]: AddProtocolAction;
+	};
+	WORKER_URL: string;
 };
-declare class Event$1 {
-	readonly type: string;
-	constructor(type: string, data?: any);
-}
+export declare const config: Config;
 /**
- * Methods mixed in to other classes for event capabilities.
- *
- * @group Event Related
+ * A class that is serialized to and json, that can be constructed back to the original class in the worker or in the main thread
  */
-export declare class Evented {
-	_listeners: Listeners;
-	_oneTimeListeners: Listeners;
-	_eventedParent: Evented;
-	_eventedParentData: any | (() => any);
-	/**
-	 * Adds a listener to a specified event type.
-	 *
-	 * @param type - The event type to add a listen for.
-	 * @param listener - The function to be called when the event is fired.
-	 * The listener function is called with the data object passed to `fire`,
-	 * extended with `target` and `type` properties.
-	 */
-	on(type: string, listener: Listener): this;
-	/**
-	 * Removes a previously registered event listener.
-	 *
-	 * @param type - The event type to remove listeners for.
-	 * @param listener - The listener function to remove.
-	 */
-	off(type: string, listener: Listener): this;
-	/**
-	 * Adds a listener that will be called only once to a specified event type.
-	 *
-	 * The listener will be called first time the event fires after the listener is registered.
-	 *
-	 * @param type - The event type to listen for.
-	 * @param listener - The function to be called when the event is fired the first time.
-	 * @returns `this` or a promise if a listener is not provided
-	 */
-	once(type: string, listener?: Listener): this | Promise<any>;
-	fire(event: Event$1 | string, properties?: any): this;
-	/**
-	 * Returns a true if this instance of Evented or any forwardeed instances of Evented have a listener for the specified type.
-	 *
-	 * @param type - The event type
-	 * @returns `true` if there is at least one registered listener for specified event type, `false` otherwise
-	 */
-	listens(type: string): boolean;
-	/**
-	 * Bubble all events fired by this instance of Evented to this parent instance of Evented.
-	 */
-	setEventedParent(parent?: Evented | null, data?: any | (() => any)): this;
-}
-declare class ZoomHistory {
-	lastZoom: number;
-	lastFloorZoom: number;
-	lastIntegerZoom: number;
-	lastIntegerZoomTime: number;
-	first: boolean;
-	constructor();
-	update(z: number, now: number): boolean;
-}
-export type CrossfadeParameters = {
-	fromScale: number;
-	toScale: number;
-	t: number;
-};
-declare class EvaluationParameters {
-	zoom: number;
-	now: number;
-	fadeDuration: number;
-	zoomHistory: ZoomHistory;
-	transition: TransitionSpecification;
-	constructor(zoom: number, options?: any);
-	isSupportedScript(str: string): boolean;
-	crossFadingFactor(): number;
-	getCrossfadeParameters(): CrossfadeParameters;
-}
-/**
- * A {@link LngLat} object, an array of two numbers representing longitude and latitude,
- * or an object with `lng` and `lat` or `lon` and `lat` properties.
- *
- * @group Geography and Geometry
- *
- * @example
- * ```ts
- * let v1 = new LngLat(-122.420679, 37.772537);
- * let v2 = [-122.420679, 37.772537];
- * let v3 = {lon: -122.420679, lat: 37.772537};
- * ```
- */
-export type LngLatLike = LngLat | {
-	lng: number;
-	lat: number;
-} | {
-	lon: number;
-	lat: number;
-} | [
-	number,
-	number
-];
-/**
- * A `LngLat` object represents a given longitude and latitude coordinate, measured in degrees.
- * These coordinates are based on the [WGS84 (EPSG:4326) standard](https://en.wikipedia.org/wiki/World_Geodetic_System#WGS84).
- *
- * MapLibre GL JS uses longitude, latitude coordinate order (as opposed to latitude, longitude) to match the
- * [GeoJSON specification](https://tools.ietf.org/html/rfc7946).
- *
- * Note that any MapLibre GL JS method that accepts a `LngLat` object as an argument or option
- * can also accept an `Array` of two numbers and will perform an implicit conversion.
- * This flexible type is documented as {@link LngLatLike}.
- *
- * @group Geography and Geometry
- *
- * @example
- * ```ts
- * let ll = new LngLat(-123.9749, 40.7736);
- * ll.lng; // = -123.9749
- * ```
- * @see [Get coordinates of the mouse pointer](https://maplibre.org/maplibre-gl-js/docs/examples/mouse-position/)
- * @see [Display a popup](https://maplibre.org/maplibre-gl-js/docs/examples/popup/)
- * @see [Create a timeline animation](https://maplibre.org/maplibre-gl-js/docs/examples/timeline-animation/)
- */
-export declare class LngLat {
-	lng: number;
-	lat: number;
-	/**
-	 * @param lng - Longitude, measured in degrees.
-	 * @param lat - Latitude, measured in degrees.
-	 */
-	constructor(lng: number, lat: number);
-	/**
-	 * Returns a new `LngLat` object whose longitude is wrapped to the range (-180, 180).
-	 *
-	 * @returns The wrapped `LngLat` object.
-	 * @example
-	 * ```ts
-	 * let ll = new LngLat(286.0251, 40.7736);
-	 * let wrapped = ll.wrap();
-	 * wrapped.lng; // = -73.9749
-	 * ```
-	 */
-	wrap(): LngLat;
-	/**
-	 * Returns the coordinates represented as an array of two numbers.
-	 *
-	 * @returns The coordinates represented as an array of longitude and latitude.
-	 * @example
-	 * ```ts
-	 * let ll = new LngLat(-73.9749, 40.7736);
-	 * ll.toArray(); // = [-73.9749, 40.7736]
-	 * ```
-	 */
-	toArray(): [
-		number,
-		number
-	];
-	/**
-	 * Returns the coordinates represent as a string.
-	 *
-	 * @returns The coordinates represented as a string of the format `'LngLat(lng, lat)'`.
-	 * @example
-	 * ```ts
-	 * let ll = new LngLat(-73.9749, 40.7736);
-	 * ll.toString(); // = "LngLat(-73.9749, 40.7736)"
-	 * ```
-	 */
-	toString(): string;
-	/**
-	 * Returns the approximate distance between a pair of coordinates in meters
-	 * Uses the Haversine Formula (from R.W. Sinnott, "Virtues of the Haversine", Sky and Telescope, vol. 68, no. 2, 1984, p. 159)
-	 *
-	 * @param lngLat - coordinates to compute the distance to
-	 * @returns Distance in meters between the two coordinates.
-	 * @example
-	 * ```ts
-	 * let new_york = new LngLat(-74.0060, 40.7128);
-	 * let los_angeles = new LngLat(-118.2437, 34.0522);
-	 * new_york.distanceTo(los_angeles); // = 3935751.690893987, "true distance" using a non-spherical approximation is ~3966km
-	 * ```
-	 */
-	distanceTo(lngLat: LngLat): number;
-	/**
-	 * Converts an array of two numbers or an object with `lng` and `lat` or `lon` and `lat` properties
-	 * to a `LngLat` object.
-	 *
-	 * If a `LngLat` object is passed in, the function returns it unchanged.
-	 *
-	 * @param input - An array of two numbers or object to convert, or a `LngLat` object to return.
-	 * @returns A new `LngLat` object, if a conversion occurred, or the original `LngLat` object.
-	 * @example
-	 * ```ts
-	 * let arr = [-73.9749, 40.7736];
-	 * let ll = LngLat.convert(arr);
-	 * ll;   // = LngLat {lng: -73.9749, lat: 40.7736}
-	 * ```
-	 */
-	static convert(input: LngLatLike): LngLat;
-}
-/**
- * A `MercatorCoordinate` object represents a projected three dimensional position.
- *
- * `MercatorCoordinate` uses the web mercator projection ([EPSG:3857](https://epsg.io/3857)) with slightly different units:
- *
- * - the size of 1 unit is the width of the projected world instead of the "mercator meter"
- * - the origin of the coordinate space is at the north-west corner instead of the middle
- *
- * For example, `MercatorCoordinate(0, 0, 0)` is the north-west corner of the mercator world and
- * `MercatorCoordinate(1, 1, 0)` is the south-east corner. If you are familiar with
- * [vector tiles](https://github.com/mapbox/vector-tile-spec) it may be helpful to think
- * of the coordinate space as the `0/0/0` tile with an extent of `1`.
- *
- * The `z` dimension of `MercatorCoordinate` is conformal. A cube in the mercator coordinate space would be rendered as a cube.
- *
- * @group Geography and Geometry
- *
- * @example
- * ```ts
- * let nullIsland = new MercatorCoordinate(0.5, 0.5, 0);
- * ```
- * @see [Add a custom style layer](https://maplibre.org/maplibre-gl-js/docs/examples/custom-style-layer/)
- */
-export declare class MercatorCoordinate implements IMercatorCoordinate {
-	x: number;
-	y: number;
-	z: number;
-	/**
-	 * @param x - The x component of the position.
-	 * @param y - The y component of the position.
-	 * @param z - The z component of the position.
-	 */
-	constructor(x: number, y: number, z?: number);
-	/**
-	 * Project a `LngLat` to a `MercatorCoordinate`.
-	 *
-	 * @param lngLatLike - The location to project.
-	 * @param altitude - The altitude in meters of the position.
-	 * @returns The projected mercator coordinate.
-	 * @example
-	 * ```ts
-	 * let coord = MercatorCoordinate.fromLngLat({ lng: 0, lat: 0}, 0);
-	 * coord; // MercatorCoordinate(0.5, 0.5, 0)
-	 * ```
-	 */
-	static fromLngLat(lngLatLike: LngLatLike, altitude?: number): MercatorCoordinate;
-	/**
-	 * Returns the `LngLat` for the coordinate.
-	 *
-	 * @returns The `LngLat` object.
-	 * @example
-	 * ```ts
-	 * let coord = new MercatorCoordinate(0.5, 0.5, 0);
-	 * let lngLat = coord.toLngLat(); // LngLat(0, 0)
-	 * ```
-	 */
-	toLngLat(): LngLat;
-	/**
-	 * Returns the altitude in meters of the coordinate.
-	 *
-	 * @returns The altitude in meters.
-	 * @example
-	 * ```ts
-	 * let coord = new MercatorCoordinate(0, 0, 0.02);
-	 * coord.toAltitude(); // 6914.281956295339
-	 * ```
-	 */
-	toAltitude(): number;
-	/**
-	 * Returns the distance of 1 meter in `MercatorCoordinate` units at this latitude.
-	 *
-	 * For coordinates in real world units using meters, this naturally provides the scale
-	 * to transform into `MercatorCoordinate`s.
-	 *
-	 * @returns Distance of 1 meter in `MercatorCoordinate` units.
-	 */
-	meterInMercatorCoordinateUnits(): number;
-}
-declare class CanonicalTileID implements ICanonicalTileID {
-	z: number;
-	x: number;
-	y: number;
-	key: string;
-	constructor(z: number, x: number, y: number);
-	equals(id: ICanonicalTileID): boolean;
-	url(urls: Array<string>, pixelRatio: number, scheme?: string | null): string;
-	isChildOf(parent: ICanonicalTileID): boolean;
-	getTilePoint(coord: IMercatorCoordinate): Point;
-	toString(): string;
-}
-declare class UnwrappedTileID {
-	wrap: number;
-	canonical: CanonicalTileID;
-	key: string;
-	constructor(wrap: number, canonical: CanonicalTileID);
-}
-declare class OverscaledTileID {
-	overscaledZ: number;
-	wrap: number;
-	canonical: CanonicalTileID;
-	key: string;
-	posMatrix: mat4;
-	constructor(overscaledZ: number, wrap: number, z: number, x: number, y: number);
-	clone(): OverscaledTileID;
-	equals(id: OverscaledTileID): boolean;
-	scaledTo(targetZ: number): OverscaledTileID;
-	calculateScaledKey(targetZ: number, withWrap: boolean): string;
-	isChildOf(parent: OverscaledTileID): boolean;
-	children(sourceMaxZoom: number): OverscaledTileID[];
-	isLessThan(rhs: OverscaledTileID): boolean;
-	wrapped(): OverscaledTileID;
-	unwrapTo(wrap: number): OverscaledTileID;
-	overscaleFactor(): number;
-	toUnwrapped(): UnwrappedTileID;
-	toString(): string;
-	getTilePoint(coord: MercatorCoordinate): Point;
-}
-export type TimePoint = number;
-/**
- * A from-to type
- */
-export type CrossFaded<T> = {
-	to: T;
-	from: T;
+export type SerializedObject<S extends Serialized = any> = {
+	[_: string]: S;
 };
 /**
- * @internal
- *  Implementations of the `Property` interface:
- *
- *  * Hold metadata about a property that's independent of any specific value: stuff like the type of the value,
- *    the default value, etc. This comes from the style specification JSON.
- *  * Define behavior that needs to be polymorphic across different properties: "possibly evaluating"
- *    an input value (see below), and interpolating between two possibly-evaluted values.
- *
- *  The type `T` is the fully-evaluated value type (e.g. `number`, `string`, `Color`).
- *  The type `R` is the intermediate "possibly evaluated" value type. See below.
- *
- *  There are two main implementations of the interface -- one for properties that allow data-driven values,
- *  and one for properties that don't. There are a few "special case" implementations as well: one for properties
- *  which cross-fade between two values rather than interpolating, one for `heatmap-color` and `line-gradient`,
- *  and one for `light-position`.
+ * All the possible values that can be serialized and sent to and from the worker
  */
-export interface Property<T, R> {
-	specification: StylePropertySpecification;
-	possiblyEvaluate(value: PropertyValue<T, R>, parameters: EvaluationParameters, canonical?: CanonicalTileID, availableImages?: Array<string>): R;
-	interpolate(a: R, b: R, t: number): R;
-}
-declare class PropertyValue<T, R> {
-	property: Property<T, R>;
-	value: PropertyValueSpecification<T> | void;
-	expression: StylePropertyExpression;
-	constructor(property: Property<T, R>, value: PropertyValueSpecification<T> | void);
-	isDataDriven(): boolean;
-	possiblyEvaluate(parameters: EvaluationParameters, canonical?: CanonicalTileID, availableImages?: Array<string>): R;
-}
-export type TransitionParameters = {
-	now: TimePoint;
-	transition: TransitionSpecification;
-};
-declare class TransitionablePropertyValue<T, R> {
-	property: Property<T, R>;
-	value: PropertyValue<T, R>;
-	transition: TransitionSpecification | void;
-	constructor(property: Property<T, R>);
-	transitioned(parameters: TransitionParameters, prior: TransitioningPropertyValue<T, R>): TransitioningPropertyValue<T, R>;
-	untransitioned(): TransitioningPropertyValue<T, R>;
-}
-declare class Transitionable<Props> {
-	_properties: Properties<Props>;
-	_values: {
-		[K in keyof Props]: TransitionablePropertyValue<any, unknown>;
-	};
-	constructor(properties: Properties<Props>);
-	getValue<S extends keyof Props, T>(name: S): PropertyValueSpecification<T> | void;
-	setValue<S extends keyof Props, T>(name: S, value: PropertyValueSpecification<T> | void): void;
-	getTransition<S extends keyof Props>(name: S): TransitionSpecification | void;
-	setTransition<S extends keyof Props>(name: S, value: TransitionSpecification | void): void;
-	serialize(): any;
-	transitioned(parameters: TransitionParameters, prior: Transitioning<Props>): Transitioning<Props>;
-	untransitioned(): Transitioning<Props>;
-}
-declare class TransitioningPropertyValue<T, R> {
-	property: Property<T, R>;
-	value: PropertyValue<T, R>;
-	prior: TransitioningPropertyValue<T, R>;
-	begin: TimePoint;
-	end: TimePoint;
-	constructor(property: Property<T, R>, value: PropertyValue<T, R>, prior: TransitioningPropertyValue<T, R>, transition: TransitionSpecification, now: TimePoint);
-	possiblyEvaluate(parameters: EvaluationParameters, canonical: CanonicalTileID, availableImages: Array<string>): R;
-}
-declare class Transitioning<Props> {
-	_properties: Properties<Props>;
-	_values: {
-		[K in keyof Props]: PossiblyEvaluatedPropertyValue<unknown>;
-	};
-	constructor(properties: Properties<Props>);
-	possiblyEvaluate(parameters: EvaluationParameters, canonical?: CanonicalTileID, availableImages?: Array<string>): PossiblyEvaluated<Props, any>;
-	hasTransition(): boolean;
-}
-declare class Layout<Props> {
-	_properties: Properties<Props>;
-	_values: {
-		[K in keyof Props]: PropertyValue<any, PossiblyEvaluatedPropertyValue<any>>;
-	};
-	constructor(properties: Properties<Props>);
-	hasValue<S extends keyof Props>(name: S): boolean;
-	getValue<S extends keyof Props>(name: S): any;
-	setValue<S extends keyof Props>(name: S, value: any): void;
-	serialize(): any;
-	possiblyEvaluate(parameters: EvaluationParameters, canonical?: CanonicalTileID, availableImages?: Array<string>): PossiblyEvaluated<Props, any>;
-}
-/**
- * "Possibly evaluated value" is an intermediate stage in the evaluation chain for both paint and layout property
- * values. The purpose of this stage is to optimize away unnecessary recalculations for data-driven properties. Code
- * which uses data-driven property values must assume that the value is dependent on feature data, and request that it
- * be evaluated for each feature. But when that property value is in fact a constant or camera function, the calculation
- * will not actually depend on the feature, and we can benefit from returning the prior result of having done the
- * evaluation once, ahead of time, in an intermediate step whose inputs are just the value and "global" parameters
- * such as current zoom level.
- *
- * `PossiblyEvaluatedValue` represents the three possible outcomes of this step: if the input value was a constant or
- * camera expression, then the "possibly evaluated" result is a constant value. Otherwise, the input value was either
- * a source or composite expression, and we must defer final evaluation until supplied a feature. We separate
- * the source and composite cases because they are handled differently when generating GL attributes, buffers, and
- * uniforms.
- *
- * Note that `PossiblyEvaluatedValue` (and `PossiblyEvaluatedPropertyValue`, below) are _not_ used for properties that
- * do not allow data-driven values. For such properties, we know that the "possibly evaluated" result is always a constant
- * scalar value. See below.
- */
-export type PossiblyEvaluatedValue<T> = {
-	kind: "constant";
-	value: T;
-} | SourceExpression | CompositeExpression;
-declare class PossiblyEvaluatedPropertyValue<T> {
-	property: DataDrivenProperty<T>;
-	value: PossiblyEvaluatedValue<T>;
-	parameters: EvaluationParameters;
-	constructor(property: DataDrivenProperty<T>, value: PossiblyEvaluatedValue<T>, parameters: EvaluationParameters);
-	isConstant(): boolean;
-	constantOr(value: T): T;
-	evaluate(feature: Feature, featureState: FeatureState, canonical?: CanonicalTileID, availableImages?: Array<string>): T;
-}
-declare class PossiblyEvaluated<Props, PossibleEvaluatedProps> {
-	_properties: Properties<Props>;
-	_values: PossibleEvaluatedProps;
-	constructor(properties: Properties<Props>);
-	get<S extends keyof PossibleEvaluatedProps>(name: S): PossibleEvaluatedProps[S];
-}
-declare class DataConstantProperty<T> implements Property<T, T> {
-	specification: StylePropertySpecification;
-	constructor(specification: StylePropertySpecification);
-	possiblyEvaluate(value: PropertyValue<T, T>, parameters: EvaluationParameters): T;
-	interpolate(a: T, b: T, t: number): T;
-}
-declare class DataDrivenProperty<T> implements Property<T, PossiblyEvaluatedPropertyValue<T>> {
-	specification: StylePropertySpecification;
-	overrides: any;
-	constructor(specification: StylePropertySpecification, overrides?: any);
-	possiblyEvaluate(value: PropertyValue<T, PossiblyEvaluatedPropertyValue<T>>, parameters: EvaluationParameters, canonical?: CanonicalTileID, availableImages?: Array<string>): PossiblyEvaluatedPropertyValue<T>;
-	interpolate(a: PossiblyEvaluatedPropertyValue<T>, b: PossiblyEvaluatedPropertyValue<T>, t: number): PossiblyEvaluatedPropertyValue<T>;
-	evaluate(value: PossiblyEvaluatedValue<T>, parameters: EvaluationParameters, feature: Feature, featureState: FeatureState, canonical?: CanonicalTileID, availableImages?: Array<string>): T;
-}
-declare class CrossFadedDataDrivenProperty<T> extends DataDrivenProperty<CrossFaded<T>> {
-	possiblyEvaluate(value: PropertyValue<CrossFaded<T>, PossiblyEvaluatedPropertyValue<CrossFaded<T>>>, parameters: EvaluationParameters, canonical?: CanonicalTileID, availableImages?: Array<string>): PossiblyEvaluatedPropertyValue<CrossFaded<T>>;
-	evaluate(value: PossiblyEvaluatedValue<CrossFaded<T>>, globals: EvaluationParameters, feature: Feature, featureState: FeatureState, canonical?: CanonicalTileID, availableImages?: Array<string>): CrossFaded<T>;
-	_calculate(min: T, mid: T, max: T, parameters: EvaluationParameters): CrossFaded<T>;
-	interpolate(a: PossiblyEvaluatedPropertyValue<CrossFaded<T>>): PossiblyEvaluatedPropertyValue<CrossFaded<T>>;
-}
-declare class CrossFadedProperty<T> implements Property<T, CrossFaded<T>> {
-	specification: StylePropertySpecification;
-	constructor(specification: StylePropertySpecification);
-	possiblyEvaluate(value: PropertyValue<T, CrossFaded<T>>, parameters: EvaluationParameters, canonical?: CanonicalTileID, availableImages?: Array<string>): CrossFaded<T>;
-	_calculate(min: T, mid: T, max: T, parameters: EvaluationParameters): CrossFaded<T>;
-	interpolate(a?: CrossFaded<T> | null): CrossFaded<T>;
-}
-declare class ColorRampProperty implements Property<Color, boolean> {
-	specification: StylePropertySpecification;
-	constructor(specification: StylePropertySpecification);
-	possiblyEvaluate(value: PropertyValue<Color, boolean>, parameters: EvaluationParameters, canonical?: CanonicalTileID, availableImages?: Array<string>): boolean;
-	interpolate(): boolean;
-}
-declare class Properties<Props> {
-	properties: Props;
-	defaultPropertyValues: {
-		[K in keyof Props]: PropertyValue<unknown, any>;
-	};
-	defaultTransitionablePropertyValues: {
-		[K in keyof Props]: TransitionablePropertyValue<unknown, unknown>;
-	};
-	defaultTransitioningPropertyValues: {
-		[K in keyof Props]: TransitioningPropertyValue<unknown, unknown>;
-	};
-	defaultPossiblyEvaluatedValues: {
-		[K in keyof Props]: PossiblyEvaluatedPropertyValue<unknown>;
-	};
-	overridableProperties: Array<string>;
-	constructor(properties: Props);
+export type Serialized = null | void | boolean | number | string | Boolean | Number | String | Date | RegExp | ArrayBuffer | ArrayBufferView | ImageData | ImageBitmap | Blob | Array<Serialized> | SerializedObject;
+declare class ThrottledInvoker {
+	_channel: MessageChannel;
+	_triggered: boolean;
+	_methodToThrottle: Function;
+	constructor(methodToThrottle: Function);
+	trigger(): void;
+	remove(): void;
 }
 declare const viewTypes: {
 	Int8: Int8ArrayConstructor;
@@ -659,7 +169,7 @@ declare class Struct {
 }
 /**
  * @internal
- * A struct array memeber
+ * A struct array member
  */
 export type StructArrayMember = {
 	name: string;
@@ -697,7 +207,7 @@ declare abstract class StructArray {
 	 */
 	_trim(): void;
 	/**
-	 * Resets the length of the array to 0 without de-allocating capcacity.
+	 * Resets the length of the array to 0 without de-allocating capacity.
 	 */
 	clear(): void;
 	/**
@@ -1016,6 +526,720 @@ declare class LineIndexArray extends StructArrayLayout2ui4 {
 }
 declare class LineStripIndexArray extends StructArrayLayout1ui2 {
 }
+/**
+ * A {@link LngLat} object, an array of two numbers representing longitude and latitude,
+ * or an object with `lng` and `lat` or `lon` and `lat` properties.
+ *
+ * @group Geography and Geometry
+ *
+ * @example
+ * ```ts
+ * let v1 = new LngLat(-122.420679, 37.772537);
+ * let v2 = [-122.420679, 37.772537];
+ * let v3 = {lon: -122.420679, lat: 37.772537};
+ * ```
+ */
+export type LngLatLike = LngLat | {
+	lng: number;
+	lat: number;
+} | {
+	lon: number;
+	lat: number;
+} | [
+	number,
+	number
+];
+/**
+ * A `LngLat` object represents a given longitude and latitude coordinate, measured in degrees.
+ * These coordinates are based on the [WGS84 (EPSG:4326) standard](https://en.wikipedia.org/wiki/World_Geodetic_System#WGS84).
+ *
+ * MapLibre GL JS uses longitude, latitude coordinate order (as opposed to latitude, longitude) to match the
+ * [GeoJSON specification](https://tools.ietf.org/html/rfc7946).
+ *
+ * Note that any MapLibre GL JS method that accepts a `LngLat` object as an argument or option
+ * can also accept an `Array` of two numbers and will perform an implicit conversion.
+ * This flexible type is documented as {@link LngLatLike}.
+ *
+ * @group Geography and Geometry
+ *
+ * @example
+ * ```ts
+ * let ll = new LngLat(-123.9749, 40.7736);
+ * ll.lng; // = -123.9749
+ * ```
+ * @see [Get coordinates of the mouse pointer](https://maplibre.org/maplibre-gl-js/docs/examples/mouse-position/)
+ * @see [Display a popup](https://maplibre.org/maplibre-gl-js/docs/examples/popup/)
+ * @see [Create a timeline animation](https://maplibre.org/maplibre-gl-js/docs/examples/timeline-animation/)
+ */
+export declare class LngLat {
+	lng: number;
+	lat: number;
+	/**
+	 * @param lng - Longitude, measured in degrees.
+	 * @param lat - Latitude, measured in degrees.
+	 */
+	constructor(lng: number, lat: number);
+	/**
+	 * Returns a new `LngLat` object whose longitude is wrapped to the range (-180, 180).
+	 *
+	 * @returns The wrapped `LngLat` object.
+	 * @example
+	 * ```ts
+	 * let ll = new LngLat(286.0251, 40.7736);
+	 * let wrapped = ll.wrap();
+	 * wrapped.lng; // = -73.9749
+	 * ```
+	 */
+	wrap(): LngLat;
+	/**
+	 * Returns the coordinates represented as an array of two numbers.
+	 *
+	 * @returns The coordinates represented as an array of longitude and latitude.
+	 * @example
+	 * ```ts
+	 * let ll = new LngLat(-73.9749, 40.7736);
+	 * ll.toArray(); // = [-73.9749, 40.7736]
+	 * ```
+	 */
+	toArray(): [
+		number,
+		number
+	];
+	/**
+	 * Returns the coordinates represent as a string.
+	 *
+	 * @returns The coordinates represented as a string of the format `'LngLat(lng, lat)'`.
+	 * @example
+	 * ```ts
+	 * let ll = new LngLat(-73.9749, 40.7736);
+	 * ll.toString(); // = "LngLat(-73.9749, 40.7736)"
+	 * ```
+	 */
+	toString(): string;
+	/**
+	 * Returns the approximate distance between a pair of coordinates in meters
+	 * Uses the Haversine Formula (from R.W. Sinnott, "Virtues of the Haversine", Sky and Telescope, vol. 68, no. 2, 1984, p. 159)
+	 *
+	 * @param lngLat - coordinates to compute the distance to
+	 * @returns Distance in meters between the two coordinates.
+	 * @example
+	 * ```ts
+	 * let new_york = new LngLat(-74.0060, 40.7128);
+	 * let los_angeles = new LngLat(-118.2437, 34.0522);
+	 * new_york.distanceTo(los_angeles); // = 3935751.690893987, "true distance" using a non-spherical approximation is ~3966km
+	 * ```
+	 */
+	distanceTo(lngLat: LngLat): number;
+	/**
+	 * Converts an array of two numbers or an object with `lng` and `lat` or `lon` and `lat` properties
+	 * to a `LngLat` object.
+	 *
+	 * If a `LngLat` object is passed in, the function returns it unchanged.
+	 *
+	 * @param input - An array of two numbers or object to convert, or a `LngLat` object to return.
+	 * @returns A new `LngLat` object, if a conversion occurred, or the original `LngLat` object.
+	 * @example
+	 * ```ts
+	 * let arr = [-73.9749, 40.7736];
+	 * let ll = LngLat.convert(arr);
+	 * ll;   // = LngLat {lng: -73.9749, lat: 40.7736}
+	 * ```
+	 */
+	static convert(input: LngLatLike): LngLat;
+}
+/**
+ * A `MercatorCoordinate` object represents a projected three dimensional position.
+ *
+ * `MercatorCoordinate` uses the web mercator projection ([EPSG:3857](https://epsg.io/3857)) with slightly different units:
+ *
+ * - the size of 1 unit is the width of the projected world instead of the "mercator meter"
+ * - the origin of the coordinate space is at the north-west corner instead of the middle
+ *
+ * For example, `MercatorCoordinate(0, 0, 0)` is the north-west corner of the mercator world and
+ * `MercatorCoordinate(1, 1, 0)` is the south-east corner. If you are familiar with
+ * [vector tiles](https://github.com/mapbox/vector-tile-spec) it may be helpful to think
+ * of the coordinate space as the `0/0/0` tile with an extent of `1`.
+ *
+ * The `z` dimension of `MercatorCoordinate` is conformal. A cube in the mercator coordinate space would be rendered as a cube.
+ *
+ * @group Geography and Geometry
+ *
+ * @example
+ * ```ts
+ * let nullIsland = new MercatorCoordinate(0.5, 0.5, 0);
+ * ```
+ * @see [Add a custom style layer](https://maplibre.org/maplibre-gl-js/docs/examples/custom-style-layer/)
+ */
+export declare class MercatorCoordinate implements IMercatorCoordinate {
+	x: number;
+	y: number;
+	z: number;
+	/**
+	 * @param x - The x component of the position.
+	 * @param y - The y component of the position.
+	 * @param z - The z component of the position.
+	 */
+	constructor(x: number, y: number, z?: number);
+	/**
+	 * Project a `LngLat` to a `MercatorCoordinate`.
+	 *
+	 * @param lngLatLike - The location to project.
+	 * @param altitude - The altitude in meters of the position.
+	 * @returns The projected mercator coordinate.
+	 * @example
+	 * ```ts
+	 * let coord = MercatorCoordinate.fromLngLat({ lng: 0, lat: 0}, 0);
+	 * coord; // MercatorCoordinate(0.5, 0.5, 0)
+	 * ```
+	 */
+	static fromLngLat(lngLatLike: LngLatLike, altitude?: number): MercatorCoordinate;
+	/**
+	 * Returns the `LngLat` for the coordinate.
+	 *
+	 * @returns The `LngLat` object.
+	 * @example
+	 * ```ts
+	 * let coord = new MercatorCoordinate(0.5, 0.5, 0);
+	 * let lngLat = coord.toLngLat(); // LngLat(0, 0)
+	 * ```
+	 */
+	toLngLat(): LngLat;
+	/**
+	 * Returns the altitude in meters of the coordinate.
+	 *
+	 * @returns The altitude in meters.
+	 * @example
+	 * ```ts
+	 * let coord = new MercatorCoordinate(0, 0, 0.02);
+	 * coord.toAltitude(); // 6914.281956295339
+	 * ```
+	 */
+	toAltitude(): number;
+	/**
+	 * Returns the distance of 1 meter in `MercatorCoordinate` units at this latitude.
+	 *
+	 * For coordinates in real world units using meters, this naturally provides the scale
+	 * to transform into `MercatorCoordinate`s.
+	 *
+	 * @returns Distance of 1 meter in `MercatorCoordinate` units.
+	 */
+	meterInMercatorCoordinateUnits(): number;
+}
+declare class CanonicalTileID implements ICanonicalTileID {
+	z: number;
+	x: number;
+	y: number;
+	key: string;
+	constructor(z: number, x: number, y: number);
+	equals(id: ICanonicalTileID): boolean;
+	url(urls: Array<string>, pixelRatio: number, scheme?: string | null): string;
+	isChildOf(parent: ICanonicalTileID): boolean;
+	getTilePoint(coord: IMercatorCoordinate): Point;
+	toString(): string;
+}
+declare class UnwrappedTileID {
+	wrap: number;
+	canonical: CanonicalTileID;
+	key: string;
+	constructor(wrap: number, canonical: CanonicalTileID);
+}
+declare class OverscaledTileID {
+	overscaledZ: number;
+	wrap: number;
+	canonical: CanonicalTileID;
+	key: string;
+	posMatrix: mat4;
+	constructor(overscaledZ: number, wrap: number, z: number, x: number, y: number);
+	clone(): OverscaledTileID;
+	equals(id: OverscaledTileID): boolean;
+	scaledTo(targetZ: number): OverscaledTileID;
+	calculateScaledKey(targetZ: number, withWrap: boolean): string;
+	isChildOf(parent: OverscaledTileID): boolean;
+	children(sourceMaxZoom: number): OverscaledTileID[];
+	isLessThan(rhs: OverscaledTileID): boolean;
+	wrapped(): OverscaledTileID;
+	unwrapTo(wrap: number): OverscaledTileID;
+	overscaleFactor(): number;
+	toUnwrapped(): UnwrappedTileID;
+	toString(): string;
+	getTilePoint(coord: MercatorCoordinate): Point;
+}
+/**
+ * A listener method used as a callback to events
+ */
+export type Listener = (a: any) => any;
+export type Listeners = {
+	[_: string]: Array<Listener>;
+};
+declare class Event$1 {
+	readonly type: string;
+	constructor(type: string, data?: any);
+}
+/**
+ * Methods mixed in to other classes for event capabilities.
+ *
+ * @group Event Related
+ */
+export declare class Evented {
+	_listeners: Listeners;
+	_oneTimeListeners: Listeners;
+	_eventedParent: Evented;
+	_eventedParentData: any | (() => any);
+	/**
+	 * Adds a listener to a specified event type.
+	 *
+	 * @param type - The event type to add a listen for.
+	 * @param listener - The function to be called when the event is fired.
+	 * The listener function is called with the data object passed to `fire`,
+	 * extended with `target` and `type` properties.
+	 */
+	on(type: string, listener: Listener): this;
+	/**
+	 * Removes a previously registered event listener.
+	 *
+	 * @param type - The event type to remove listeners for.
+	 * @param listener - The listener function to remove.
+	 */
+	off(type: string, listener: Listener): this;
+	/**
+	 * Adds a listener that will be called only once to a specified event type.
+	 *
+	 * The listener will be called first time the event fires after the listener is registered.
+	 *
+	 * @param type - The event type to listen for.
+	 * @param listener - The function to be called when the event is fired the first time.
+	 * @returns `this` or a promise if a listener is not provided
+	 */
+	once(type: string, listener?: Listener): this | Promise<any>;
+	fire(event: Event$1 | string, properties?: any): this;
+	/**
+	 * Returns a true if this instance of Evented or any forwardeed instances of Evented have a listener for the specified type.
+	 *
+	 * @param type - The event type
+	 * @returns `true` if there is at least one registered listener for specified event type, `false` otherwise
+	 */
+	listens(type: string): boolean;
+	/**
+	 * Bubble all events fired by this instance of Evented to this parent instance of Evented.
+	 */
+	setEventedParent(parent?: Evented | null, data?: any | (() => any)): this;
+}
+declare class ZoomHistory {
+	lastZoom: number;
+	lastFloorZoom: number;
+	lastIntegerZoom: number;
+	lastIntegerZoomTime: number;
+	first: boolean;
+	constructor();
+	update(z: number, now: number): boolean;
+}
+export type CrossfadeParameters = {
+	fromScale: number;
+	toScale: number;
+	t: number;
+};
+declare class EvaluationParameters {
+	zoom: number;
+	now: number;
+	fadeDuration: number;
+	zoomHistory: ZoomHistory;
+	transition: TransitionSpecification;
+	constructor(zoom: number, options?: any);
+	isSupportedScript(str: string): boolean;
+	crossFadingFactor(): number;
+	getCrossfadeParameters(): CrossfadeParameters;
+}
+export type TimePoint = number;
+/**
+ * A from-to type
+ */
+export type CrossFaded<T> = {
+	to: T;
+	from: T;
+};
+/**
+ * @internal
+ *  Implementations of the `Property` interface:
+ *
+ *  * Hold metadata about a property that's independent of any specific value: stuff like the type of the value,
+ *    the default value, etc. This comes from the style specification JSON.
+ *  * Define behavior that needs to be polymorphic across different properties: "possibly evaluating"
+ *    an input value (see below), and interpolating between two possibly-evaluted values.
+ *
+ *  The type `T` is the fully-evaluated value type (e.g. `number`, `string`, `Color`).
+ *  The type `R` is the intermediate "possibly evaluated" value type. See below.
+ *
+ *  There are two main implementations of the interface -- one for properties that allow data-driven values,
+ *  and one for properties that don't. There are a few "special case" implementations as well: one for properties
+ *  which cross-fade between two values rather than interpolating, one for `heatmap-color` and `line-gradient`,
+ *  and one for `light-position`.
+ */
+export interface Property<T, R> {
+	specification: StylePropertySpecification;
+	possiblyEvaluate(value: PropertyValue<T, R>, parameters: EvaluationParameters, canonical?: CanonicalTileID, availableImages?: Array<string>): R;
+	interpolate(a: R, b: R, t: number): R;
+}
+declare class PropertyValue<T, R> {
+	property: Property<T, R>;
+	value: PropertyValueSpecification<T> | void;
+	expression: StylePropertyExpression;
+	constructor(property: Property<T, R>, value: PropertyValueSpecification<T> | void);
+	isDataDriven(): boolean;
+	possiblyEvaluate(parameters: EvaluationParameters, canonical?: CanonicalTileID, availableImages?: Array<string>): R;
+}
+export type TransitionParameters = {
+	now: TimePoint;
+	transition: TransitionSpecification;
+};
+declare class TransitionablePropertyValue<T, R> {
+	property: Property<T, R>;
+	value: PropertyValue<T, R>;
+	transition: TransitionSpecification | void;
+	constructor(property: Property<T, R>);
+	transitioned(parameters: TransitionParameters, prior: TransitioningPropertyValue<T, R>): TransitioningPropertyValue<T, R>;
+	untransitioned(): TransitioningPropertyValue<T, R>;
+}
+declare class Transitionable<Props> {
+	_properties: Properties<Props>;
+	_values: {
+		[K in keyof Props]: TransitionablePropertyValue<any, unknown>;
+	};
+	constructor(properties: Properties<Props>);
+	getValue<S extends keyof Props, T>(name: S): PropertyValueSpecification<T> | void;
+	setValue<S extends keyof Props, T>(name: S, value: PropertyValueSpecification<T> | void): void;
+	getTransition<S extends keyof Props>(name: S): TransitionSpecification | void;
+	setTransition<S extends keyof Props>(name: S, value: TransitionSpecification | void): void;
+	serialize(): any;
+	transitioned(parameters: TransitionParameters, prior: Transitioning<Props>): Transitioning<Props>;
+	untransitioned(): Transitioning<Props>;
+}
+declare class TransitioningPropertyValue<T, R> {
+	property: Property<T, R>;
+	value: PropertyValue<T, R>;
+	prior: TransitioningPropertyValue<T, R>;
+	begin: TimePoint;
+	end: TimePoint;
+	constructor(property: Property<T, R>, value: PropertyValue<T, R>, prior: TransitioningPropertyValue<T, R>, transition: TransitionSpecification, now: TimePoint);
+	possiblyEvaluate(parameters: EvaluationParameters, canonical: CanonicalTileID, availableImages: Array<string>): R;
+}
+declare class Transitioning<Props> {
+	_properties: Properties<Props>;
+	_values: {
+		[K in keyof Props]: PossiblyEvaluatedPropertyValue<unknown>;
+	};
+	constructor(properties: Properties<Props>);
+	possiblyEvaluate(parameters: EvaluationParameters, canonical?: CanonicalTileID, availableImages?: Array<string>): PossiblyEvaluated<Props, any>;
+	hasTransition(): boolean;
+}
+declare class Layout<Props> {
+	_properties: Properties<Props>;
+	_values: {
+		[K in keyof Props]: PropertyValue<any, PossiblyEvaluatedPropertyValue<any>>;
+	};
+	constructor(properties: Properties<Props>);
+	hasValue<S extends keyof Props>(name: S): boolean;
+	getValue<S extends keyof Props>(name: S): any;
+	setValue<S extends keyof Props>(name: S, value: any): void;
+	serialize(): any;
+	possiblyEvaluate(parameters: EvaluationParameters, canonical?: CanonicalTileID, availableImages?: Array<string>): PossiblyEvaluated<Props, any>;
+}
+/**
+ * "Possibly evaluated value" is an intermediate stage in the evaluation chain for both paint and layout property
+ * values. The purpose of this stage is to optimize away unnecessary recalculations for data-driven properties. Code
+ * which uses data-driven property values must assume that the value is dependent on feature data, and request that it
+ * be evaluated for each feature. But when that property value is in fact a constant or camera function, the calculation
+ * will not actually depend on the feature, and we can benefit from returning the prior result of having done the
+ * evaluation once, ahead of time, in an intermediate step whose inputs are just the value and "global" parameters
+ * such as current zoom level.
+ *
+ * `PossiblyEvaluatedValue` represents the three possible outcomes of this step: if the input value was a constant or
+ * camera expression, then the "possibly evaluated" result is a constant value. Otherwise, the input value was either
+ * a source or composite expression, and we must defer final evaluation until supplied a feature. We separate
+ * the source and composite cases because they are handled differently when generating GL attributes, buffers, and
+ * uniforms.
+ *
+ * Note that `PossiblyEvaluatedValue` (and `PossiblyEvaluatedPropertyValue`, below) are _not_ used for properties that
+ * do not allow data-driven values. For such properties, we know that the "possibly evaluated" result is always a constant
+ * scalar value. See below.
+ */
+export type PossiblyEvaluatedValue<T> = {
+	kind: "constant";
+	value: T;
+} | SourceExpression | CompositeExpression;
+declare class PossiblyEvaluatedPropertyValue<T> {
+	property: DataDrivenProperty<T>;
+	value: PossiblyEvaluatedValue<T>;
+	parameters: EvaluationParameters;
+	constructor(property: DataDrivenProperty<T>, value: PossiblyEvaluatedValue<T>, parameters: EvaluationParameters);
+	isConstant(): boolean;
+	constantOr(value: T): T;
+	evaluate(feature: Feature, featureState: FeatureState, canonical?: CanonicalTileID, availableImages?: Array<string>): T;
+}
+declare class PossiblyEvaluated<Props, PossibleEvaluatedProps> {
+	_properties: Properties<Props>;
+	_values: PossibleEvaluatedProps;
+	constructor(properties: Properties<Props>);
+	get<S extends keyof PossibleEvaluatedProps>(name: S): PossibleEvaluatedProps[S];
+}
+declare class DataConstantProperty<T> implements Property<T, T> {
+	specification: StylePropertySpecification;
+	constructor(specification: StylePropertySpecification);
+	possiblyEvaluate(value: PropertyValue<T, T>, parameters: EvaluationParameters): T;
+	interpolate(a: T, b: T, t: number): T;
+}
+declare class DataDrivenProperty<T> implements Property<T, PossiblyEvaluatedPropertyValue<T>> {
+	specification: StylePropertySpecification;
+	overrides: any;
+	constructor(specification: StylePropertySpecification, overrides?: any);
+	possiblyEvaluate(value: PropertyValue<T, PossiblyEvaluatedPropertyValue<T>>, parameters: EvaluationParameters, canonical?: CanonicalTileID, availableImages?: Array<string>): PossiblyEvaluatedPropertyValue<T>;
+	interpolate(a: PossiblyEvaluatedPropertyValue<T>, b: PossiblyEvaluatedPropertyValue<T>, t: number): PossiblyEvaluatedPropertyValue<T>;
+	evaluate(value: PossiblyEvaluatedValue<T>, parameters: EvaluationParameters, feature: Feature, featureState: FeatureState, canonical?: CanonicalTileID, availableImages?: Array<string>): T;
+}
+declare class CrossFadedDataDrivenProperty<T> extends DataDrivenProperty<CrossFaded<T>> {
+	possiblyEvaluate(value: PropertyValue<CrossFaded<T>, PossiblyEvaluatedPropertyValue<CrossFaded<T>>>, parameters: EvaluationParameters, canonical?: CanonicalTileID, availableImages?: Array<string>): PossiblyEvaluatedPropertyValue<CrossFaded<T>>;
+	evaluate(value: PossiblyEvaluatedValue<CrossFaded<T>>, globals: EvaluationParameters, feature: Feature, featureState: FeatureState, canonical?: CanonicalTileID, availableImages?: Array<string>): CrossFaded<T>;
+	_calculate(min: T, mid: T, max: T, parameters: EvaluationParameters): CrossFaded<T>;
+	interpolate(a: PossiblyEvaluatedPropertyValue<CrossFaded<T>>): PossiblyEvaluatedPropertyValue<CrossFaded<T>>;
+}
+declare class CrossFadedProperty<T> implements Property<T, CrossFaded<T>> {
+	specification: StylePropertySpecification;
+	constructor(specification: StylePropertySpecification);
+	possiblyEvaluate(value: PropertyValue<T, CrossFaded<T>>, parameters: EvaluationParameters, canonical?: CanonicalTileID, availableImages?: Array<string>): CrossFaded<T>;
+	_calculate(min: T, mid: T, max: T, parameters: EvaluationParameters): CrossFaded<T>;
+	interpolate(a?: CrossFaded<T> | null): CrossFaded<T>;
+}
+declare class ColorRampProperty implements Property<Color, boolean> {
+	specification: StylePropertySpecification;
+	constructor(specification: StylePropertySpecification);
+	possiblyEvaluate(value: PropertyValue<Color, boolean>, parameters: EvaluationParameters, canonical?: CanonicalTileID, availableImages?: Array<string>): boolean;
+	interpolate(): boolean;
+}
+declare class Properties<Props> {
+	properties: Props;
+	defaultPropertyValues: {
+		[K in keyof Props]: PropertyValue<unknown, any>;
+	};
+	defaultTransitionablePropertyValues: {
+		[K in keyof Props]: TransitionablePropertyValue<unknown, unknown>;
+	};
+	defaultTransitioningPropertyValues: {
+		[K in keyof Props]: TransitioningPropertyValue<unknown, unknown>;
+	};
+	defaultPossiblyEvaluatedValues: {
+		[K in keyof Props]: PossiblyEvaluatedPropertyValue<unknown>;
+	};
+	overridableProperties: Array<string>;
+	constructor(properties: Props);
+}
+export type Size = {
+	width: number;
+	height: number;
+};
+export type Point2D = {
+	x: number;
+	y: number;
+};
+declare class AlphaImage {
+	width: number;
+	height: number;
+	data: Uint8Array;
+	constructor(size: Size, data?: Uint8Array | Uint8ClampedArray);
+	resize(size: Size): void;
+	clone(): AlphaImage;
+	static copy(srcImg: AlphaImage, dstImg: AlphaImage, srcPt: Point2D, dstPt: Point2D, size: Size): void;
+}
+declare class RGBAImage {
+	width: number;
+	height: number;
+	/**
+	 * data must be a Uint8Array instead of Uint8ClampedArray because texImage2D does not support Uint8ClampedArray in all browsers.
+	 */
+	data: Uint8Array;
+	constructor(size: Size, data?: Uint8Array | Uint8ClampedArray);
+	resize(size: Size): void;
+	replace(data: Uint8Array | Uint8ClampedArray, copy?: boolean): void;
+	clone(): RGBAImage;
+	static copy(srcImg: RGBAImage | ImageData, dstImg: RGBAImage, srcPt: Point2D, dstPt: Point2D, size: Size): void;
+}
+/**
+ * The sprite data
+ */
+export type SpriteOnDemandStyleImage = {
+	width: number;
+	height: number;
+	x: number;
+	y: number;
+	context: CanvasRenderingContext2D;
+};
+/**
+ * The style's image metadata
+ */
+export type StyleImageData = {
+	data: RGBAImage;
+	version?: number;
+	hasRenderCallback?: boolean;
+	userImage?: StyleImageInterface;
+	spriteData?: SpriteOnDemandStyleImage;
+};
+/**
+ * Enumeration of possible values for StyleImageMetadata.textFitWidth and textFitHeight.
+ */
+export declare const enum TextFit {
+	/**
+	 * The image will be resized on the specified axis to tightly fit the content rectangle to target text.
+	 * This is the same as not being defined.
+	 */
+	stretchOrShrink = "stretchOrShrink",
+	/**
+	 * The image will be resized on the specified axis to fit the content rectangle to the target text, but will not
+	 * fall below the aspect ratio of the original content rectangle if the other axis is set to proportional.
+	 */
+	stretchOnly = "stretchOnly",
+	/**
+	 * The image will be resized on the specified axis to fit the content rectangle to the target text and
+	 * will resize the other axis to maintain the aspect ratio of the content rectangle.
+	 */
+	proportional = "proportional"
+}
+/**
+ * The style's image metadata
+ */
+export type StyleImageMetadata = {
+	/**
+	 * The ratio of pixels in the image to physical pixels on the screen
+	 */
+	pixelRatio: number;
+	/**
+	 * Whether the image should be interpreted as an SDF image
+	 */
+	sdf: boolean;
+	/**
+	 * If `icon-text-fit` is used in a layer with this image, this option defines the part(s) of the image that can be stretched horizontally.
+	 */
+	stretchX?: Array<[
+		number,
+		number
+	]>;
+	/**
+	 * If `icon-text-fit` is used in a layer with this image, this option defines the part(s) of the image that can be stretched vertically.
+	 */
+	stretchY?: Array<[
+		number,
+		number
+	]>;
+	/**
+	 * If `icon-text-fit` is used in a layer with this image, this option defines the part of the image that can be covered by the content in `text-field`.
+	 */
+	content?: [
+		number,
+		number,
+		number,
+		number
+	];
+	/**
+	 * If `icon-text-fit` is used in a layer with this image, this option defines constraints on the horizontal scaling of the image.
+	 */
+	textFitWidth?: TextFit;
+	/**
+	 * If `icon-text-fit` is used in a layer with this image, this option defines constraints on the vertical scaling of the image.
+	 */
+	textFitHeight?: TextFit;
+};
+/**
+ * the style's image, including data and metedata
+ */
+export type StyleImage = StyleImageData & StyleImageMetadata;
+/**
+ * Interface for dynamically generated style images. This is a specification for
+ * implementers to model: it is not an exported method or class.
+ *
+ * Images implementing this interface can be redrawn for every frame. They can be used to animate
+ * icons and patterns or make them respond to user input. Style images can implement a
+ * {@link StyleImageInterface#render} method. The method is called every frame and
+ * can be used to update the image.
+ *
+ * @see [Add an animated icon to the map.](https://maplibre.org/maplibre-gl-js/docs/examples/add-image-animated/)
+ *
+ * @example
+ * ```ts
+ * let flashingSquare = {
+ *     width: 64,
+ *     height: 64,
+ *     data: new Uint8Array(64 * 64 * 4),
+ *
+ *     onAdd: function(map) {
+ *         this.map = map;
+ *     },
+ *
+ *     render: function() {
+ *         // keep repainting while the icon is on the map
+ *         this.map.triggerRepaint();
+ *
+ *         // alternate between black and white based on the time
+ *         let value = Math.round(Date.now() / 1000) % 2 === 0  ? 255 : 0;
+ *
+ *         // check if image needs to be changed
+ *         if (value !== this.previousValue) {
+ *             this.previousValue = value;
+ *
+ *             let bytesPerPixel = 4;
+ *             for (let x = 0; x < this.width; x++) {
+ *                 for (let y = 0; y < this.height; y++) {
+ *                     let offset = (y * this.width + x) * bytesPerPixel;
+ *                     this.data[offset + 0] = value;
+ *                     this.data[offset + 1] = value;
+ *                     this.data[offset + 2] = value;
+ *                     this.data[offset + 3] = 255;
+ *                 }
+ *             }
+ *
+ *             // return true to indicate that the image changed
+ *             return true;
+ *         }
+ *     }
+ *  }
+ *
+ *  map.addImage('flashing_square', flashingSquare);
+ * ```
+ */
+export interface StyleImageInterface {
+	width: number;
+	height: number;
+	data: Uint8Array | Uint8ClampedArray;
+	/**
+	 * This method is called once before every frame where the icon will be used.
+	 * The method can optionally update the image's `data` member with a new image.
+	 *
+	 * If the method updates the image it must return `true` to commit the change.
+	 * If the method returns `false` or nothing the image is assumed to not have changed.
+	 *
+	 * If updates are infrequent it maybe easier to use {@link Map#updateImage} to update
+	 * the image instead of implementing this method.
+	 *
+	 * @returns `true` if this method updated the image. `false` if the image was not changed.
+	 */
+	render?: () => boolean;
+	/**
+	 * Optional method called when the layer has been added to the Map with {@link Map#addImage}.
+	 *
+	 * @param map - The Map this custom layer was just added to.
+	 */
+	onAdd?: (map: Map$1, id: string) => void;
+	/**
+	 * Optional method called when the icon is removed from the map with {@link Map#removeImage}.
+	 * This gives the image a chance to clean up resources and event listeners.
+	 */
+	onRemove?: () => void;
+}
+declare class IndexBuffer {
+	context: Context;
+	buffer: WebGLBuffer;
+	dynamicDraw: boolean;
+	constructor(context: Context, array: TriangleIndexArray | LineIndexArray | LineStripIndexArray, dynamicDraw?: boolean);
+	bind(): void;
+	updateData(array: StructArray): void;
+	destroy(): void;
+}
 export type SerializedFeaturePositionMap = {
 	ids: Float64Array;
 	positions: Uint32Array;
@@ -1035,41 +1259,99 @@ declare class FeaturePositionMap {
 	static serialize(map: FeaturePositionMap, transferables: Array<ArrayBuffer>): SerializedFeaturePositionMap;
 	static deserialize(obj: SerializedFeaturePositionMap): FeaturePositionMap;
 }
-declare class IndexBuffer {
+export type $ObjMap<T extends {}, F extends (v: any) => any> = {
+	[K in keyof T]: F extends (v: T[K]) => infer R ? R : never;
+};
+export type UniformValues<Us extends {}> = $ObjMap<Us, <V>(u: Uniform<V>) => V>;
+export type UniformLocations = {
+	[_: string]: WebGLUniformLocation;
+};
+declare abstract class Uniform<T> {
+	gl: WebGLRenderingContext | WebGL2RenderingContext;
+	location: WebGLUniformLocation;
+	current: T;
+	constructor(context: Context, location: WebGLUniformLocation);
+	abstract set(v: T): void;
+}
+declare class Uniform1i extends Uniform<number> {
+	constructor(context: Context, location: WebGLUniformLocation);
+	set(v: number): void;
+}
+declare class Uniform1f extends Uniform<number> {
+	constructor(context: Context, location: WebGLUniformLocation);
+	set(v: number): void;
+}
+declare class Uniform4f extends Uniform<vec4> {
+	constructor(context: Context, location: WebGLUniformLocation);
+	set(v: vec4): void;
+}
+declare class UniformMatrix4f extends Uniform<mat4> {
+	constructor(context: Context, location: WebGLUniformLocation);
+	set(v: mat4): void;
+}
+/**
+ * @internal
+ * A uniform bindings
+ */
+export type UniformBindings = {
+	[_: string]: Uniform<any>;
+};
+declare class VertexArrayObject {
 	context: Context;
-	buffer: WebGLBuffer;
-	dynamicDraw: boolean;
-	constructor(context: Context, array: TriangleIndexArray | LineIndexArray | LineStripIndexArray, dynamicDraw?: boolean);
-	bind(): void;
-	updateData(array: StructArray): void;
+	boundProgram: Program<any>;
+	boundLayoutVertexBuffer: VertexBuffer;
+	boundPaintVertexBuffers: Array<VertexBuffer>;
+	boundIndexBuffer: IndexBuffer;
+	boundVertexOffset: number;
+	boundDynamicVertexBuffer: VertexBuffer;
+	boundDynamicVertexBuffer2: VertexBuffer;
+	boundDynamicVertexBuffer3: VertexBuffer;
+	vao: any;
+	constructor();
+	bind(context: Context, program: Program<any>, layoutVertexBuffer: VertexBuffer, paintVertexBuffers: Array<VertexBuffer>, indexBuffer?: IndexBuffer | null, vertexOffset?: number | null, dynamicVertexBuffer?: VertexBuffer | null, dynamicVertexBuffer2?: VertexBuffer | null, dynamicVertexBuffer3?: VertexBuffer | null): void;
+	freshBind(program: Program<any>, layoutVertexBuffer: VertexBuffer, paintVertexBuffers: Array<VertexBuffer>, indexBuffer?: IndexBuffer | null, vertexOffset?: number | null, dynamicVertexBuffer?: VertexBuffer | null, dynamicVertexBuffer2?: VertexBuffer | null, dynamicVertexBuffer3?: VertexBuffer | null): void;
 	destroy(): void;
 }
-declare class VertexBuffer {
-	length: number;
-	attributes: ReadonlyArray<StructArrayMember>;
-	itemSize: number;
-	dynamicDraw: boolean;
-	context: Context;
-	buffer: WebGLBuffer;
-	/**
-	 * @param dynamicDraw - Whether this buffer will be repeatedly updated.
-	 */
-	constructor(context: Context, array: StructArray, attributes: ReadonlyArray<StructArrayMember>, dynamicDraw?: boolean);
-	bind(): void;
-	updateData(array: StructArray): void;
-	enableAttributes(gl: WebGLRenderingContext | WebGL2RenderingContext, program: Program<any>): void;
-	/**
-	 * Set the attribute pointers in a WebGL context
-	 * @param gl - The WebGL context
-	 * @param program - The active WebGL program
-	 * @param vertexOffset - Index of the starting vertex of the segment
-	 */
-	setVertexAttribPointers(gl: WebGLRenderingContext | WebGL2RenderingContext, program: Program<any>, vertexOffset?: number | null): void;
-	/**
-	 * Destroy the GL buffer bound to the given WebGL context
-	 */
+/**
+ * @internal
+ * A single segment of a vector
+ */
+export type Segment = {
+	sortKey?: number;
+	vertexOffset: number;
+	primitiveOffset: number;
+	vertexLength: number;
+	primitiveLength: number;
+	vaos: {
+		[_: string]: VertexArrayObject;
+	};
+};
+declare class SegmentVector {
+	static MAX_VERTEX_ARRAY_LENGTH: number;
+	segments: Array<Segment>;
+	constructor(segments?: Array<Segment>);
+	prepareSegment(numVertices: number, layoutVertexArray: StructArray, indexArray: StructArray, sortKey?: number): Segment;
+	get(): Segment[];
 	destroy(): void;
+	static simpleSegment(vertexOffset: number, primitiveOffset: number, vertexLength: number, primitiveLength: number): SegmentVector;
 }
+declare class HeatmapBucket extends CircleBucket<HeatmapStyleLayer> {
+	layers: Array<HeatmapStyleLayer>;
+}
+export type HeatmapPaintProps = {
+	"heatmap-radius": DataDrivenProperty<number>;
+	"heatmap-weight": DataDrivenProperty<number>;
+	"heatmap-intensity": DataConstantProperty<number>;
+	"heatmap-color": ColorRampProperty;
+	"heatmap-opacity": DataConstantProperty<number>;
+};
+export type HeatmapPaintPropsPossiblyEvaluated = {
+	"heatmap-radius": PossiblyEvaluatedPropertyValue<number>;
+	"heatmap-weight": PossiblyEvaluatedPropertyValue<number>;
+	"heatmap-intensity": number;
+	"heatmap-color": ColorRampProperty;
+	"heatmap-opacity": number;
+};
 export type BlendFuncConstant = WebGLRenderingContextBase["ZERO"] | WebGLRenderingContextBase["ONE"] | WebGLRenderingContextBase["SRC_COLOR"] | WebGLRenderingContextBase["ONE_MINUS_SRC_COLOR"] | WebGLRenderingContextBase["DST_COLOR"] | WebGLRenderingContextBase["ONE_MINUS_DST_COLOR"] | WebGLRenderingContextBase["SRC_ALPHA"] | WebGLRenderingContextBase["ONE_MINUS_SRC_ALPHA"] | WebGLRenderingContextBase["DST_ALPHA"] | WebGLRenderingContextBase["ONE_MINUS_DST_ALPHA"] | WebGLRenderingContextBase["CONSTANT_COLOR"] | WebGLRenderingContextBase["ONE_MINUS_CONSTANT_COLOR"] | WebGLRenderingContextBase["CONSTANT_ALPHA"] | WebGLRenderingContextBase["ONE_MINUS_CONSTANT_ALPHA"] | WebGLRenderingContextBase["BLEND_COLOR"];
 export type BlendFuncType = [
 	BlendFuncConstant,
@@ -1300,478 +1582,22 @@ declare class Framebuffer {
 	constructor(context: Context, width: number, height: number, hasDepth: boolean, hasStencil: boolean);
 	destroy(): void;
 }
-declare class DepthMode {
-	func: DepthFuncType;
-	mask: DepthMaskType;
-	range: DepthRangeType;
-	static ReadOnly: boolean;
-	static ReadWrite: boolean;
-	constructor(depthFunc: DepthFuncType, depthMask: DepthMaskType, depthRange: DepthRangeType);
-	static disabled: Readonly<DepthMode>;
+declare class HeatmapStyleLayer extends StyleLayer {
+	heatmapFbo: Framebuffer;
+	colorRamp: RGBAImage;
+	colorRampTexture: Texture;
+	_transitionablePaint: Transitionable<HeatmapPaintProps>;
+	_transitioningPaint: Transitioning<HeatmapPaintProps>;
+	paint: PossiblyEvaluated<HeatmapPaintProps, HeatmapPaintPropsPossiblyEvaluated>;
+	createBucket(options: any): HeatmapBucket;
+	constructor(layer: LayerSpecification);
+	_handleSpecialPaintPropertyUpdate(name: string): void;
+	_updateColorRamp(): void;
+	resize(): void;
+	queryRadius(): number;
+	queryIntersectsFeature(): boolean;
+	hasOffscreenPass(): boolean;
 }
-declare class StencilMode {
-	test: StencilTestGL;
-	ref: number;
-	mask: number;
-	fail: StencilOpConstant;
-	depthFail: StencilOpConstant;
-	pass: StencilOpConstant;
-	constructor(test: StencilTestGL, ref: number, mask: number, fail: StencilOpConstant, depthFail: StencilOpConstant, pass: StencilOpConstant);
-	static disabled: Readonly<StencilMode>;
-}
-declare class ColorMode {
-	blendFunction: BlendFuncType;
-	blendColor: Color;
-	mask: ColorMaskType;
-	constructor(blendFunction: BlendFuncType, blendColor: Color, mask: ColorMaskType);
-	static Replace: BlendFuncType;
-	static disabled: Readonly<ColorMode>;
-	static unblended: Readonly<ColorMode>;
-	static alphaBlended: Readonly<ColorMode>;
-}
-declare class CullFaceMode {
-	enable: boolean;
-	mode: CullFaceModeType;
-	frontFace: FrontFaceType;
-	constructor(enable: boolean, mode: CullFaceModeType, frontFace: FrontFaceType);
-	static disabled: Readonly<CullFaceMode>;
-	static backCCW: Readonly<CullFaceMode>;
-}
-export type ClearArgs = {
-	color?: Color;
-	depth?: number;
-	stencil?: number;
-};
-declare class Context {
-	gl: WebGLRenderingContext | WebGL2RenderingContext;
-	currentNumAttributes: number;
-	maxTextureSize: number;
-	clearColor: ClearColor;
-	clearDepth: ClearDepth;
-	clearStencil: ClearStencil;
-	colorMask: ColorMask;
-	depthMask: DepthMask;
-	stencilMask: StencilMask;
-	stencilFunc: StencilFunc;
-	stencilOp: StencilOp;
-	stencilTest: StencilTest;
-	depthRange: DepthRange;
-	depthTest: DepthTest;
-	depthFunc: DepthFunc;
-	blend: Blend;
-	blendFunc: BlendFunc;
-	blendColor: BlendColor;
-	blendEquation: BlendEquation;
-	cullFace: CullFace;
-	cullFaceSide: CullFaceSide;
-	frontFace: FrontFace;
-	program: ProgramValue;
-	activeTexture: ActiveTextureUnit;
-	viewport: Viewport;
-	bindFramebuffer: BindFramebuffer;
-	bindRenderbuffer: BindRenderbuffer;
-	bindTexture: BindTexture;
-	bindVertexBuffer: BindVertexBuffer;
-	bindElementBuffer: BindElementBuffer;
-	bindVertexArray: BindVertexArray;
-	pixelStoreUnpack: PixelStoreUnpack;
-	pixelStoreUnpackPremultiplyAlpha: PixelStoreUnpackPremultiplyAlpha;
-	pixelStoreUnpackFlipY: PixelStoreUnpackFlipY;
-	extTextureFilterAnisotropic: EXT_texture_filter_anisotropic | null;
-	extTextureFilterAnisotropicMax?: GLfloat;
-	HALF_FLOAT?: GLenum;
-	RGBA16F?: GLenum;
-	RGB16F?: GLenum;
-	constructor(gl: WebGLRenderingContext | WebGL2RenderingContext);
-	setDefault(): void;
-	setDirty(): void;
-	createIndexBuffer(array: TriangleIndexArray | LineIndexArray | LineStripIndexArray, dynamicDraw?: boolean): IndexBuffer;
-	createVertexBuffer(array: StructArray, attributes: ReadonlyArray<StructArrayMember>, dynamicDraw?: boolean): VertexBuffer;
-	createRenderbuffer(storageFormat: number, width: number, height: number): WebGLRenderbuffer;
-	createFramebuffer(width: number, height: number, hasDepth: boolean, hasStencil: boolean): Framebuffer;
-	clear({ color, depth, stencil }: ClearArgs): void;
-	setCullFace(cullFaceMode: Readonly<CullFaceMode>): void;
-	setDepthMode(depthMode: Readonly<DepthMode>): void;
-	setStencilMode(stencilMode: Readonly<StencilMode>): void;
-	setColorMode(colorMode: Readonly<ColorMode>): void;
-	createVertexArray(): WebGLVertexArrayObject | undefined;
-	deleteVertexArray(x: WebGLVertexArrayObject | undefined): void;
-	unbindVAO(): void;
-}
-export type $ObjMap<T extends {}, F extends (v: any) => any> = {
-	[K in keyof T]: F extends (v: T[K]) => infer R ? R : never;
-};
-export type UniformValues<Us extends {}> = $ObjMap<Us, <V>(u: Uniform<V>) => V>;
-export type UniformLocations = {
-	[_: string]: WebGLUniformLocation;
-};
-declare abstract class Uniform<T> {
-	gl: WebGLRenderingContext | WebGL2RenderingContext;
-	location: WebGLUniformLocation;
-	current: T;
-	constructor(context: Context, location: WebGLUniformLocation);
-	abstract set(v: T): void;
-}
-declare class Uniform1i extends Uniform<number> {
-	constructor(context: Context, location: WebGLUniformLocation);
-	set(v: number): void;
-}
-declare class Uniform1f extends Uniform<number> {
-	constructor(context: Context, location: WebGLUniformLocation);
-	set(v: number): void;
-}
-declare class Uniform4f extends Uniform<vec4> {
-	constructor(context: Context, location: WebGLUniformLocation);
-	set(v: vec4): void;
-}
-declare class UniformMatrix4f extends Uniform<mat4> {
-	constructor(context: Context, location: WebGLUniformLocation);
-	set(v: mat4): void;
-}
-/**
- * @internal
- * A uniform bindings
- */
-export type UniformBindings = {
-	[_: string]: Uniform<any>;
-};
-export type Size = {
-	width: number;
-	height: number;
-};
-export type Point2D = {
-	x: number;
-	y: number;
-};
-declare class AlphaImage {
-	width: number;
-	height: number;
-	data: Uint8Array;
-	constructor(size: Size, data?: Uint8Array | Uint8ClampedArray);
-	resize(size: Size): void;
-	clone(): AlphaImage;
-	static copy(srcImg: AlphaImage, dstImg: AlphaImage, srcPt: Point2D, dstPt: Point2D, size: Size): void;
-}
-declare class RGBAImage {
-	width: number;
-	height: number;
-	/**
-	 * data must be a Uint8Array instead of Uint8ClampedArray because texImage2D does not support Uint8ClampedArray in all browsers.
-	 */
-	data: Uint8Array;
-	constructor(size: Size, data?: Uint8Array | Uint8ClampedArray);
-	resize(size: Size): void;
-	replace(data: Uint8Array | Uint8ClampedArray, copy?: boolean): void;
-	clone(): RGBAImage;
-	static copy(srcImg: RGBAImage | ImageData, dstImg: RGBAImage, srcPt: Point2D, dstPt: Point2D, size: Size): void;
-}
-/**
- * The sprite data
- */
-export type SpriteOnDemandStyleImage = {
-	width: number;
-	height: number;
-	x: number;
-	y: number;
-	context: CanvasRenderingContext2D;
-};
-/**
- * The style's image metadata
- */
-export type StyleImageData = {
-	data: RGBAImage;
-	version?: number;
-	hasRenderCallback?: boolean;
-	userImage?: StyleImageInterface;
-	spriteData?: SpriteOnDemandStyleImage;
-};
-/**
- * Enumeration of possible values for StyleImageMetadata.textFitWidth and textFitHeight.
- */
-export declare const enum TextFit {
-	/**
-	 * The image will be resized on the specified axis to tightly fit the content rectangle to target text.
-	 * This is the same as not being defined.
-	 */
-	stretchOrShrink = "stretchOrShrink",
-	/**
-	 * The image will be resized on the specified axis to fit the content rectangle to the target text, but will not
-	 * fall below the aspect ratio of the original content rectangle if the other axis is set to proportional.
-	 */
-	stretchOnly = "stretchOnly",
-	/**
-	 * The image will be resized on the specified axis to fit the content rectangle to the target text and
-	 * will resize the other axis to maintain the aspect ratio of the content rectangle.
-	 */
-	proportional = "proportional"
-}
-/**
- * The style's image metadata
- */
-export type StyleImageMetadata = {
-	/**
-	 * The ratio of pixels in the image to physical pixels on the screen
-	 */
-	pixelRatio: number;
-	/**
-	 * Whether the image should be interpreted as an SDF image
-	 */
-	sdf: boolean;
-	/**
-	 * If `icon-text-fit` is used in a layer with this image, this option defines the part(s) of the image that can be stretched horizontally.
-	 */
-	stretchX?: Array<[
-		number,
-		number
-	]>;
-	/**
-	 * If `icon-text-fit` is used in a layer with this image, this option defines the part(s) of the image that can be stretched vertically.
-	 */
-	stretchY?: Array<[
-		number,
-		number
-	]>;
-	/**
-	 * If `icon-text-fit` is used in a layer with this image, this option defines the part of the image that can be covered by the content in `text-field`.
-	 */
-	content?: [
-		number,
-		number,
-		number,
-		number
-	];
-	/**
-	 * If `icon-text-fit` is used in a layer with this image, this option defines constraints on the horizontal scaling of the image.
-	 */
-	textFitWidth?: TextFit;
-	/**
-	 * If `icon-text-fit` is used in a layer with this image, this option defines constraints on the vertical scaling of the image.
-	 */
-	textFitHeight?: TextFit;
-};
-/**
- * the style's image, including data and metedata
- */
-export type StyleImage = StyleImageData & StyleImageMetadata;
-/**
- * Interface for dynamically generated style images. This is a specification for
- * implementers to model: it is not an exported method or class.
- *
- * Images implementing this interface can be redrawn for every frame. They can be used to animate
- * icons and patterns or make them respond to user input. Style images can implement a
- * {@link StyleImageInterface#render} method. The method is called every frame and
- * can be used to update the image.
- *
- * @see [Add an animated icon to the map.](https://maplibre.org/maplibre-gl-js/docs/examples/add-image-animated/)
- *
- * @example
- * ```ts
- * let flashingSquare = {
- *     width: 64,
- *     height: 64,
- *     data: new Uint8Array(64 * 64 * 4),
- *
- *     onAdd: function(map) {
- *         this.map = map;
- *     },
- *
- *     render: function() {
- *         // keep repainting while the icon is on the map
- *         this.map.triggerRepaint();
- *
- *         // alternate between black and white based on the time
- *         let value = Math.round(Date.now() / 1000) % 2 === 0  ? 255 : 0;
- *
- *         // check if image needs to be changed
- *         if (value !== this.previousValue) {
- *             this.previousValue = value;
- *
- *             let bytesPerPixel = 4;
- *             for (let x = 0; x < this.width; x++) {
- *                 for (let y = 0; y < this.height; y++) {
- *                     let offset = (y * this.width + x) * bytesPerPixel;
- *                     this.data[offset + 0] = value;
- *                     this.data[offset + 1] = value;
- *                     this.data[offset + 2] = value;
- *                     this.data[offset + 3] = 255;
- *                 }
- *             }
- *
- *             // return true to indicate that the image changed
- *             return true;
- *         }
- *     }
- *  }
- *
- *  map.addImage('flashing_square', flashingSquare);
- * ```
- */
-export interface StyleImageInterface {
-	width: number;
-	height: number;
-	data: Uint8Array | Uint8ClampedArray;
-	/**
-	 * This method is called once before every frame where the icon will be used.
-	 * The method can optionally update the image's `data` member with a new image.
-	 *
-	 * If the method updates the image it must return `true` to commit the change.
-	 * If the method returns `false` or nothing the image is assumed to not have changed.
-	 *
-	 * If updates are infrequent it maybe easier to use {@link Map#updateImage} to update
-	 * the image instead of implementing this method.
-	 *
-	 * @returns `true` if this method updated the image. `false` if the image was not changed.
-	 */
-	render?: () => boolean;
-	/**
-	 * Optional method called when the layer has been added to the Map with {@link Map#addImage}.
-	 *
-	 * @param map - The Map this custom layer was just added to.
-	 */
-	onAdd?: (map: Map$1, id: string) => void;
-	/**
-	 * Optional method called when the icon is removed from the map with {@link Map#removeImage}.
-	 * This gives the image a chance to clean up resources and event listeners.
-	 */
-	onRemove?: () => void;
-}
-export type TextureFormat = WebGLRenderingContextBase["RGBA"] | WebGLRenderingContextBase["ALPHA"];
-export type TextureFilter = WebGLRenderingContextBase["LINEAR"] | WebGLRenderingContextBase["LINEAR_MIPMAP_NEAREST"] | WebGLRenderingContextBase["NEAREST"];
-export type TextureWrap = WebGLRenderingContextBase["REPEAT"] | WebGLRenderingContextBase["CLAMP_TO_EDGE"] | WebGLRenderingContextBase["MIRRORED_REPEAT"];
-export type EmptyImage = {
-	width: number;
-	height: number;
-	data: null;
-};
-export type DataTextureImage = RGBAImage | AlphaImage | EmptyImage;
-export type TextureImage = TexImageSource | DataTextureImage;
-declare class Texture {
-	context: Context;
-	size: [
-		number,
-		number
-	];
-	texture: WebGLTexture;
-	format: TextureFormat;
-	filter: TextureFilter;
-	wrap: TextureWrap;
-	useMipmap: boolean;
-	constructor(context: Context, image: TextureImage, format: TextureFormat, options?: {
-		premultiply?: boolean;
-		useMipmap?: boolean;
-	} | null);
-	update(image: TextureImage, options?: {
-		premultiply?: boolean;
-		useMipmap?: boolean;
-	} | null, position?: {
-		x: number;
-		y: number;
-	}): void;
-	bind(filter: TextureFilter, wrap: TextureWrap, minFilter?: TextureFilter | null): void;
-	isSizePowerOfTwo(): boolean;
-	destroy(): void;
-}
-/**
- * This method type is used to register a protocol handler.
- * Use the abort controller for aborting requests.
- * Return a promise with the relevant resource response.
- */
-export type AddProtocolAction = (requestParameters: RequestParameters, abortController: AbortController) => Promise<GetResourceResponse<any>>;
-/**
- * This is a global config object used to store the configuration
- * It is available in the workers as well.
- * Only serializable data should be stored in it.
- */
-export type Config = {
-	MAX_PARALLEL_IMAGE_REQUESTS: number;
-	MAX_PARALLEL_IMAGE_REQUESTS_PER_FRAME: number;
-	MAX_TILE_CACHE_ZOOM_LEVELS: number;
-	REGISTERED_PROTOCOLS: {
-		[x: string]: AddProtocolAction;
-	};
-	WORKER_URL: string;
-};
-export declare const config: Config;
-/**
- * The possible DEM encoding types
- */
-export type DEMEncoding = "mapbox" | "terrarium" | "custom";
-declare class DEMData {
-	uid: string | number;
-	data: Uint32Array;
-	stride: number;
-	dim: number;
-	min: number;
-	max: number;
-	redFactor: number;
-	greenFactor: number;
-	blueFactor: number;
-	baseShift: number;
-	/**
-	 * Constructs a `DEMData` object
-	 * @param uid - the tile's unique id
-	 * @param data - RGBAImage data has uniform 1px padding on all sides: square tile edge size defines stride
-	// and dim is calculated as stride - 2.
-	 * @param encoding - the encoding type of the data
-	 * @param redFactor - the red channel factor used to unpack the data, used for `custom` encoding only
-	 * @param greenFactor - the green channel factor used to unpack the data, used for `custom` encoding only
-	 * @param blueFactor - the blue channel factor used to unpack the data, used for `custom` encoding only
-	 * @param baseShift - the base shift used to unpack the data, used for `custom` encoding only
-	 */
-	constructor(uid: string | number, data: RGBAImage | ImageData, encoding: DEMEncoding, redFactor?: number, greenFactor?: number, blueFactor?: number, baseShift?: number);
-	get(x: number, y: number): number;
-	getUnpackVector(): number[];
-	_idx(x: number, y: number): number;
-	unpack(r: number, g: number, b: number): number;
-	getPixels(): RGBAImage;
-	backfillBorder(borderTile: DEMData, dx: number, dy: number): void;
-}
-/**
- * Some metices related to a glyph
- */
-export type GlyphMetrics = {
-	width: number;
-	height: number;
-	left: number;
-	top: number;
-	advance: number;
-	/**
-	 * isDoubleResolution = true for 48px textures
-	 */
-	isDoubleResolution?: boolean;
-};
-/**
- * A style glyph type
- */
-export type StyleGlyph = {
-	id: number;
-	bitmap: AlphaImage;
-	metrics: GlyphMetrics;
-};
-/**
- * A rectangle type with postion, width and height.
- */
-export type Rect = {
-	x: number;
-	y: number;
-	w: number;
-	h: number;
-};
-/**
- * The glyph's position
- */
-export type GlyphPosition = {
-	rect: Rect;
-	metrics: GlyphMetrics;
-};
-/**
- * The glyphs' positions
- */
-export type GlyphPositions = {
-	[_: string]: {
-		[_: number]: GlyphPosition;
-	};
-};
 export type SerializedGrid = {
 	buffer: ArrayBuffer;
 };
@@ -2564,7 +2390,7 @@ export interface Source {
 	reparseOverscaled?: boolean;
 	vectorLayerIds?: Array<string>;
 	/**
-	 * True if the source has transiotion, false otherwise.
+	 * True if the source has transition, false otherwise.
 	 */
 	hasTransition(): boolean;
 	/**
@@ -2813,6 +2639,52 @@ declare class SourceCache extends Evented {
 	 */
 	reloadTilesForDependencies(namespaces: Array<string>, keys: Array<string>): void;
 }
+/**
+ * Some metices related to a glyph
+ */
+export type GlyphMetrics = {
+	width: number;
+	height: number;
+	left: number;
+	top: number;
+	advance: number;
+	/**
+	 * isDoubleResolution = true for 48px textures
+	 */
+	isDoubleResolution?: boolean;
+};
+/**
+ * A style glyph type
+ */
+export type StyleGlyph = {
+	id: number;
+	bitmap: AlphaImage;
+	metrics: GlyphMetrics;
+};
+/**
+ * A rectangle type with postion, width and height.
+ */
+export type Rect = {
+	x: number;
+	y: number;
+	w: number;
+	h: number;
+};
+/**
+ * The glyph's position
+ */
+export type GlyphPosition = {
+	rect: Rect;
+	metrics: GlyphMetrics;
+};
+/**
+ * The glyphs' positions
+ */
+export type GlyphPositions = {
+	[_: string]: {
+		[_: number]: GlyphPosition;
+	};
+};
 declare enum WritingMode {
 	none = 0,
 	horizontal = 1,
@@ -3270,6 +3142,35 @@ declare class CrossTileSymbolIndex {
 	addLayer(styleLayer: StyleLayer, tiles: Array<Tile>, lng: number): boolean;
 	pruneUnusedLayers(usedLayers: Array<string>): void;
 }
+declare class DepthMode {
+	func: DepthFuncType;
+	mask: DepthMaskType;
+	range: DepthRangeType;
+	static ReadOnly: boolean;
+	static ReadWrite: boolean;
+	constructor(depthFunc: DepthFuncType, depthMask: DepthMaskType, depthRange: DepthRangeType);
+	static disabled: Readonly<DepthMode>;
+}
+declare class StencilMode {
+	test: StencilTestGL;
+	ref: number;
+	mask: number;
+	fail: StencilOpConstant;
+	depthFail: StencilOpConstant;
+	pass: StencilOpConstant;
+	constructor(test: StencilTestGL, ref: number, mask: number, fail: StencilOpConstant, depthFail: StencilOpConstant, pass: StencilOpConstant);
+	static disabled: Readonly<StencilMode>;
+}
+declare class ColorMode {
+	blendFunction: BlendFuncType;
+	blendColor: Color;
+	mask: ColorMaskType;
+	constructor(blendFunction: BlendFuncType, blendColor: Color, mask: ColorMaskType);
+	static Replace: BlendFuncType;
+	static disabled: Readonly<ColorMode>;
+	static unblended: Readonly<ColorMode>;
+	static alphaBlended: Readonly<ColorMode>;
+}
 /**
  * A dash entry
  */
@@ -3303,6 +3204,30 @@ declare class LineAtlas {
 	addRegularDash(ranges: any): void;
 	addDash(dasharray: Array<number>, round: boolean): DashEntry;
 	bind(context: Context): void;
+}
+/**
+ * A type of MapLibre resource.
+ */
+export declare const enum ResourceType {
+	Glyphs = "Glyphs",
+	Image = "Image",
+	Source = "Source",
+	SpriteImage = "SpriteImage",
+	SpriteJSON = "SpriteJSON",
+	Style = "Style",
+	Tile = "Tile",
+	Unknown = "Unknown"
+}
+/**
+ * This function is used to tranform a request.
+ * It is used just before executing the relevant request.
+ */
+export type RequestTransformFunction = (url: string, resourceType?: ResourceType) => RequestParameters | undefined;
+declare class RequestManager {
+	_transformRequestFn: RequestTransformFunction;
+	constructor(transformRequestFn?: RequestTransformFunction);
+	transformRequest(url: string, type: ResourceType): RequestParameters;
+	setTransformRequest(transformRequest: RequestTransformFunction): void;
 }
 declare function loadGlyphRange(fontstack: string, range: number, urlTemplate: string, requestManager: RequestManager): Promise<{
 	[_: number]: StyleGlyph | null;
@@ -3398,7 +3323,7 @@ declare class RenderToTexture {
 	 * store for render-stacks
 	 * a render stack is a set of layers which should be rendered into one texture
 	 * every stylesheet can have multiple stacks. A new stack is created if layers which should
-	 * not rendered to texture sit inbetween layers which should rendered to texture. e.g. hillshading or symbols
+	 * not rendered to texture sit between layers which should rendered to texture. e.g. hillshading or symbols
 	 */
 	_stacks: Array<Array<string>>;
 	/**
@@ -3613,7 +3538,7 @@ declare class TerrainSourceCache extends Evented {
 	/**
 	 * find the covering raster-dem tile
 	 * @param tileID - the tile to look for
-	 * @param searchForDEM - Optinal parameter to search for (parent) souretiles with loaded dem.
+	 * @param searchForDEM - Optional parameter to search for (parent) sourcetiles with loaded dem.
 	 * @returns the tile
 	 */
 	getSourceTile(tileID: OverscaledTileID, searchForDEM?: boolean): Tile;
@@ -3831,9 +3756,9 @@ declare class Transform {
 	];
 	cameraToCenterDistance: number;
 	mercatorMatrix: mat4;
-	projMatrix: mat4;
-	invProjMatrix: mat4;
-	alignedProjMatrix: mat4;
+	modelViewProjectionMatrix: mat4;
+	invModelViewProjectionMatrix: mat4;
+	alignedModelViewProjectionMatrix: mat4;
 	pixelMatrix: mat4;
 	pixelMatrix3D: mat4;
 	pixelMatrixInverse: mat4;
@@ -3975,7 +3900,7 @@ declare class Transform {
 	};
 	/**
 	 * This method works in combination with freezeElevation activated.
-	 * freezeElevtion is enabled during map-panning because during this the camera should sit in constant height.
+	 * freezeElevation is enabled during map-panning because during this the camera should sit in constant height.
 	 * After panning finished, call this method to recalculate the zoomlevel for the current camera-height in current terrain.
 	 * @param terrain - the terrain
 	 */
@@ -4098,6 +4023,158 @@ declare class Transform {
 	 */
 	lngLatToCameraDepth(lngLat: LngLat, elevation: number): number;
 }
+export type QueryParameters = {
+	scale: number;
+	pixelPosMatrix: mat4;
+	transform: Transform;
+	tileSize: number;
+	queryGeometry: Array<Point>;
+	cameraQueryGeometry: Array<Point>;
+	queryPadding: number;
+	params: {
+		filter: FilterSpecification;
+		layers: Array<string>;
+		availableImages: Array<string>;
+	};
+};
+declare class FeatureIndex {
+	tileID: OverscaledTileID;
+	x: number;
+	y: number;
+	z: number;
+	grid: TransferableGridIndex;
+	grid3D: TransferableGridIndex;
+	featureIndexArray: FeatureIndexArray;
+	promoteId?: PromoteIdSpecification;
+	rawTileData: ArrayBuffer;
+	bucketLayerIDs: Array<Array<string>>;
+	vtLayers: {
+		[_: string]: VectorTileLayer;
+	};
+	sourceLayerCoder: DictionaryCoder;
+	constructor(tileID: OverscaledTileID, promoteId?: PromoteIdSpecification | null);
+	insert(feature: VectorTileFeature, geometry: Array<Array<Point>>, featureIndex: number, sourceLayerIndex: number, bucketIndex: number, is3D?: boolean): void;
+	loadVTLayers(): {
+		[_: string]: VectorTileLayer;
+	};
+	query(args: QueryParameters, styleLayers: {
+		[_: string]: StyleLayer;
+	}, serializedLayers: {
+		[_: string]: any;
+	}, sourceFeatureState: SourceFeatureState): {
+		[_: string]: Array<{
+			featureIndex: number;
+			feature: GeoJSONFeature;
+		}>;
+	};
+	loadMatchingFeature(result: {
+		[_: string]: Array<{
+			featureIndex: number;
+			feature: GeoJSONFeature;
+			intersectionZ?: boolean | number;
+		}>;
+	}, bucketIndex: number, sourceLayerIndex: number, featureIndex: number, filter: FeatureFilter, filterLayerIDs: Array<string>, availableImages: Array<string>, styleLayers: {
+		[_: string]: StyleLayer;
+	}, serializedLayers: {
+		[_: string]: any;
+	}, sourceFeatureState?: SourceFeatureState, intersectionTest?: (feature: VectorTileFeature, styleLayer: StyleLayer, featureState: any, id: string | number | void) => boolean | number): void;
+	lookupSymbolFeatures(symbolFeatureIndexes: Array<number>, serializedLayers: {
+		[_: string]: StyleLayer;
+	}, bucketIndex: number, sourceLayerIndex: number, filterSpec: FilterSpecification, filterLayerIDs: Array<string>, availableImages: Array<string>, styleLayers: {
+		[_: string]: StyleLayer;
+	}): {};
+	hasLayer(id: string): boolean;
+	getId(feature: VectorTileFeature, sourceLayerId: string): string | number;
+}
+/**
+ * The possible DEM encoding types
+ */
+export type DEMEncoding = "mapbox" | "terrarium" | "custom";
+declare class DEMData {
+	uid: string | number;
+	data: Uint32Array;
+	stride: number;
+	dim: number;
+	min: number;
+	max: number;
+	redFactor: number;
+	greenFactor: number;
+	blueFactor: number;
+	baseShift: number;
+	/**
+	 * Constructs a `DEMData` object
+	 * @param uid - the tile's unique id
+	 * @param data - RGBAImage data has uniform 1px padding on all sides: square tile edge size defines stride
+	// and dim is calculated as stride - 2.
+	 * @param encoding - the encoding type of the data
+	 * @param redFactor - the red channel factor used to unpack the data, used for `custom` encoding only
+	 * @param greenFactor - the green channel factor used to unpack the data, used for `custom` encoding only
+	 * @param blueFactor - the blue channel factor used to unpack the data, used for `custom` encoding only
+	 * @param baseShift - the base shift used to unpack the data, used for `custom` encoding only
+	 */
+	constructor(uid: string | number, data: RGBAImage | ImageData, encoding: DEMEncoding, redFactor?: number, greenFactor?: number, blueFactor?: number, baseShift?: number);
+	get(x: number, y: number): number;
+	getUnpackVector(): number[];
+	_idx(x: number, y: number): number;
+	unpack(r: number, g: number, b: number): number;
+	getPixels(): RGBAImage;
+	backfillBorder(borderTile: DEMData, dx: number, dy: number): void;
+}
+/**
+ * Parameters to identify a tile
+ */
+export type TileParameters = {
+	type: string;
+	source: string;
+	uid: string | number;
+};
+/**
+ * Parameters that are send when requesting to load a tile to the worker
+ */
+export type WorkerTileParameters = TileParameters & {
+	tileID: OverscaledTileID;
+	request?: RequestParameters;
+	zoom: number;
+	maxZoom?: number;
+	tileSize: number;
+	promoteId: PromoteIdSpecification;
+	pixelRatio: number;
+	showCollisionBoxes: boolean;
+	collectResourceTiming?: boolean;
+	returnDependencies?: boolean;
+};
+/**
+ * The paremeters needed in order to load a DEM tile
+ */
+export type WorkerDEMTileParameters = TileParameters & {
+	rawImageData: RGBAImage | ImageBitmap | ImageData;
+	encoding: DEMEncoding;
+	redFactor: number;
+	greenFactor: number;
+	blueFactor: number;
+	baseShift: number;
+};
+/**
+ * The worker tile's result type
+ */
+export type WorkerTileResult = ExpiryData & {
+	buckets: Array<Bucket>;
+	imageAtlas: ImageAtlas;
+	glyphAtlasImage: AlphaImage;
+	featureIndex: FeatureIndex;
+	collisionBoxArray: CollisionBoxArray;
+	rawTileData?: ArrayBuffer;
+	resourceTiming?: Array<PerformanceResourceTiming>;
+	glyphMap?: {
+		[_: string]: {
+			[_: number]: StyleGlyph;
+		};
+	} | null;
+	iconMap?: {
+		[_: string]: StyleImage;
+	} | null;
+	glyphPositions?: GlyphPositions | null;
+};
 /**
  * The tile's state, can be:
  *
@@ -4238,825 +4315,6 @@ declare class SourceFeatureState {
 	coalesceChanges(tiles: {
 		[_ in any]: Tile;
 	}, painter: any): void;
-}
-export type QueryParameters = {
-	scale: number;
-	pixelPosMatrix: mat4;
-	transform: Transform;
-	tileSize: number;
-	queryGeometry: Array<Point>;
-	cameraQueryGeometry: Array<Point>;
-	queryPadding: number;
-	params: {
-		filter: FilterSpecification;
-		layers: Array<string>;
-		availableImages: Array<string>;
-	};
-};
-declare class FeatureIndex {
-	tileID: OverscaledTileID;
-	x: number;
-	y: number;
-	z: number;
-	grid: TransferableGridIndex;
-	grid3D: TransferableGridIndex;
-	featureIndexArray: FeatureIndexArray;
-	promoteId?: PromoteIdSpecification;
-	rawTileData: ArrayBuffer;
-	bucketLayerIDs: Array<Array<string>>;
-	vtLayers: {
-		[_: string]: VectorTileLayer;
-	};
-	sourceLayerCoder: DictionaryCoder;
-	constructor(tileID: OverscaledTileID, promoteId?: PromoteIdSpecification | null);
-	insert(feature: VectorTileFeature, geometry: Array<Array<Point>>, featureIndex: number, sourceLayerIndex: number, bucketIndex: number, is3D?: boolean): void;
-	loadVTLayers(): {
-		[_: string]: VectorTileLayer;
-	};
-	query(args: QueryParameters, styleLayers: {
-		[_: string]: StyleLayer;
-	}, serializedLayers: {
-		[_: string]: any;
-	}, sourceFeatureState: SourceFeatureState): {
-		[_: string]: Array<{
-			featureIndex: number;
-			feature: GeoJSONFeature;
-		}>;
-	};
-	loadMatchingFeature(result: {
-		[_: string]: Array<{
-			featureIndex: number;
-			feature: GeoJSONFeature;
-			intersectionZ?: boolean | number;
-		}>;
-	}, bucketIndex: number, sourceLayerIndex: number, featureIndex: number, filter: FeatureFilter, filterLayerIDs: Array<string>, availableImages: Array<string>, styleLayers: {
-		[_: string]: StyleLayer;
-	}, serializedLayers: {
-		[_: string]: any;
-	}, sourceFeatureState?: SourceFeatureState, intersectionTest?: (feature: VectorTileFeature, styleLayer: StyleLayer, featureState: any, id: string | number | void) => boolean | number): void;
-	lookupSymbolFeatures(symbolFeatureIndexes: Array<number>, serializedLayers: {
-		[_: string]: StyleLayer;
-	}, bucketIndex: number, sourceLayerIndex: number, filterSpec: FilterSpecification, filterLayerIDs: Array<string>, availableImages: Array<string>, styleLayers: {
-		[_: string]: StyleLayer;
-	}): {};
-	hasLayer(id: string): boolean;
-	getId(feature: VectorTileFeature, sourceLayerId: string): string | number;
-}
-/**
- * Parameters to identify a tile
- */
-export type TileParameters = {
-	type: string;
-	source: string;
-	uid: string | number;
-};
-/**
- * Parameters that are send when requesting to load a tile to the worker
- */
-export type WorkerTileParameters = TileParameters & {
-	tileID: OverscaledTileID;
-	request?: RequestParameters;
-	zoom: number;
-	maxZoom?: number;
-	tileSize: number;
-	promoteId: PromoteIdSpecification;
-	pixelRatio: number;
-	showCollisionBoxes: boolean;
-	collectResourceTiming?: boolean;
-	returnDependencies?: boolean;
-};
-/**
- * The paremeters needed in order to load a DEM tile
- */
-export type WorkerDEMTileParameters = TileParameters & {
-	rawImageData: RGBAImage | ImageBitmap | ImageData;
-	encoding: DEMEncoding;
-	redFactor: number;
-	greenFactor: number;
-	blueFactor: number;
-	baseShift: number;
-};
-/**
- * The worker tile's result type
- */
-export type WorkerTileResult = ExpiryData & {
-	buckets: Array<Bucket>;
-	imageAtlas: ImageAtlas;
-	glyphAtlasImage: AlphaImage;
-	featureIndex: FeatureIndex;
-	collisionBoxArray: CollisionBoxArray;
-	rawTileData?: ArrayBuffer;
-	resourceTiming?: Array<PerformanceResourceTiming>;
-	glyphMap?: {
-		[_: string]: {
-			[_: number]: StyleGlyph;
-		};
-	} | null;
-	iconMap?: {
-		[_: string]: StyleImage;
-	} | null;
-	glyphPositions?: GlyphPositions | null;
-};
-export interface Subscription {
-	unsubscribe(): void;
-}
-/**
- * A class that is serizlized to and json, that can be constructed back to the original class in the worker or in the main thread
- */
-export type SerializedObject<S extends Serialized = any> = {
-	[_: string]: S;
-};
-/**
- * All the possible values that can be serialized and sent to and from the worker
- */
-export type Serialized = null | void | boolean | number | string | Boolean | Number | String | Date | RegExp | ArrayBuffer | ArrayBufferView | ImageData | ImageBitmap | Blob | Array<Serialized> | SerializedObject;
-declare class ThrottledInvoker {
-	_channel: MessageChannel;
-	_triggered: boolean;
-	_methodToThrottle: Function;
-	constructor(methodToThrottle: Function);
-	trigger(): void;
-	remove(): void;
-}
-/**
- * An interface to be sent to the actor in order for it to allow communication between the worker and the main thread
- */
-export interface ActorTarget {
-	addEventListener: typeof window.addEventListener;
-	removeEventListener: typeof window.removeEventListener;
-	postMessage: typeof window.postMessage;
-	terminate?: () => void;
-}
-/**
- * This is used to define the parameters of the message that is sent to the worker and back
- */
-export type MessageData = {
-	id: string;
-	type: MessageType | "<cancel>" | "<response>";
-	origin: string;
-	data?: Serialized;
-	targetMapId?: string | number | null;
-	mustQueue?: boolean;
-	error?: Serialized | null;
-	sourceMapId: string | number | null;
-};
-export type ResolveReject = {
-	resolve: (value?: RequestResponseMessageMap[MessageType][1]) => void;
-	reject: (reason?: Error) => void;
-};
-/**
- * This interface allowing to substitute only the sendAsync method of the Actor class.
- */
-export interface IActor {
-	sendAsync<T extends MessageType>(message: ActorMessage<T>, abortController?: AbortController): Promise<RequestResponseMessageMap[T][1]>;
-}
-export type MessageHandler<T extends MessageType> = (mapId: string | number, params: RequestResponseMessageMap[T][0], abortController?: AbortController) => Promise<RequestResponseMessageMap[T][1]>;
-declare class Actor implements IActor {
-	target: ActorTarget;
-	mapId: string | number | null;
-	resolveRejects: {
-		[x: string]: ResolveReject;
-	};
-	name: string;
-	tasks: {
-		[x: string]: MessageData;
-	};
-	taskQueue: Array<string>;
-	abortControllers: {
-		[x: number | string]: AbortController;
-	};
-	invoker: ThrottledInvoker;
-	globalScope: ActorTarget;
-	messageHandlers: {
-		[x in MessageType]?: MessageHandler<MessageType>;
-	};
-	subscription: Subscription;
-	/**
-	 * @param target - The target
-	 * @param mapId - A unique identifier for the Map instance using this Actor.
-	 */
-	constructor(target: ActorTarget, mapId?: string | number);
-	registerMessageHandler<T extends MessageType>(type: T, handler: MessageHandler<T>): void;
-	/**
-	 * Sends a message from a main-thread map to a Worker or from a Worker back to
-	 * a main-thread map instance.
-	 * @param message - the message to send
-	 * @param abortController - an optional AbortController to abort the request
-	 * @returns a promise that will be resolved with the response data
-	 */
-	sendAsync<T extends MessageType>(message: ActorMessage<T>, abortController?: AbortController): Promise<RequestResponseMessageMap[T][1]>;
-	receive(message: {
-		data: MessageData;
-	}): void;
-	process(): void;
-	processTask(id: string, task: MessageData): Promise<void>;
-	completeTask(id: string, err: Error, data?: RequestResponseMessageMap[MessageType][1]): void;
-	remove(): void;
-}
-/**
- * A way to indentify a feature, either by string or by number
- */
-export type GeoJSONFeatureId = number | string;
-/**
- * The geojson source diff object
- */
-export type GeoJSONSourceDiff = {
-	/**
-	 * When set to `true` it will remove all features
-	 */
-	removeAll?: boolean;
-	/**
-	 * An array of features IDs to remove
-	 */
-	remove?: Array<GeoJSONFeatureId>;
-	/**
-	 * An array of features to add
-	 */
-	add?: Array<GeoJSON.Feature>;
-	/**
-	 * An array of update objects
-	 */
-	update?: Array<GeoJSONFeatureDiff>;
-};
-/**
- * A geojson feature diff object
- */
-export type GeoJSONFeatureDiff = {
-	/**
-	 * The feature ID
-	 */
-	id: GeoJSONFeatureId;
-	/**
-	 * If it's a new geometry, place it here
-	 */
-	newGeometry?: GeoJSON.Geometry;
-	/**
-	 * Setting to `true` will remove all preperties
-	 */
-	removeAllProperties?: boolean;
-	/**
-	 * The properties keys to remove
-	 */
-	removeProperties?: Array<string>;
-	/**
-	 * The properties to add or update along side their values
-	 */
-	addOrUpdateProperties?: Array<{
-		key: string;
-		value: any;
-	}>;
-};
-/**
- * The geojson worker options that can be passed to the worker
- */
-export type GeoJSONWorkerOptions = {
-	source?: string;
-	cluster?: boolean;
-	geojsonVtOptions?: GeoJSONVTOptions;
-	superclusterOptions?: SuperclusterOptions<any, any>;
-	clusterProperties?: ClusterProperties;
-	filter?: Array<unknown>;
-	promoteId?: string;
-	collectResourceTiming?: boolean;
-};
-/**
- * Parameters needed to load a geojson to the wokrer
- */
-export type LoadGeoJSONParameters = GeoJSONWorkerOptions & {
-	type: "geojson";
-	request?: RequestParameters;
-	/**
-	 * Literal GeoJSON data. Must be provided if `request.url` is not.
-	 */
-	data?: string;
-	dataDiff?: GeoJSONSourceDiff;
-};
-/**
- * The possible option of the plugin's status
- *
- * `unavailable`: Not loaded.
- *
- * `deferred`: The plugin URL has been specified, but loading has been deferred.
- *
- * `requested`: at least one tile needs RTL to render, but the plugin has not been set
- *
- * `loading`: RTL is in the process of being loaded by worker.
- *
- * `loaded`: The plugin is now loaded
- *
- *  `error`: The plugin failed to load
- */
-export type RTLPluginStatus = "unavailable" | "deferred" | "requested" | "loading" | "loaded" | "error";
-/**
- * The RTL plugin state
- */
-export type PluginState = {
-	pluginStatus: RTLPluginStatus;
-	pluginURL: string;
-};
-/**
- * The parameters needed in order to get information about the cluster
- */
-export type ClusterIDAndSource = {
-	type: "geojson";
-	clusterId: number;
-	source: string;
-};
-/**
- * Parameters needed to get the leaves of a cluster
- */
-export type GetClusterLeavesParams = ClusterIDAndSource & {
-	limit: number;
-	offset: number;
-};
-/**
- * The result of the call to load a geojson source
- */
-export type GeoJSONWorkerSourceLoadDataResult = {
-	resourceTiming?: {
-		[_: string]: Array<PerformanceResourceTiming>;
-	};
-	abandoned?: boolean;
-};
-/**
- * Parameters needed to remove a source
- */
-export type RemoveSourceParams = {
-	source: string;
-	type: string;
-};
-/**
- * Parameters needed to update the layers
- */
-export type UpdateLayersParamaeters = {
-	layers: Array<LayerSpecification>;
-	removedIds: Array<string>;
-};
-/**
- * Parameters needed to get the images
- */
-export type GetImagesParamerters = {
-	icons: Array<string>;
-	source: string;
-	tileID: OverscaledTileID;
-	type: string;
-};
-/**
- * Parameters needed to get the glyphs
- */
-export type GetGlyphsParamerters = {
-	type: string;
-	stacks: {
-		[_: string]: Array<number>;
-	};
-	source: string;
-	tileID: OverscaledTileID;
-};
-/**
- * A response object returned when requesting glyphs
- */
-export type GetGlyphsResponse = {
-	[stack: string]: {
-		[id: number]: StyleGlyph;
-	};
-};
-/**
- * A response object returned when requesting images
- */
-export type GetImagesResponse = {
-	[_: string]: StyleImage;
-};
-/**
- * All the possible message types that can be sent to and from the worker
- */
-export declare const enum MessageType {
-	loadDEMTile = "LDT",
-	getClusterExpansionZoom = "GCEZ",
-	getClusterChildren = "GCC",
-	getClusterLeaves = "GCL",
-	loadData = "LD",
-	getData = "GD",
-	loadTile = "LT",
-	reloadTile = "RT",
-	getGlyphs = "GG",
-	getImages = "GI",
-	setImages = "SI",
-	setLayers = "SL",
-	updateLayers = "UL",
-	syncRTLPluginState = "SRPS",
-	setReferrer = "SR",
-	removeSource = "RS",
-	removeMap = "RM",
-	importScript = "IS",
-	removeTile = "RMT",
-	abortTile = "AT",
-	removeDEMTile = "RDT",
-	getResource = "GR"
-}
-/**
- * This is basically a mapping between all the calls that are made to and from the workers.
- * The key is the event name, the first parameter is the event input type, and the last parameter is the output type.
- */
-export type RequestResponseMessageMap = {
-	[MessageType.loadDEMTile]: [
-		WorkerDEMTileParameters,
-		DEMData
-	];
-	[MessageType.getClusterExpansionZoom]: [
-		ClusterIDAndSource,
-		number
-	];
-	[MessageType.getClusterChildren]: [
-		ClusterIDAndSource,
-		Array<GeoJSON.Feature>
-	];
-	[MessageType.getClusterLeaves]: [
-		GetClusterLeavesParams,
-		Array<GeoJSON.Feature>
-	];
-	[MessageType.loadData]: [
-		LoadGeoJSONParameters,
-		GeoJSONWorkerSourceLoadDataResult
-	];
-	[MessageType.getData]: [
-		LoadGeoJSONParameters,
-		GeoJSON.GeoJSON
-	];
-	[MessageType.loadTile]: [
-		WorkerTileParameters,
-		WorkerTileResult
-	];
-	[MessageType.reloadTile]: [
-		WorkerTileParameters,
-		WorkerTileResult
-	];
-	[MessageType.getGlyphs]: [
-		GetGlyphsParamerters,
-		GetGlyphsResponse
-	];
-	[MessageType.getImages]: [
-		GetImagesParamerters,
-		GetImagesResponse
-	];
-	[MessageType.setImages]: [
-		string[],
-		void
-	];
-	[MessageType.setLayers]: [
-		Array<LayerSpecification>,
-		void
-	];
-	[MessageType.updateLayers]: [
-		UpdateLayersParamaeters,
-		void
-	];
-	[MessageType.syncRTLPluginState]: [
-		PluginState,
-		PluginState
-	];
-	[MessageType.setReferrer]: [
-		string,
-		void
-	];
-	[MessageType.removeSource]: [
-		RemoveSourceParams,
-		void
-	];
-	[MessageType.removeMap]: [
-		undefined,
-		void
-	];
-	[MessageType.importScript]: [
-		string,
-		void
-	];
-	[MessageType.removeTile]: [
-		TileParameters,
-		void
-	];
-	[MessageType.abortTile]: [
-		TileParameters,
-		void
-	];
-	[MessageType.removeDEMTile]: [
-		TileParameters,
-		void
-	];
-	[MessageType.getResource]: [
-		RequestParameters,
-		GetResourceResponse<any>
-	];
-};
-/**
- * The message to be sent by the actor
- */
-export type ActorMessage<T extends MessageType> = {
-	type: T;
-	data: RequestResponseMessageMap[T][0];
-	targetMapId?: string | number | null;
-	mustQueue?: boolean;
-	sourceMapId?: string | number | null;
-};
-export type Pattern = {
-	bin: PotpackBox;
-	position: ImagePosition;
-};
-declare class ImageManager extends Evented {
-	images: {
-		[_: string]: StyleImage;
-	};
-	updatedImages: {
-		[_: string]: boolean;
-	};
-	callbackDispatchedThisFrame: {
-		[_: string]: boolean;
-	};
-	loaded: boolean;
-	/**
-	 * This is used to track requests for images that are not yet available. When the image is loaded,
-	 * the requestors will be notified.
-	 */
-	requestors: Array<{
-		ids: Array<string>;
-		promiseResolve: (value: GetImagesResponse) => void;
-	}>;
-	patterns: {
-		[_: string]: Pattern;
-	};
-	atlasImage: RGBAImage;
-	atlasTexture: Texture;
-	dirty: boolean;
-	constructor();
-	isLoaded(): boolean;
-	setLoaded(loaded: boolean): void;
-	getImage(id: string): StyleImage;
-	addImage(id: string, image: StyleImage): void;
-	_validate(id: string, image: StyleImage): boolean;
-	_validateStretch(stretch: Array<[
-		number,
-		number
-	]>, size: number): boolean;
-	_validateContent(content: [
-		number,
-		number,
-		number,
-		number
-	], image: StyleImage): boolean;
-	updateImage(id: string, image: StyleImage, validate?: boolean): void;
-	removeImage(id: string): void;
-	listImages(): Array<string>;
-	getImages(ids: Array<string>): Promise<GetImagesResponse>;
-	_getImagesForIds(ids: Array<string>): GetImagesResponse;
-	getPixelSize(): {
-		width: number;
-		height: number;
-	};
-	getPattern(id: string): ImagePosition;
-	bind(context: Context): void;
-	_updatePatternAtlas(): void;
-	beginFrame(): void;
-	dispatchRenderCallbacks(ids: Array<string>): void;
-}
-declare class ImagePosition {
-	paddedRect: Rect;
-	pixelRatio: number;
-	version: number;
-	stretchY: Array<[
-		number,
-		number
-	]>;
-	stretchX: Array<[
-		number,
-		number
-	]>;
-	content: [
-		number,
-		number,
-		number,
-		number
-	];
-	textFitWidth: TextFit;
-	textFitHeight: TextFit;
-	constructor(paddedRect: Rect, { pixelRatio, version, stretchX, stretchY, content, textFitWidth, textFitHeight }: StyleImage);
-	get tl(): [
-		number,
-		number
-	];
-	get br(): [
-		number,
-		number
-	];
-	get tlbr(): Array<number>;
-	get displaySize(): [
-		number,
-		number
-	];
-}
-declare class ImageAtlas {
-	image: RGBAImage;
-	iconPositions: {
-		[_: string]: ImagePosition;
-	};
-	patternPositions: {
-		[_: string]: ImagePosition;
-	};
-	haveRenderCallbacks: Array<string>;
-	uploaded: boolean;
-	constructor(icons: GetImagesResponse, patterns: GetImagesResponse);
-	addImages(images: {
-		[_: string]: StyleImage;
-	}, positions: {
-		[_: string]: ImagePosition;
-	}, bins: Array<Rect>): void;
-	patchUpdatedImages(imageManager: ImageManager, texture: Texture): void;
-	patchUpdatedImage(position: ImagePosition, image: StyleImage, texture: Texture): void;
-}
-export type BinderUniform = {
-	name: string;
-	property: string;
-	binding: Uniform<any>;
-};
-/**
- *  `Binder` is the interface definition for the strategies for constructing,
- *  uploading, and binding paint property data as GLSL attributes. Most style-
- *  spec properties have a 1:1 relationship to shader attribute/uniforms, but
- *  some require multiple values per feature to be passed to the GPU, and in
- *  those cases we bind multiple attributes/uniforms.
- *
- *  It has three implementations, one for each of the three strategies we use:
- *
- *  * For _constant_ properties -- those whose value is a constant, or the constant
- *    result of evaluating a camera expression at a particular camera position -- we
- *    don't need a vertex attribute buffer, and instead use a uniform.
- *  * For data expressions, we use a vertex buffer with a single attribute value,
- *    the evaluated result of the source function for the given feature.
- *  * For composite expressions, we use a vertex buffer with two attributes: min and
- *    max values covering the range of zooms at which we expect the tile to be
- *    displayed. These values are calculated by evaluating the composite expression for
- *    the given feature at strategically chosen zoom levels. In addition to this
- *    attribute data, we also use a uniform value which the shader uses to interpolate
- *    between the min and max value at the final displayed zoom level. The use of a
- *    uniform allows us to cheaply update the value on every frame.
- *
- *  Note that the shader source varies depending on whether we're using a uniform or
- *  attribute. We dynamically compile shaders at runtime to accommodate this.
- */
-export interface AttributeBinder {
-	populatePaintArray(length: number, feature: Feature, imagePositions: {
-		[_: string]: ImagePosition;
-	}, canonical?: CanonicalTileID, formattedSection?: FormattedSection): void;
-	updatePaintArray(start: number, length: number, feature: Feature, featureState: FeatureState, imagePositions: {
-		[_: string]: ImagePosition;
-	}): void;
-	upload(a: Context): void;
-	destroy(): void;
-}
-export interface UniformBinder {
-	uniformNames: Array<string>;
-	setUniform(uniform: Uniform<any>, globals: GlobalProperties, currentValue: PossiblyEvaluatedPropertyValue<any>, uniformName: string): void;
-	getBinding(context: Context, location: WebGLUniformLocation, name: string): Partial<Uniform<any>>;
-}
-declare class ProgramConfiguration {
-	binders: {
-		[_: string]: AttributeBinder | UniformBinder;
-	};
-	cacheKey: string;
-	_buffers: Array<VertexBuffer>;
-	constructor(layer: TypedStyleLayer, zoom: number, filterProperties: (_: string) => boolean);
-	getMaxValue(property: string): number;
-	populatePaintArrays(newLength: number, feature: Feature, imagePositions: {
-		[_: string]: ImagePosition;
-	}, canonical?: CanonicalTileID, formattedSection?: FormattedSection): void;
-	setConstantPatternPositions(posTo: ImagePosition, posFrom: ImagePosition): void;
-	updatePaintArrays(featureStates: FeatureStates, featureMap: FeaturePositionMap, vtLayer: VectorTileLayer, layer: TypedStyleLayer, imagePositions: {
-		[_: string]: ImagePosition;
-	}): boolean;
-	defines(): Array<string>;
-	getBinderAttributes(): Array<string>;
-	getBinderUniforms(): Array<string>;
-	getPaintVertexBuffers(): Array<VertexBuffer>;
-	getUniforms(context: Context, locations: UniformLocations): Array<BinderUniform>;
-	setUniforms(context: Context, binderUniforms: Array<BinderUniform>, properties: any, globals: GlobalProperties): void;
-	updatePaintBuffers(crossfade?: CrossfadeParameters): void;
-	upload(context: Context): void;
-	destroy(): void;
-}
-declare class ProgramConfigurationSet<Layer extends TypedStyleLayer> {
-	programConfigurations: {
-		[_: string]: ProgramConfiguration;
-	};
-	needsUpload: boolean;
-	_featureMap: FeaturePositionMap;
-	_bufferOffset: number;
-	constructor(layers: ReadonlyArray<Layer>, zoom: number, filterProperties?: (_: string) => boolean);
-	populatePaintArrays(length: number, feature: Feature, index: number, imagePositions: {
-		[_: string]: ImagePosition;
-	}, canonical: CanonicalTileID, formattedSection?: FormattedSection): void;
-	updatePaintArrays(featureStates: FeatureStates, vtLayer: VectorTileLayer, layers: ReadonlyArray<TypedStyleLayer>, imagePositions: {
-		[_: string]: ImagePosition;
-	}): void;
-	get(layerId: string): ProgramConfiguration;
-	upload(context: Context): void;
-	destroy(): void;
-}
-export type TerrainPreludeUniformsType = {
-	"u_depth": Uniform1i;
-	"u_terrain": Uniform1i;
-	"u_terrain_dim": Uniform1f;
-	"u_terrain_matrix": UniformMatrix4f;
-	"u_terrain_unpack": Uniform4f;
-	"u_terrain_exaggeration": Uniform1f;
-};
-export type DrawMode = WebGLRenderingContextBase["LINES"] | WebGLRenderingContextBase["TRIANGLES"] | WebGL2RenderingContext["LINE_STRIP"];
-declare class Program<Us extends UniformBindings> {
-	program: WebGLProgram;
-	attributes: {
-		[_: string]: number;
-	};
-	numAttributes: number;
-	fixedUniforms: Us;
-	terrainUniforms: TerrainPreludeUniformsType;
-	binderUniforms: Array<BinderUniform>;
-	failedToCreate: boolean;
-	constructor(context: Context, source: {
-		fragmentSource: string;
-		vertexSource: string;
-		staticAttributes: Array<string>;
-		staticUniforms: Array<string>;
-	}, configuration: ProgramConfiguration, fixedUniforms: (b: Context, a: UniformLocations) => Us, showOverdrawInspector: boolean, terrain: Terrain);
-	draw(context: Context, drawMode: DrawMode, depthMode: Readonly<DepthMode>, stencilMode: Readonly<StencilMode>, colorMode: Readonly<ColorMode>, cullFaceMode: Readonly<CullFaceMode>, uniformValues: UniformValues<Us>, terrain: TerrainData, layerID: string, layoutVertexBuffer: VertexBuffer, indexBuffer: IndexBuffer, segments: SegmentVector, currentProperties?: any, zoom?: number | null, configuration?: ProgramConfiguration | null, dynamicLayoutBuffer?: VertexBuffer | null, dynamicLayoutBuffer2?: VertexBuffer | null, dynamicLayoutBuffer3?: VertexBuffer | null): void;
-}
-declare class VertexArrayObject {
-	context: Context;
-	boundProgram: Program<any>;
-	boundLayoutVertexBuffer: VertexBuffer;
-	boundPaintVertexBuffers: Array<VertexBuffer>;
-	boundIndexBuffer: IndexBuffer;
-	boundVertexOffset: number;
-	boundDynamicVertexBuffer: VertexBuffer;
-	boundDynamicVertexBuffer2: VertexBuffer;
-	boundDynamicVertexBuffer3: VertexBuffer;
-	vao: any;
-	constructor();
-	bind(context: Context, program: Program<any>, layoutVertexBuffer: VertexBuffer, paintVertexBuffers: Array<VertexBuffer>, indexBuffer?: IndexBuffer | null, vertexOffset?: number | null, dynamicVertexBuffer?: VertexBuffer | null, dynamicVertexBuffer2?: VertexBuffer | null, dynamicVertexBuffer3?: VertexBuffer | null): void;
-	freshBind(program: Program<any>, layoutVertexBuffer: VertexBuffer, paintVertexBuffers: Array<VertexBuffer>, indexBuffer?: IndexBuffer | null, vertexOffset?: number | null, dynamicVertexBuffer?: VertexBuffer | null, dynamicVertexBuffer2?: VertexBuffer | null, dynamicVertexBuffer3?: VertexBuffer | null): void;
-	destroy(): void;
-}
-/**
- * @internal
- * A single segment of a vector
- */
-export type Segment = {
-	sortKey?: number;
-	vertexOffset: number;
-	primitiveOffset: number;
-	vertexLength: number;
-	primitiveLength: number;
-	vaos: {
-		[_: string]: VertexArrayObject;
-	};
-};
-declare class SegmentVector {
-	static MAX_VERTEX_ARRAY_LENGTH: number;
-	segments: Array<Segment>;
-	constructor(segments?: Array<Segment>);
-	prepareSegment(numVertices: number, layoutVertexArray: StructArray, indexArray: StructArray, sortKey?: number): Segment;
-	get(): Segment[];
-	destroy(): void;
-	static simpleSegment(vertexOffset: number, primitiveOffset: number, vertexLength: number, primitiveLength: number): SegmentVector;
-}
-declare class HeatmapBucket extends CircleBucket<HeatmapStyleLayer> {
-	layers: Array<HeatmapStyleLayer>;
-}
-export type HeatmapPaintProps = {
-	"heatmap-radius": DataDrivenProperty<number>;
-	"heatmap-weight": DataDrivenProperty<number>;
-	"heatmap-intensity": DataConstantProperty<number>;
-	"heatmap-color": ColorRampProperty;
-	"heatmap-opacity": DataConstantProperty<number>;
-};
-export type HeatmapPaintPropsPossiblyEvaluated = {
-	"heatmap-radius": PossiblyEvaluatedPropertyValue<number>;
-	"heatmap-weight": PossiblyEvaluatedPropertyValue<number>;
-	"heatmap-intensity": number;
-	"heatmap-color": ColorRampProperty;
-	"heatmap-opacity": number;
-};
-declare class HeatmapStyleLayer extends StyleLayer {
-	heatmapFbo: Framebuffer;
-	colorRamp: RGBAImage;
-	colorRampTexture: Texture;
-	_transitionablePaint: Transitionable<HeatmapPaintProps>;
-	_transitioningPaint: Transitioning<HeatmapPaintProps>;
-	paint: PossiblyEvaluated<HeatmapPaintProps, HeatmapPaintPropsPossiblyEvaluated>;
-	createBucket(options: any): HeatmapBucket;
-	constructor(layer: LayerSpecification);
-	_handleSpecialPaintPropertyUpdate(name: string): void;
-	_updateColorRamp(): void;
-	resize(): void;
-	queryRadius(): number;
-	queryIntersectsFeature(): boolean;
-	hasOffscreenPass(): boolean;
 }
 declare class CircleBucket<Layer extends CircleStyleLayer | HeatmapStyleLayer> implements Bucket {
 	index: number;
@@ -5442,258 +4700,365 @@ declare class LineStyleLayer extends StyleLayer {
 	isTileClipped(): boolean;
 }
 export type TypedStyleLayer = CircleStyleLayer | FillStyleLayer | FillExtrusionStyleLayer | HeatmapStyleLayer | HillshadeStyleLayer | LineStyleLayer | SymbolStyleLayer;
-export type BucketParameters<Layer extends TypedStyleLayer> = {
-	index: number;
-	layers: Array<Layer>;
-	zoom: number;
-	pixelRatio: number;
-	overscaling: number;
-	collisionBoxArray: CollisionBoxArray;
-	sourceLayerIndex: number;
-	sourceID: string;
-};
-export type PopulateParameters = {
-	featureIndex: FeatureIndex;
-	iconDependencies: {};
-	patternDependencies: {};
-	glyphDependencies: {};
-	availableImages: Array<string>;
-};
-export type IndexedFeature = {
-	feature: VectorTileFeature;
-	id: number | string;
-	index: number;
-	sourceLayerIndex: number;
-};
-export type BucketFeature = {
-	index: number;
-	sourceLayerIndex: number;
-	geometry: Array<Array<Point>>;
-	properties: any;
-	type: 0 | 1 | 2 | 3;
-	id?: any;
-	readonly patterns: {
-		[_: string]: {
-			"min": string;
-			"mid": string;
-			"max": string;
-		};
-	};
-	sortKey?: number;
+export type BinderUniform = {
+	name: string;
+	property: string;
+	binding: Uniform<any>;
 };
 /**
- * The `Bucket` interface is the single point of knowledge about turning vector
- * tiles into WebGL buffers.
+ *  `Binder` is the interface definition for the strategies for constructing,
+ *  uploading, and binding paint property data as GLSL attributes. Most style-
+ *  spec properties have a 1:1 relationship to shader attribute/uniforms, but
+ *  some require multiple values per feature to be passed to the GPU, and in
+ *  those cases we bind multiple attributes/uniforms.
  *
- * `Bucket` is an abstract interface. An implementation exists for each style layer type.
- * Create a bucket via the `StyleLayer#createBucket` method.
+ *  It has three implementations, one for each of the three strategies we use:
  *
- * The concrete bucket types, using layout options from the style layer,
- * transform feature geometries into vertex and index data for use by the
- * vertex shader.  They also (via `ProgramConfiguration`) use feature
- * properties and the zoom level to populate the attributes needed for
- * data-driven styling.
+ *  * For _constant_ properties -- those whose value is a constant, or the constant
+ *    result of evaluating a camera expression at a particular camera position -- we
+ *    don't need a vertex attribute buffer, and instead use a uniform.
+ *  * For data expressions, we use a vertex buffer with a single attribute value,
+ *    the evaluated result of the source function for the given feature.
+ *  * For composite expressions, we use a vertex buffer with two attributes: min and
+ *    max values covering the range of zooms at which we expect the tile to be
+ *    displayed. These values are calculated by evaluating the composite expression for
+ *    the given feature at strategically chosen zoom levels. In addition to this
+ *    attribute data, we also use a uniform value which the shader uses to interpolate
+ *    between the min and max value at the final displayed zoom level. The use of a
+ *    uniform allows us to cheaply update the value on every frame.
  *
- * Buckets are designed to be built on a worker thread and then serialized and
- * transferred back to the main thread for rendering.  On the worker side, a
- * bucket's vertex, index, and attribute data is stored in `bucket.arrays: ArrayGroup`.
- * When a bucket's data is serialized and sent back to the main thread,
- * is gets deserialized (using `new Bucket(serializedBucketData)`, with
- * the array data now stored in `bucket.buffers: BufferGroup`. BufferGroups
- * hold the same data as ArrayGroups, but are tuned for consumption by WebGL.
+ *  Note that the shader source varies depending on whether we're using a uniform or
+ *  attribute. We dynamically compile shaders at runtime to accommodate this.
  */
-export interface Bucket {
-	layerIds: Array<string>;
-	hasPattern: boolean;
-	readonly layers: Array<any>;
-	readonly stateDependentLayers: Array<any>;
-	readonly stateDependentLayerIds: Array<string>;
-	populate(features: Array<IndexedFeature>, options: PopulateParameters, canonical: CanonicalTileID): void;
-	update(states: FeatureStates, vtLayer: VectorTileLayer, imagePositions: {
+export interface AttributeBinder {
+	populatePaintArray(length: number, feature: Feature, imagePositions: {
+		[_: string]: ImagePosition;
+	}, canonical?: CanonicalTileID, formattedSection?: FormattedSection): void;
+	updatePaintArray(start: number, length: number, feature: Feature, featureState: FeatureState, imagePositions: {
 		[_: string]: ImagePosition;
 	}): void;
-	isEmpty(): boolean;
+	upload(a: Context): void;
+	destroy(): void;
+}
+export interface UniformBinder {
+	uniformNames: Array<string>;
+	setUniform(uniform: Uniform<any>, globals: GlobalProperties, currentValue: PossiblyEvaluatedPropertyValue<any>, uniformName: string): void;
+	getBinding(context: Context, location: WebGLUniformLocation, name: string): Partial<Uniform<any>>;
+}
+declare class ProgramConfiguration {
+	binders: {
+		[_: string]: AttributeBinder | UniformBinder;
+	};
+	cacheKey: string;
+	_buffers: Array<VertexBuffer>;
+	constructor(layer: TypedStyleLayer, zoom: number, filterProperties: (_: string) => boolean);
+	getMaxValue(property: string): number;
+	populatePaintArrays(newLength: number, feature: Feature, imagePositions: {
+		[_: string]: ImagePosition;
+	}, canonical?: CanonicalTileID, formattedSection?: FormattedSection): void;
+	setConstantPatternPositions(posTo: ImagePosition, posFrom: ImagePosition): void;
+	updatePaintArrays(featureStates: FeatureStates, featureMap: FeaturePositionMap, vtLayer: VectorTileLayer, layer: TypedStyleLayer, imagePositions: {
+		[_: string]: ImagePosition;
+	}): boolean;
+	defines(): Array<string>;
+	getBinderAttributes(): Array<string>;
+	getBinderUniforms(): Array<string>;
+	getPaintVertexBuffers(): Array<VertexBuffer>;
+	getUniforms(context: Context, locations: UniformLocations): Array<BinderUniform>;
+	setUniforms(context: Context, binderUniforms: Array<BinderUniform>, properties: any, globals: GlobalProperties): void;
+	updatePaintBuffers(crossfade?: CrossfadeParameters): void;
 	upload(context: Context): void;
-	uploadPending(): boolean;
+	destroy(): void;
+}
+declare class ProgramConfigurationSet<Layer extends TypedStyleLayer> {
+	programConfigurations: {
+		[_: string]: ProgramConfiguration;
+	};
+	needsUpload: boolean;
+	_featureMap: FeaturePositionMap;
+	_bufferOffset: number;
+	constructor(layers: ReadonlyArray<Layer>, zoom: number, filterProperties?: (_: string) => boolean);
+	populatePaintArrays(length: number, feature: Feature, index: number, imagePositions: {
+		[_: string]: ImagePosition;
+	}, canonical: CanonicalTileID, formattedSection?: FormattedSection): void;
+	updatePaintArrays(featureStates: FeatureStates, vtLayer: VectorTileLayer, layers: ReadonlyArray<TypedStyleLayer>, imagePositions: {
+		[_: string]: ImagePosition;
+	}): void;
+	get(layerId: string): ProgramConfiguration;
+	upload(context: Context): void;
+	destroy(): void;
+}
+declare class CullFaceMode {
+	enable: boolean;
+	mode: CullFaceModeType;
+	frontFace: FrontFaceType;
+	constructor(enable: boolean, mode: CullFaceModeType, frontFace: FrontFaceType);
+	static disabled: Readonly<CullFaceMode>;
+	static backCCW: Readonly<CullFaceMode>;
+}
+export type TerrainPreludeUniformsType = {
+	"u_depth": Uniform1i;
+	"u_terrain": Uniform1i;
+	"u_terrain_dim": Uniform1f;
+	"u_terrain_matrix": UniformMatrix4f;
+	"u_terrain_unpack": Uniform4f;
+	"u_terrain_exaggeration": Uniform1f;
+};
+export type DrawMode = WebGLRenderingContextBase["LINES"] | WebGLRenderingContextBase["TRIANGLES"] | WebGL2RenderingContext["LINE_STRIP"];
+declare class Program<Us extends UniformBindings> {
+	program: WebGLProgram;
+	attributes: {
+		[_: string]: number;
+	};
+	numAttributes: number;
+	fixedUniforms: Us;
+	terrainUniforms: TerrainPreludeUniformsType;
+	binderUniforms: Array<BinderUniform>;
+	failedToCreate: boolean;
+	constructor(context: Context, source: {
+		fragmentSource: string;
+		vertexSource: string;
+		staticAttributes: Array<string>;
+		staticUniforms: Array<string>;
+	}, configuration: ProgramConfiguration, fixedUniforms: (b: Context, a: UniformLocations) => Us, showOverdrawInspector: boolean, terrain: Terrain);
+	draw(context: Context, drawMode: DrawMode, depthMode: Readonly<DepthMode>, stencilMode: Readonly<StencilMode>, colorMode: Readonly<ColorMode>, cullFaceMode: Readonly<CullFaceMode>, uniformValues: UniformValues<Us>, terrain: TerrainData, layerID: string, layoutVertexBuffer: VertexBuffer, indexBuffer: IndexBuffer, segments: SegmentVector, currentProperties?: any, zoom?: number | null, configuration?: ProgramConfiguration | null, dynamicLayoutBuffer?: VertexBuffer | null, dynamicLayoutBuffer2?: VertexBuffer | null, dynamicLayoutBuffer3?: VertexBuffer | null): void;
+}
+declare class VertexBuffer {
+	length: number;
+	attributes: ReadonlyArray<StructArrayMember>;
+	itemSize: number;
+	dynamicDraw: boolean;
+	context: Context;
+	buffer: WebGLBuffer;
 	/**
-	 * Release the WebGL resources associated with the buffers. Note that because
-	 * buckets are shared between layers having the same layout properties, they
-	 * must be destroyed in groups (all buckets for a tile, or all symbol buckets).
+	 * @param dynamicDraw - Whether this buffer will be repeatedly updated.
+	 */
+	constructor(context: Context, array: StructArray, attributes: ReadonlyArray<StructArrayMember>, dynamicDraw?: boolean);
+	bind(): void;
+	updateData(array: StructArray): void;
+	enableAttributes(gl: WebGLRenderingContext | WebGL2RenderingContext, program: Program<any>): void;
+	/**
+	 * Set the attribute pointers in a WebGL context
+	 * @param gl - The WebGL context
+	 * @param program - The active WebGL program
+	 * @param vertexOffset - Index of the starting vertex of the segment
+	 */
+	setVertexAttribPointers(gl: WebGLRenderingContext | WebGL2RenderingContext, program: Program<any>, vertexOffset?: number | null): void;
+	/**
+	 * Destroy the GL buffer bound to the given WebGL context
 	 */
 	destroy(): void;
 }
-/**
- * @param gl - The map's gl context.
- * @param matrix - The map's camera matrix. It projects spherical mercator
- * coordinates to gl clip space coordinates. The spherical mercator coordinate `[0, 0]` represents the
- * top left corner of the mercator world and `[1, 1]` represents the bottom right corner. When
- * the `renderingMode` is `"3d"`, the z coordinate is conformal. A box with identical x, y, and z
- * lengths in mercator units would be rendered as a cube. {@link MercatorCoordinate.fromLngLat}
- * can be used to project a `LngLat` to a mercator coordinate.
- */
-export type CustomRenderMethod = (gl: WebGLRenderingContext | WebGL2RenderingContext, matrix: mat4) => void;
-/**
- * Interface for custom style layers. This is a specification for
- * implementers to model: it is not an exported method or class.
- *
- * Custom layers allow a user to render directly into the map's GL context using the map's camera.
- * These layers can be added between any regular layers using {@link Map#addLayer}.
- *
- * Custom layers must have a unique `id` and must have the `type` of `"custom"`.
- * They must implement `render` and may implement `prerender`, `onAdd` and `onRemove`.
- * They can trigger rendering using {@link Map#triggerRepaint}
- * and they should appropriately handle {@link MapContextEvent} with `webglcontextlost` and `webglcontextrestored`.
- *
- * The `renderingMode` property controls whether the layer is treated as a `"2d"` or `"3d"` map layer. Use:
- *
- * - `"renderingMode": "3d"` to use the depth buffer and share it with other layers
- * - `"renderingMode": "2d"` to add a layer with no depth. If you need to use the depth buffer for a `"2d"` layer you must use an offscreen
- *   framebuffer and {@link CustomLayerInterface#prerender}
- *
- * @example
- * Custom layer implemented as ES6 class
- * ```ts
- * class NullIslandLayer {
- *     constructor() {
- *         this.id = 'null-island';
- *         this.type = 'custom';
- *         this.renderingMode = '2d';
- *     }
- *
- *     onAdd(map, gl) {
- *         const vertexSource = `
- *         uniform mat4 u_matrix;
- *         void main() {
- *             gl_Position = u_matrix * vec4(0.5, 0.5, 0.0, 1.0);
- *             gl_PointSize = 20.0;
- *         }`;
- *
- *         const fragmentSource = `
- *         void main() {
- *             fragColor = vec4(1.0, 0.0, 0.0, 1.0);
- *         }`;
- *
- *         const vertexShader = gl.createShader(gl.VERTEX_SHADER);
- *         gl.shaderSource(vertexShader, vertexSource);
- *         gl.compileShader(vertexShader);
- *         const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
- *         gl.shaderSource(fragmentShader, fragmentSource);
- *         gl.compileShader(fragmentShader);
- *
- *         this.program = gl.createProgram();
- *         gl.attachShader(this.program, vertexShader);
- *         gl.attachShader(this.program, fragmentShader);
- *         gl.linkProgram(this.program);
- *     }
- *
- *     render(gl, matrix) {
- *         gl.useProgram(this.program);
- *         gl.uniformMatrix4fv(gl.getUniformLocation(this.program, "u_matrix"), false, matrix);
- *         gl.drawArrays(gl.POINTS, 0, 1);
- *     }
- * }
- *
- * map.on('load', () => {
- *     map.addLayer(new NullIslandLayer());
- * });
- * ```
- */
-export interface CustomLayerInterface {
-	/**
-	 * A unique layer id.
-	 */
-	id: string;
-	/**
-	 * The layer's type. Must be `"custom"`.
-	 */
-	type: "custom";
-	/**
-	 * Either `"2d"` or `"3d"`. Defaults to `"2d"`.
-	 */
-	renderingMode?: "2d" | "3d";
-	/**
-	 * Called during a render frame allowing the layer to draw into the GL context.
-	 *
-	 * The layer can assume blending and depth state is set to allow the layer to properly
-	 * blend and clip other layers. The layer cannot make any other assumptions about the
-	 * current GL state.
-	 *
-	 * If the layer needs to render to a texture, it should implement the `prerender` method
-	 * to do this and only use the `render` method for drawing directly into the main framebuffer.
-	 *
-	 * The blend function is set to `gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)`. This expects
-	 * colors to be provided in premultiplied alpha form where the `r`, `g` and `b` values are already
-	 * multiplied by the `a` value. If you are unable to provide colors in premultiplied form you
-	 * may want to change the blend function to
-	 * `gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)`.
-	 */
-	render: CustomRenderMethod;
-	/**
-	 * Optional method called during a render frame to allow a layer to prepare resources or render into a texture.
-	 *
-	 * The layer cannot make any assumptions about the current GL state and must bind a framebuffer before rendering.
-	 */
-	prerender?: CustomRenderMethod;
-	/**
-	 * Optional method called when the layer has been added to the Map with {@link Map#addLayer}. This
-	 * gives the layer a chance to initialize gl resources and register event listeners.
-	 *
-	 * @param map - The Map this custom layer was just added to.
-	 * @param gl - The gl context for the map.
-	 */
-	onAdd?(map: Map$1, gl: WebGLRenderingContext | WebGL2RenderingContext): void;
-	/**
-	 * Optional method called when the layer has been removed from the Map with {@link Map#removeLayer}. This
-	 * gives the layer a chance to clean up gl resources and event listeners.
-	 *
-	 * @param map - The Map this custom layer was just added to.
-	 * @param gl - The gl context for the map.
-	 */
-	onRemove?(map: Map$1, gl: WebGLRenderingContext | WebGL2RenderingContext): void;
+export type ClearArgs = {
+	color?: Color;
+	depth?: number;
+	stencil?: number;
+};
+declare class Context {
+	gl: WebGLRenderingContext | WebGL2RenderingContext;
+	currentNumAttributes: number;
+	maxTextureSize: number;
+	clearColor: ClearColor;
+	clearDepth: ClearDepth;
+	clearStencil: ClearStencil;
+	colorMask: ColorMask;
+	depthMask: DepthMask;
+	stencilMask: StencilMask;
+	stencilFunc: StencilFunc;
+	stencilOp: StencilOp;
+	stencilTest: StencilTest;
+	depthRange: DepthRange;
+	depthTest: DepthTest;
+	depthFunc: DepthFunc;
+	blend: Blend;
+	blendFunc: BlendFunc;
+	blendColor: BlendColor;
+	blendEquation: BlendEquation;
+	cullFace: CullFace;
+	cullFaceSide: CullFaceSide;
+	frontFace: FrontFace;
+	program: ProgramValue;
+	activeTexture: ActiveTextureUnit;
+	viewport: Viewport;
+	bindFramebuffer: BindFramebuffer;
+	bindRenderbuffer: BindRenderbuffer;
+	bindTexture: BindTexture;
+	bindVertexBuffer: BindVertexBuffer;
+	bindElementBuffer: BindElementBuffer;
+	bindVertexArray: BindVertexArray;
+	pixelStoreUnpack: PixelStoreUnpack;
+	pixelStoreUnpackPremultiplyAlpha: PixelStoreUnpackPremultiplyAlpha;
+	pixelStoreUnpackFlipY: PixelStoreUnpackFlipY;
+	extTextureFilterAnisotropic: EXT_texture_filter_anisotropic | null;
+	extTextureFilterAnisotropicMax?: GLfloat;
+	HALF_FLOAT?: GLenum;
+	RGBA16F?: GLenum;
+	RGB16F?: GLenum;
+	constructor(gl: WebGLRenderingContext | WebGL2RenderingContext);
+	setDefault(): void;
+	setDirty(): void;
+	createIndexBuffer(array: TriangleIndexArray | LineIndexArray | LineStripIndexArray, dynamicDraw?: boolean): IndexBuffer;
+	createVertexBuffer(array: StructArray, attributes: ReadonlyArray<StructArrayMember>, dynamicDraw?: boolean): VertexBuffer;
+	createRenderbuffer(storageFormat: number, width: number, height: number): WebGLRenderbuffer;
+	createFramebuffer(width: number, height: number, hasDepth: boolean, hasStencil: boolean): Framebuffer;
+	clear({ color, depth, stencil }: ClearArgs): void;
+	setCullFace(cullFaceMode: Readonly<CullFaceMode>): void;
+	setDepthMode(depthMode: Readonly<DepthMode>): void;
+	setStencilMode(stencilMode: Readonly<StencilMode>): void;
+	setColorMode(colorMode: Readonly<ColorMode>): void;
+	createVertexArray(): WebGLVertexArrayObject | undefined;
+	deleteVertexArray(x: WebGLVertexArrayObject | undefined): void;
+	unbindVAO(): void;
 }
-declare abstract class StyleLayer extends Evented {
-	id: string;
-	metadata: unknown;
-	type: LayerSpecification["type"] | CustomLayerInterface["type"];
-	source: string;
-	sourceLayer: string;
-	minzoom: number;
-	maxzoom: number;
-	filter: FilterSpecification | void;
-	visibility: "visible" | "none" | void;
-	_crossfadeParameters: CrossfadeParameters;
-	_unevaluatedLayout: Layout<any>;
-	readonly layout: unknown;
-	_transitionablePaint: Transitionable<any>;
-	_transitioningPaint: Transitioning<any>;
-	readonly paint: unknown;
-	_featureFilter: FeatureFilter;
-	readonly onAdd: ((map: Map$1) => void);
-	readonly onRemove: ((map: Map$1) => void);
-	queryRadius?(bucket: Bucket): number;
-	queryIntersectsFeature?(queryGeometry: Array<Point>, feature: VectorTileFeature, featureState: FeatureState, geometry: Array<Array<Point>>, zoom: number, transform: Transform, pixelsToTileUnits: number, pixelPosMatrix: mat4): boolean | number;
-	constructor(layer: LayerSpecification | CustomLayerInterface, properties: Readonly<{
-		layout?: Properties<any>;
-		paint?: Properties<any>;
-	}>);
-	getCrossfadeParameters(): CrossfadeParameters;
-	getLayoutProperty(name: string): any;
-	setLayoutProperty(name: string, value: any, options?: StyleSetterOptions): void;
-	getPaintProperty(name: string): unknown;
-	setPaintProperty(name: string, value: unknown, options?: StyleSetterOptions): boolean;
-	_handleSpecialPaintPropertyUpdate(_: string): void;
-	_handleOverridablePaintPropertyUpdate<T, R>(name: string, oldValue: PropertyValue<T, R>, newValue: PropertyValue<T, R>): boolean;
-	isHidden(zoom: number): boolean;
-	updateTransitions(parameters: TransitionParameters): void;
-	hasTransition(): boolean;
-	recalculate(parameters: EvaluationParameters, availableImages: Array<string>): void;
-	serialize(): LayerSpecification;
-	_validate(validate: Function, key: string, name: string, value: unknown, options?: StyleSetterOptions): boolean;
-	is3D(): boolean;
-	isTileClipped(): boolean;
-	hasOffscreenPass(): boolean;
-	resize(): void;
-	isStateDependent(): boolean;
+export type TextureFormat = WebGLRenderingContextBase["RGBA"] | WebGLRenderingContextBase["ALPHA"];
+export type TextureFilter = WebGLRenderingContextBase["LINEAR"] | WebGLRenderingContextBase["LINEAR_MIPMAP_NEAREST"] | WebGLRenderingContextBase["NEAREST"];
+export type TextureWrap = WebGLRenderingContextBase["REPEAT"] | WebGLRenderingContextBase["CLAMP_TO_EDGE"] | WebGLRenderingContextBase["MIRRORED_REPEAT"];
+export type EmptyImage = {
+	width: number;
+	height: number;
+	data: null;
+};
+export type DataTextureImage = RGBAImage | AlphaImage | EmptyImage;
+export type TextureImage = TexImageSource | DataTextureImage;
+declare class Texture {
+	context: Context;
+	size: [
+		number,
+		number
+	];
+	texture: WebGLTexture;
+	format: TextureFormat;
+	filter: TextureFilter;
+	wrap: TextureWrap;
+	useMipmap: boolean;
+	constructor(context: Context, image: TextureImage, format: TextureFormat, options?: {
+		premultiply?: boolean;
+		useMipmap?: boolean;
+	} | null);
+	update(image: TextureImage, options?: {
+		premultiply?: boolean;
+		useMipmap?: boolean;
+	} | null, position?: {
+		x: number;
+		y: number;
+	}): void;
+	bind(filter: TextureFilter, wrap: TextureWrap, minFilter?: TextureFilter | null): void;
+	isSizePowerOfTwo(): boolean;
+	destroy(): void;
+}
+declare class ImagePosition {
+	paddedRect: Rect;
+	pixelRatio: number;
+	version: number;
+	stretchY: Array<[
+		number,
+		number
+	]>;
+	stretchX: Array<[
+		number,
+		number
+	]>;
+	content: [
+		number,
+		number,
+		number,
+		number
+	];
+	textFitWidth: TextFit;
+	textFitHeight: TextFit;
+	constructor(paddedRect: Rect, { pixelRatio, version, stretchX, stretchY, content, textFitWidth, textFitHeight }: StyleImage);
+	get tl(): [
+		number,
+		number
+	];
+	get br(): [
+		number,
+		number
+	];
+	get tlbr(): Array<number>;
+	get displaySize(): [
+		number,
+		number
+	];
+}
+declare class ImageAtlas {
+	image: RGBAImage;
+	iconPositions: {
+		[_: string]: ImagePosition;
+	};
+	patternPositions: {
+		[_: string]: ImagePosition;
+	};
+	haveRenderCallbacks: Array<string>;
+	uploaded: boolean;
+	constructor(icons: GetImagesResponse, patterns: GetImagesResponse);
+	addImages(images: {
+		[_: string]: StyleImage;
+	}, positions: {
+		[_: string]: ImagePosition;
+	}, bins: Array<Rect>): void;
+	patchUpdatedImages(imageManager: ImageManager, texture: Texture): void;
+	patchUpdatedImage(position: ImagePosition, image: StyleImage, texture: Texture): void;
+}
+export type Pattern = {
+	bin: PotpackBox;
+	position: ImagePosition;
+};
+declare class ImageManager extends Evented {
+	images: {
+		[_: string]: StyleImage;
+	};
+	updatedImages: {
+		[_: string]: boolean;
+	};
+	callbackDispatchedThisFrame: {
+		[_: string]: boolean;
+	};
+	loaded: boolean;
+	/**
+	 * This is used to track requests for images that are not yet available. When the image is loaded,
+	 * the requestors will be notified.
+	 */
+	requestors: Array<{
+		ids: Array<string>;
+		promiseResolve: (value: GetImagesResponse) => void;
+	}>;
+	patterns: {
+		[_: string]: Pattern;
+	};
+	atlasImage: RGBAImage;
+	atlasTexture: Texture;
+	dirty: boolean;
+	constructor();
+	isLoaded(): boolean;
+	setLoaded(loaded: boolean): void;
+	getImage(id: string): StyleImage;
+	addImage(id: string, image: StyleImage): void;
+	_validate(id: string, image: StyleImage): boolean;
+	_validateStretch(stretch: Array<[
+		number,
+		number
+	]>, size: number): boolean;
+	_validateContent(content: [
+		number,
+		number,
+		number,
+		number
+	], image: StyleImage): boolean;
+	updateImage(id: string, image: StyleImage, validate?: boolean): void;
+	removeImage(id: string): void;
+	listImages(): Array<string>;
+	getImages(ids: Array<string>): Promise<GetImagesResponse>;
+	_getImagesForIds(ids: Array<string>): GetImagesResponse;
+	getPixelSize(): {
+		width: number;
+		height: number;
+	};
+	getPattern(id: string): ImagePosition;
+	bind(context: Context): void;
+	_updatePatternAtlas(): void;
+	beginFrame(): void;
+	dispatchRenderCallbacks(ids: Array<string>): void;
 }
 export type LightPosition = {
 	x: number;
@@ -6203,6 +5568,135 @@ declare class PauseablePlacement {
 	}): void;
 	commit(now: number): Placement;
 }
+/**
+ * @param gl - The map's gl context.
+ * @param matrix - The map's camera matrix. It projects spherical mercator
+ * coordinates to gl clip space coordinates. The spherical mercator coordinate `[0, 0]` represents the
+ * top left corner of the mercator world and `[1, 1]` represents the bottom right corner. When
+ * the `renderingMode` is `"3d"`, the z coordinate is conformal. A box with identical x, y, and z
+ * lengths in mercator units would be rendered as a cube. {@link MercatorCoordinate.fromLngLat}
+ * can be used to project a `LngLat` to a mercator coordinate.
+ */
+export type CustomRenderMethod = (gl: WebGLRenderingContext | WebGL2RenderingContext, matrix: mat4) => void;
+/**
+ * Interface for custom style layers. This is a specification for
+ * implementers to model: it is not an exported method or class.
+ *
+ * Custom layers allow a user to render directly into the map's GL context using the map's camera.
+ * These layers can be added between any regular layers using {@link Map#addLayer}.
+ *
+ * Custom layers must have a unique `id` and must have the `type` of `"custom"`.
+ * They must implement `render` and may implement `prerender`, `onAdd` and `onRemove`.
+ * They can trigger rendering using {@link Map#triggerRepaint}
+ * and they should appropriately handle {@link MapContextEvent} with `webglcontextlost` and `webglcontextrestored`.
+ *
+ * The `renderingMode` property controls whether the layer is treated as a `"2d"` or `"3d"` map layer. Use:
+ *
+ * - `"renderingMode": "3d"` to use the depth buffer and share it with other layers
+ * - `"renderingMode": "2d"` to add a layer with no depth. If you need to use the depth buffer for a `"2d"` layer you must use an offscreen
+ *   framebuffer and {@link CustomLayerInterface#prerender}
+ *
+ * @example
+ * Custom layer implemented as ES6 class
+ * ```ts
+ * class NullIslandLayer {
+ *     constructor() {
+ *         this.id = 'null-island';
+ *         this.type = 'custom';
+ *         this.renderingMode = '2d';
+ *     }
+ *
+ *     onAdd(map, gl) {
+ *         const vertexSource = `
+ *         uniform mat4 u_matrix;
+ *         void main() {
+ *             gl_Position = u_matrix * vec4(0.5, 0.5, 0.0, 1.0);
+ *             gl_PointSize = 20.0;
+ *         }`;
+ *
+ *         const fragmentSource = `
+ *         void main() {
+ *             fragColor = vec4(1.0, 0.0, 0.0, 1.0);
+ *         }`;
+ *
+ *         const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+ *         gl.shaderSource(vertexShader, vertexSource);
+ *         gl.compileShader(vertexShader);
+ *         const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+ *         gl.shaderSource(fragmentShader, fragmentSource);
+ *         gl.compileShader(fragmentShader);
+ *
+ *         this.program = gl.createProgram();
+ *         gl.attachShader(this.program, vertexShader);
+ *         gl.attachShader(this.program, fragmentShader);
+ *         gl.linkProgram(this.program);
+ *     }
+ *
+ *     render(gl, matrix) {
+ *         gl.useProgram(this.program);
+ *         gl.uniformMatrix4fv(gl.getUniformLocation(this.program, "u_matrix"), false, matrix);
+ *         gl.drawArrays(gl.POINTS, 0, 1);
+ *     }
+ * }
+ *
+ * map.on('load', () => {
+ *     map.addLayer(new NullIslandLayer());
+ * });
+ * ```
+ */
+export interface CustomLayerInterface {
+	/**
+	 * A unique layer id.
+	 */
+	id: string;
+	/**
+	 * The layer's type. Must be `"custom"`.
+	 */
+	type: "custom";
+	/**
+	 * Either `"2d"` or `"3d"`. Defaults to `"2d"`.
+	 */
+	renderingMode?: "2d" | "3d";
+	/**
+	 * Called during a render frame allowing the layer to draw into the GL context.
+	 *
+	 * The layer can assume blending and depth state is set to allow the layer to properly
+	 * blend and clip other layers. The layer cannot make any other assumptions about the
+	 * current GL state.
+	 *
+	 * If the layer needs to render to a texture, it should implement the `prerender` method
+	 * to do this and only use the `render` method for drawing directly into the main framebuffer.
+	 *
+	 * The blend function is set to `gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)`. This expects
+	 * colors to be provided in premultiplied alpha form where the `r`, `g` and `b` values are already
+	 * multiplied by the `a` value. If you are unable to provide colors in premultiplied form you
+	 * may want to change the blend function to
+	 * `gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)`.
+	 */
+	render: CustomRenderMethod;
+	/**
+	 * Optional method called during a render frame to allow a layer to prepare resources or render into a texture.
+	 *
+	 * The layer cannot make any assumptions about the current GL state and must bind a framebuffer before rendering.
+	 */
+	prerender?: CustomRenderMethod;
+	/**
+	 * Optional method called when the layer has been added to the Map with {@link Map#addLayer}. This
+	 * gives the layer a chance to initialize gl resources and register event listeners.
+	 *
+	 * @param map - The Map this custom layer was just added to.
+	 * @param gl - The gl context for the map.
+	 */
+	onAdd?(map: Map$1, gl: WebGLRenderingContext | WebGL2RenderingContext): void;
+	/**
+	 * Optional method called when the layer has been removed from the Map with {@link Map#removeLayer}. This
+	 * gives the layer a chance to clean up gl resources and event listeners.
+	 *
+	 * @param map - The Map this custom layer was just added to.
+	 * @param gl - The gl context for the map.
+	 */
+	onRemove?(map: Map$1, gl: WebGLRenderingContext | WebGL2RenderingContext): void;
+}
 export type ValidationError = {
 	message: string;
 	line: number;
@@ -6570,6 +6064,535 @@ export declare class Style extends Evented {
 	 */
 	setSprite(sprite: SpriteSpecification, options?: StyleSetterOptions, completion?: (err: Error) => void): void;
 }
+export type BucketParameters<Layer extends TypedStyleLayer> = {
+	index: number;
+	layers: Array<Layer>;
+	zoom: number;
+	pixelRatio: number;
+	overscaling: number;
+	collisionBoxArray: CollisionBoxArray;
+	sourceLayerIndex: number;
+	sourceID: string;
+};
+export type PopulateParameters = {
+	featureIndex: FeatureIndex;
+	iconDependencies: {};
+	patternDependencies: {};
+	glyphDependencies: {};
+	availableImages: Array<string>;
+};
+export type IndexedFeature = {
+	feature: VectorTileFeature;
+	id: number | string;
+	index: number;
+	sourceLayerIndex: number;
+};
+export type BucketFeature = {
+	index: number;
+	sourceLayerIndex: number;
+	geometry: Array<Array<Point>>;
+	properties: any;
+	type: 0 | 1 | 2 | 3;
+	id?: any;
+	readonly patterns: {
+		[_: string]: {
+			"min": string;
+			"mid": string;
+			"max": string;
+		};
+	};
+	sortKey?: number;
+};
+/**
+ * The `Bucket` interface is the single point of knowledge about turning vector
+ * tiles into WebGL buffers.
+ *
+ * `Bucket` is an abstract interface. An implementation exists for each style layer type.
+ * Create a bucket via the `StyleLayer#createBucket` method.
+ *
+ * The concrete bucket types, using layout options from the style layer,
+ * transform feature geometries into vertex and index data for use by the
+ * vertex shader.  They also (via `ProgramConfiguration`) use feature
+ * properties and the zoom level to populate the attributes needed for
+ * data-driven styling.
+ *
+ * Buckets are designed to be built on a worker thread and then serialized and
+ * transferred back to the main thread for rendering.  On the worker side, a
+ * bucket's vertex, index, and attribute data is stored in `bucket.arrays: ArrayGroup`.
+ * When a bucket's data is serialized and sent back to the main thread,
+ * is gets deserialized (using `new Bucket(serializedBucketData)`, with
+ * the array data now stored in `bucket.buffers: BufferGroup`. BufferGroups
+ * hold the same data as ArrayGroups, but are tuned for consumption by WebGL.
+ */
+export interface Bucket {
+	layerIds: Array<string>;
+	hasPattern: boolean;
+	readonly layers: Array<any>;
+	readonly stateDependentLayers: Array<any>;
+	readonly stateDependentLayerIds: Array<string>;
+	populate(features: Array<IndexedFeature>, options: PopulateParameters, canonical: CanonicalTileID): void;
+	update(states: FeatureStates, vtLayer: VectorTileLayer, imagePositions: {
+		[_: string]: ImagePosition;
+	}): void;
+	isEmpty(): boolean;
+	upload(context: Context): void;
+	uploadPending(): boolean;
+	/**
+	 * Release the WebGL resources associated with the buffers. Note that because
+	 * buckets are shared between layers having the same layout properties, they
+	 * must be destroyed in groups (all buckets for a tile, or all symbol buckets).
+	 */
+	destroy(): void;
+}
+declare abstract class StyleLayer extends Evented {
+	id: string;
+	metadata: unknown;
+	type: LayerSpecification["type"] | CustomLayerInterface["type"];
+	source: string;
+	sourceLayer: string;
+	minzoom: number;
+	maxzoom: number;
+	filter: FilterSpecification | void;
+	visibility: "visible" | "none" | void;
+	_crossfadeParameters: CrossfadeParameters;
+	_unevaluatedLayout: Layout<any>;
+	readonly layout: unknown;
+	_transitionablePaint: Transitionable<any>;
+	_transitioningPaint: Transitioning<any>;
+	readonly paint: unknown;
+	_featureFilter: FeatureFilter;
+	readonly onAdd: ((map: Map$1) => void);
+	readonly onRemove: ((map: Map$1) => void);
+	queryRadius?(bucket: Bucket): number;
+	queryIntersectsFeature?(queryGeometry: Array<Point>, feature: VectorTileFeature, featureState: FeatureState, geometry: Array<Array<Point>>, zoom: number, transform: Transform, pixelsToTileUnits: number, pixelPosMatrix: mat4): boolean | number;
+	constructor(layer: LayerSpecification | CustomLayerInterface, properties: Readonly<{
+		layout?: Properties<any>;
+		paint?: Properties<any>;
+	}>);
+	getCrossfadeParameters(): CrossfadeParameters;
+	getLayoutProperty(name: string): any;
+	setLayoutProperty(name: string, value: any, options?: StyleSetterOptions): void;
+	getPaintProperty(name: string): unknown;
+	setPaintProperty(name: string, value: unknown, options?: StyleSetterOptions): boolean;
+	_handleSpecialPaintPropertyUpdate(_: string): void;
+	_handleOverridablePaintPropertyUpdate<T, R>(name: string, oldValue: PropertyValue<T, R>, newValue: PropertyValue<T, R>): boolean;
+	isHidden(zoom: number): boolean;
+	updateTransitions(parameters: TransitionParameters): void;
+	hasTransition(): boolean;
+	recalculate(parameters: EvaluationParameters, availableImages: Array<string>): void;
+	serialize(): LayerSpecification;
+	_validate(validate: Function, key: string, name: string, value: unknown, options?: StyleSetterOptions): boolean;
+	is3D(): boolean;
+	isTileClipped(): boolean;
+	hasOffscreenPass(): boolean;
+	resize(): void;
+	isStateDependent(): boolean;
+}
+/**
+ * A way to identify a feature, either by string or by number
+ */
+export type GeoJSONFeatureId = number | string;
+/**
+ * The geojson source diff object
+ */
+export type GeoJSONSourceDiff = {
+	/**
+	 * When set to `true` it will remove all features
+	 */
+	removeAll?: boolean;
+	/**
+	 * An array of features IDs to remove
+	 */
+	remove?: Array<GeoJSONFeatureId>;
+	/**
+	 * An array of features to add
+	 */
+	add?: Array<GeoJSON.Feature>;
+	/**
+	 * An array of update objects
+	 */
+	update?: Array<GeoJSONFeatureDiff>;
+};
+/**
+ * A geojson feature diff object
+ */
+export type GeoJSONFeatureDiff = {
+	/**
+	 * The feature ID
+	 */
+	id: GeoJSONFeatureId;
+	/**
+	 * If it's a new geometry, place it here
+	 */
+	newGeometry?: GeoJSON.Geometry;
+	/**
+	 * Setting to `true` will remove all preperties
+	 */
+	removeAllProperties?: boolean;
+	/**
+	 * The properties keys to remove
+	 */
+	removeProperties?: Array<string>;
+	/**
+	 * The properties to add or update along side their values
+	 */
+	addOrUpdateProperties?: Array<{
+		key: string;
+		value: any;
+	}>;
+};
+/**
+ * The geojson worker options that can be passed to the worker
+ */
+export type GeoJSONWorkerOptions = {
+	source?: string;
+	cluster?: boolean;
+	geojsonVtOptions?: GeoJSONVTOptions;
+	superclusterOptions?: SuperclusterOptions<any, any>;
+	clusterProperties?: ClusterProperties;
+	filter?: Array<unknown>;
+	promoteId?: string;
+	collectResourceTiming?: boolean;
+};
+/**
+ * Parameters needed to load a geojson to the worker
+ */
+export type LoadGeoJSONParameters = GeoJSONWorkerOptions & {
+	type: "geojson";
+	request?: RequestParameters;
+	/**
+	 * Literal GeoJSON data. Must be provided if `request.url` is not.
+	 */
+	data?: string;
+	dataDiff?: GeoJSONSourceDiff;
+};
+/**
+ * The possible option of the plugin's status
+ *
+ * `unavailable`: Not loaded.
+ *
+ * `deferred`: The plugin URL has been specified, but loading has been deferred.
+ *
+ * `requested`: at least one tile needs RTL to render, but the plugin has not been set
+ *
+ * `loading`: RTL is in the process of being loaded by worker.
+ *
+ * `loaded`: The plugin is now loaded
+ *
+ *  `error`: The plugin failed to load
+ */
+export type RTLPluginStatus = "unavailable" | "deferred" | "requested" | "loading" | "loaded" | "error";
+/**
+ * The RTL plugin state
+ */
+export type PluginState = {
+	pluginStatus: RTLPluginStatus;
+	pluginURL: string;
+};
+/**
+ * The parameters needed in order to get information about the cluster
+ */
+export type ClusterIDAndSource = {
+	type: "geojson";
+	clusterId: number;
+	source: string;
+};
+/**
+ * Parameters needed to get the leaves of a cluster
+ */
+export type GetClusterLeavesParams = ClusterIDAndSource & {
+	limit: number;
+	offset: number;
+};
+/**
+ * The result of the call to load a geojson source
+ */
+export type GeoJSONWorkerSourceLoadDataResult = {
+	resourceTiming?: {
+		[_: string]: Array<PerformanceResourceTiming>;
+	};
+	abandoned?: boolean;
+};
+/**
+ * Parameters needed to remove a source
+ */
+export type RemoveSourceParams = {
+	source: string;
+	type: string;
+};
+/**
+ * Parameters needed to update the layers
+ */
+export type UpdateLayersParamaeters = {
+	layers: Array<LayerSpecification>;
+	removedIds: Array<string>;
+};
+/**
+ * Parameters needed to get the images
+ */
+export type GetImagesParamerters = {
+	icons: Array<string>;
+	source: string;
+	tileID: OverscaledTileID;
+	type: string;
+};
+/**
+ * Parameters needed to get the glyphs
+ */
+export type GetGlyphsParamerters = {
+	type: string;
+	stacks: {
+		[_: string]: Array<number>;
+	};
+	source: string;
+	tileID: OverscaledTileID;
+};
+/**
+ * A response object returned when requesting glyphs
+ */
+export type GetGlyphsResponse = {
+	[stack: string]: {
+		[id: number]: StyleGlyph;
+	};
+};
+/**
+ * A response object returned when requesting images
+ */
+export type GetImagesResponse = {
+	[_: string]: StyleImage;
+};
+/**
+ * All the possible message types that can be sent to and from the worker
+ */
+export declare const enum MessageType {
+	loadDEMTile = "LDT",
+	getClusterExpansionZoom = "GCEZ",
+	getClusterChildren = "GCC",
+	getClusterLeaves = "GCL",
+	loadData = "LD",
+	getData = "GD",
+	loadTile = "LT",
+	reloadTile = "RT",
+	getGlyphs = "GG",
+	getImages = "GI",
+	setImages = "SI",
+	setLayers = "SL",
+	updateLayers = "UL",
+	syncRTLPluginState = "SRPS",
+	setReferrer = "SR",
+	removeSource = "RS",
+	removeMap = "RM",
+	importScript = "IS",
+	removeTile = "RMT",
+	abortTile = "AT",
+	removeDEMTile = "RDT",
+	getResource = "GR"
+}
+/**
+ * This is basically a mapping between all the calls that are made to and from the workers.
+ * The key is the event name, the first parameter is the event input type, and the last parameter is the output type.
+ */
+export type RequestResponseMessageMap = {
+	[MessageType.loadDEMTile]: [
+		WorkerDEMTileParameters,
+		DEMData
+	];
+	[MessageType.getClusterExpansionZoom]: [
+		ClusterIDAndSource,
+		number
+	];
+	[MessageType.getClusterChildren]: [
+		ClusterIDAndSource,
+		Array<GeoJSON.Feature>
+	];
+	[MessageType.getClusterLeaves]: [
+		GetClusterLeavesParams,
+		Array<GeoJSON.Feature>
+	];
+	[MessageType.loadData]: [
+		LoadGeoJSONParameters,
+		GeoJSONWorkerSourceLoadDataResult
+	];
+	[MessageType.getData]: [
+		LoadGeoJSONParameters,
+		GeoJSON.GeoJSON
+	];
+	[MessageType.loadTile]: [
+		WorkerTileParameters,
+		WorkerTileResult
+	];
+	[MessageType.reloadTile]: [
+		WorkerTileParameters,
+		WorkerTileResult
+	];
+	[MessageType.getGlyphs]: [
+		GetGlyphsParamerters,
+		GetGlyphsResponse
+	];
+	[MessageType.getImages]: [
+		GetImagesParamerters,
+		GetImagesResponse
+	];
+	[MessageType.setImages]: [
+		string[],
+		void
+	];
+	[MessageType.setLayers]: [
+		Array<LayerSpecification>,
+		void
+	];
+	[MessageType.updateLayers]: [
+		UpdateLayersParamaeters,
+		void
+	];
+	[MessageType.syncRTLPluginState]: [
+		PluginState,
+		PluginState
+	];
+	[MessageType.setReferrer]: [
+		string,
+		void
+	];
+	[MessageType.removeSource]: [
+		RemoveSourceParams,
+		void
+	];
+	[MessageType.removeMap]: [
+		undefined,
+		void
+	];
+	[MessageType.importScript]: [
+		string,
+		void
+	];
+	[MessageType.removeTile]: [
+		TileParameters,
+		void
+	];
+	[MessageType.abortTile]: [
+		TileParameters,
+		void
+	];
+	[MessageType.removeDEMTile]: [
+		TileParameters,
+		void
+	];
+	[MessageType.getResource]: [
+		RequestParameters,
+		GetResourceResponse<any>
+	];
+};
+/**
+ * The message to be sent by the actor
+ */
+export type ActorMessage<T extends MessageType> = {
+	type: T;
+	data: RequestResponseMessageMap[T][0];
+	targetMapId?: string | number | null;
+	mustQueue?: boolean;
+	sourceMapId?: string | number | null;
+};
+/**
+ * An interface to be sent to the actor in order for it to allow communication between the worker and the main thread
+ */
+export interface ActorTarget {
+	addEventListener: typeof window.addEventListener;
+	removeEventListener: typeof window.removeEventListener;
+	postMessage: typeof window.postMessage;
+	terminate?: () => void;
+}
+/**
+ * This is used to define the parameters of the message that is sent to the worker and back
+ */
+export type MessageData = {
+	id: string;
+	type: MessageType | "<cancel>" | "<response>";
+	origin: string;
+	data?: Serialized;
+	targetMapId?: string | number | null;
+	mustQueue?: boolean;
+	error?: Serialized | null;
+	sourceMapId: string | number | null;
+};
+export type ResolveReject = {
+	resolve: (value?: RequestResponseMessageMap[MessageType][1]) => void;
+	reject: (reason?: Error) => void;
+};
+/**
+ * This interface allowing to substitute only the sendAsync method of the Actor class.
+ */
+export interface IActor {
+	sendAsync<T extends MessageType>(message: ActorMessage<T>, abortController?: AbortController): Promise<RequestResponseMessageMap[T][1]>;
+}
+export type MessageHandler<T extends MessageType> = (mapId: string | number, params: RequestResponseMessageMap[T][0], abortController?: AbortController) => Promise<RequestResponseMessageMap[T][1]>;
+declare class Actor implements IActor {
+	target: ActorTarget;
+	mapId: string | number | null;
+	resolveRejects: {
+		[x: string]: ResolveReject;
+	};
+	name: string;
+	tasks: {
+		[x: string]: MessageData;
+	};
+	taskQueue: Array<string>;
+	abortControllers: {
+		[x: number | string]: AbortController;
+	};
+	invoker: ThrottledInvoker;
+	globalScope: ActorTarget;
+	messageHandlers: {
+		[x in MessageType]?: MessageHandler<MessageType>;
+	};
+	subscription: Subscription;
+	/**
+	 * @param target - The target
+	 * @param mapId - A unique identifier for the Map instance using this Actor.
+	 */
+	constructor(target: ActorTarget, mapId?: string | number);
+	registerMessageHandler<T extends MessageType>(type: T, handler: MessageHandler<T>): void;
+	/**
+	 * Sends a message from a main-thread map to a Worker or from a Worker back to
+	 * a main-thread map instance.
+	 * @param message - the message to send
+	 * @param abortController - an optional AbortController to abort the request
+	 * @returns a promise that will be resolved with the response data
+	 */
+	sendAsync<T extends MessageType>(message: ActorMessage<T>, abortController?: AbortController): Promise<RequestResponseMessageMap[T][1]>;
+	receive(message: {
+		data: MessageData;
+	}): void;
+	process(): void;
+	processTask(id: string, task: MessageData): Promise<void>;
+	completeTask(id: string, err: Error, data?: RequestResponseMessageMap[MessageType][1]): void;
+	remove(): void;
+}
+export interface Subscription {
+	unsubscribe(): void;
+}
+/**
+ * Makes optional keys required and add the the undefined type.
+ *
+ * ```
+ * interface Test {
+ *  foo: number;
+ *  bar?: number;
+ *  baz: number | undefined;
+ * }
+ *
+ * Complete<Test> {
+ *  foo: number;
+ *  bar: number | undefined;
+ *  baz: number | undefined;
+ * }
+ *
+ * ```
+ *
+ * See https://medium.com/terria/typescript-transforming-optional-properties-to-required-properties-that-may-be-undefined-7482cb4e1585
+ */
+export type Complete<T> = {
+	[P in keyof Required<T>]: Pick<T, P> extends Required<Pick<T, P>> ? T[P] : (T[P] | undefined);
+};
 /**
  * Adds the map's position to its page's location hash.
  * Passed as an option to the map object.
@@ -6598,6 +6621,23 @@ export declare class Hash {
 	 * Mobile Safari doesn't allow updating the hash more than 100 times per 30 seconds.
 	 */
 	_updateHash: () => ReturnType<typeof setTimeout>;
+}
+export type TaskID = number;
+export type Task = {
+	callback: (timeStamp: number) => void;
+	id: TaskID;
+	cancelled: boolean;
+};
+declare class TaskQueue {
+	_queue: Array<Task>;
+	_id: TaskID;
+	_cleared: boolean;
+	_currentlyRunning: Array<Task> | false;
+	constructor();
+	add(callback: (timeStamp: number) => void): TaskID;
+	remove(id: TaskID): void;
+	run(timeStamp?: number): void;
+	clear(): void;
 }
 export interface DragMovementResult {
 	bearingDelta?: number;
@@ -6679,7 +6719,7 @@ export type DragPanOptions = {
 	 */
 	linearity?: number;
 	/**
-	 * easing function applled to `map.panTo` when applying the drag.
+	 * easing function applied to `map.panTo` when applying the drag.
 	 * @param t - the easing function
 	 * @defaultValue bezier(0, 0, 0.3, 1)
 	 */
@@ -6772,7 +6812,7 @@ export interface Handler {
 	isEnabled(): boolean;
 	/**
 	 * This is used to indicate if the handler is currently active or not.
-	 * In case a handler is active, it will block other handlers from gettting the relevant events.
+	 * In case a handler is active, it will block other handlers from getting the relevant events.
 	 * There is an allow list of handlers that can be active at the same time, which is configured when adding a handler.
 	 */
 	isActive(): boolean;
@@ -6912,23 +6952,6 @@ declare class HandlerManager {
 	_requestFrame(): number;
 	_triggerRenderFrame(): void;
 }
-export type TaskID = number;
-export type Task = {
-	callback: (timeStamp: number) => void;
-	id: TaskID;
-	cancelled: boolean;
-};
-declare class TaskQueue {
-	_queue: Array<Task>;
-	_id: TaskID;
-	_cleared: boolean;
-	_currentlyRunning: Array<Task> | false;
-	constructor();
-	add(callback: (timeStamp: number) => void): TaskID;
-	remove(id: TaskID): void;
-	run(timeStamp?: number): void;
-	clear(): void;
-}
 /**
  * A [Point](https://github.com/mapbox/point-geometry) or an array of two numbers representing `x` and `y` screen coordinates in pixels.
  *
@@ -6945,7 +6968,7 @@ export type PointLike = Point | [
 	number
 ];
 /**
- * A helper to allow require of at least one propery
+ * A helper to allow require of at least one property
  */
 export type RequireAtLeastOne<T> = {
 	[K in keyof T]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<keyof T, K>>>;
@@ -7152,6 +7175,7 @@ export type CameraUpdateTransformFunction = (next: {
 declare abstract class Camera extends Evented {
 	transform: Transform;
 	terrain: Terrain;
+	handlers: HandlerManager;
 	_moving: boolean;
 	_zooming: boolean;
 	_rotating: boolean;
@@ -7727,7 +7751,7 @@ export type MapLayerMouseEvent = MapMouseEvent & {
 	features?: MapGeoJSONFeature[];
 };
 /**
- * An event from a touch device relevat to a specific layer.
+ * An event from a touch device relevant to a specific layer.
  *
  * @group Event Related
  */
@@ -8454,9 +8478,12 @@ declare const defaultLocale: {
 	"GeolocateControl.FindMyLocation": string;
 	"GeolocateControl.LocationNotAvailable": string;
 	"LogoControl.Title": string;
+	"Map.Title": string;
+	"Marker.Title": string;
 	"NavigationControl.ResetBearing": string;
 	"NavigationControl.ZoomIn": string;
 	"NavigationControl.ZoomOut": string;
+	"Popup.Close": string;
 	"ScaleControl.Feet": string;
 	"ScaleControl.Meters": string;
 	"ScaleControl.Kilometers": string;
@@ -9178,7 +9205,6 @@ export type MapOptions = {
 	attributionControl?: false | AttributionControlOptions;
 	/**
 	 * If `true`, the MapLibre logo will be shown.
-	 * @defaultValue false
 	 */
 	maplibreLogo?: boolean;
 	/**
@@ -9198,7 +9224,8 @@ export type MapOptions = {
 	 */
 	preserveDrawingBuffer?: boolean;
 	/**
-	 * If `true`, the gl context will be created with MSAA antialiasing, which can be useful for antialiasing custom layers. This is `false` by default as a performance optimization.
+	 * If `true`, the gl context will be created with MSAA antialiasing, which can be useful for antialiasing custom layers.
+	 * Disabled by default as a performance optimization.
 	 */
 	antialias?: boolean;
 	/**
@@ -9272,7 +9299,7 @@ export type MapOptions = {
 	touchPitch?: boolean | AroundCenterOptions;
 	/**
 	 * If `true` or set to an options object, the map is only accessible on desktop while holding Command/Ctrl and only accessible on mobile with two fingers. Interacting with the map using normal gestures will trigger an informational screen. With this option enabled, "drag to pitch" requires a three-finger gesture. Cooperative gestures are disabled when a map enters fullscreen using {@link FullscreenControl}.
-	 * @defaultValue undefined
+	 * @defaultValue false
 	 */
 	cooperativeGestures?: GestureOptions;
 	/**
@@ -9314,7 +9341,7 @@ export type MapOptions = {
 	 * The maximum number of tiles stored in the tile cache for a given source. If omitted, the cache will be dynamically sized based on the current viewport which can be set using `maxTileCacheZoomLevels` constructor options.
 	 * @defaultValue null
 	 */
-	maxTileCacheSize?: number;
+	maxTileCacheSize?: number | null;
 	/**
 	 * The maximum number of zoom levels for which to store tiles for a given source. Tile cache dynamic size is calculated by multiplying `maxTileCacheZoomLevels` with the approximate number of tiles in the viewport for a given source.
 	 * @defaultValue 5
@@ -9323,13 +9350,15 @@ export type MapOptions = {
 	/**
 	 * A callback run before the Map makes a request for an external URL. The callback can be used to modify the url, set headers, or set the credentials property for cross-origin requests.
 	 * Expected to return an object with a `url` property and optionally `headers` and `credentials` properties.
+	 * @defaultValue null
 	 */
-	transformRequest?: RequestTransformFunction;
+	transformRequest?: RequestTransformFunction | null;
 	/**
 	 * A callback run before the map's camera is moved due to user input or animation. The callback can be used to modify the new center, zoom, pitch and bearing.
 	 * Expected to return an object containing center, zoom, pitch or bearing values to overwrite.
+	 * @defaultValue null
 	 */
-	transformCameraUpdate?: CameraUpdateTransformFunction;
+	transformCameraUpdate?: CameraUpdateTransformFunction | null;
 	/**
 	 * A patch to apply to the default localization table for UI strings, e.g. control tooltips. The `locale` object maps namespaced UI string IDs to translated strings in the target language; see `src/ui/default_locale.js` for an example with all supported string IDs. The object may specify all UI strings (thereby adding support for a new translation) or only a subset of strings (thereby patching the default translation table).
 	 * @defaultValue null
@@ -9352,7 +9381,7 @@ export type MapOptions = {
 	collectResourceTiming?: boolean;
 	/**
 	 * The max number of pixels a user can shift the mouse pointer during a click for it to be considered a valid click (as opposed to a mouse drag).
-	 * @defaultValue true
+	 * @defaultValue 3
 	 */
 	clickTolerance?: number;
 	/**
@@ -9364,7 +9393,7 @@ export type MapOptions = {
 	 */
 	fitBoundsOptions?: FitBoundsOptions;
 	/**
-	 *  Defines a CSS
+	 * Defines a CSS
 	 * font-family for locally overriding generation of glyphs in the 'CJK Unified Ideographs', 'Hiragana', 'Katakana' and 'Hangul Syllables' ranges.
 	 * In these ranges, font settings from the map's style will be ignored, except for font-weight keywords (light/regular/medium/bold).
 	 * Set to `false`, to enable font settings from the map's style for these glyph ranges.
@@ -9376,15 +9405,17 @@ export type MapOptions = {
 	 * The map's MapLibre style. This must be a JSON object conforming to
 	 * the schema described in the [MapLibre Style Specification](https://maplibre.org/maplibre-style-spec/),
 	 * or a URL to such JSON.
+	 * When the style is not specified, calling {@link Map#setStyle} is required to render the map.
 	 */
-	style: StyleSpecification | string;
+	style?: StyleSpecification | string;
 	/**
 	 * If `false`, the map's pitch (tilt) control with "drag to rotate" interaction will be disabled.
 	 * @defaultValue true
 	 */
 	pitchWithRotate?: boolean;
 	/**
-	 * The pixel ratio. The canvas' `width` attribute will be `container.clientWidth * pixelRatio` and its `height` attribute will be `container.clientHeight * pixelRatio`. Defaults to `devicePixelRatio` if not specified.
+	 * The pixel ratio.
+	 * The canvas' `width` attribute will be `container.clientWidth * pixelRatio` and its `height` attribute will be `container.clientHeight * pixelRatio`. Defaults to `devicePixelRatio` if not specified.
 	 */
 	pixelRatio?: number;
 	/**
@@ -9394,7 +9425,8 @@ export type MapOptions = {
 	validateStyle?: boolean;
 	/**
 	 * The canvas' `width` and `height` max size. The values are passed as an array where the first element is max width and the second element is max height.
-	 * You shouldn't set this above WebGl `MAX_TEXTURE_SIZE`. Defaults to [4096, 4096].
+	 * You shouldn't set this above WebGl `MAX_TEXTURE_SIZE`.
+	 * @defaultValue [4096, 4096].
 	 */
 	maxCanvasSize?: [
 		number,
@@ -9407,9 +9439,6 @@ export type MapOptions = {
 	 * @defaultValue true
 	 */
 	cancelPendingTileRequestsWhileZooming?: boolean;
-};
-export type Complete<T> = {
-	[P in keyof Required<T>]: Pick<T, P> extends Required<Pick<T, P>> ? T[P] : (T[P] | undefined);
 };
 export type CompleteMapOptions = Complete<MapOptions>;
 /**
@@ -9446,13 +9475,10 @@ export type CompleteMapOptions = Complete<MapOptions>;
 declare class Map$1 extends Camera {
 	style: Style;
 	painter: Painter;
-	handlers: HandlerManager;
 	_container: HTMLElement;
 	_canvasContainer: HTMLElement;
 	_controlContainer: HTMLElement;
-	_controlPositions: {
-		[_: string]: HTMLElement;
-	};
+	_controlPositions: Record<string, HTMLElement>;
 	_interactive: boolean;
 	_showTileBoundaries: boolean;
 	_showCollisionBoxes: boolean;
@@ -9461,7 +9487,7 @@ declare class Map$1 extends Camera {
 	_repaint: boolean;
 	_vertices: boolean;
 	_canvas: HTMLCanvasElement;
-	_maxTileCacheSize: number;
+	_maxTileCacheSize: number | null;
 	_maxTileCacheZoomLevels: number;
 	_frameRequest: AbortController;
 	_styleDirty: boolean;
@@ -9491,7 +9517,7 @@ declare class Map$1 extends Camera {
 	_locale: typeof defaultLocale;
 	_removed: boolean;
 	_clickTolerance: number;
-	_overridePixelRatio: number | null;
+	_overridePixelRatio: number | null | undefined;
 	_maxCanvasSize: [
 		number,
 		number
@@ -11920,6 +11946,10 @@ export type GeolocateControlOptions = {
  * * disabled - occurs if Geolocation is not available, disabled or denied.
  *
  * These interaction states can't be controlled programmatically, rather they are set based on user interactions.
+ *
+ * ## State Diagram
+ * ![GeolocateControl state diagram](https://github.com/maplibre/maplibre-gl-js/assets/3269297/78e720e5-d781-4da8-9803-a7a0e6aaaa9f)
+ *
  * @group Markers and Controls
  *
  * @example
@@ -11938,6 +11968,10 @@ export type GeolocateControlOptions = {
  * **Event** `trackuserlocationend` of type {@link Event} will be fired when the `GeolocateControl` changes to the background state, which happens when a user changes the camera during an active position lock. This only applies when `trackUserLocation` is `true`. In the background state, the dot on the map will update with location updates but the camera will not.
  *
  * **Event** `trackuserlocationstart` of type {@link Event} will be fired when the `GeolocateControl` changes to the active lock state, which happens either upon first obtaining a successful Geolocation API position for the user (a `geolocate` event will follow), or the user clicks the geolocate button when in the background state which uses the last known position to recenter the map and enter active lock state (no `geolocate` event will follow unless the users's location changes).
+ *
+ * **Event** `userlocationlostfocus` of type {@link Event} will be fired when the `GeolocateControl` changes to the background state, which happens when a user changes the camera during an active position lock. This only applies when `trackUserLocation` is `true`. In the background state, the dot on the map will update with location updates but the camera will not.
+ *
+ * **Event** `userlocationfocus` of type {@link Event} will be fired when the `GeolocateControl` changes to the active lock state, which happens upon the user clicks the geolocate button when in the background state which uses the last known position to recenter the map and enter active lock state.
  *
  * **Event** `geolocate` of type {@link Event} will be fired on each Geolocation API position update which returned as success.
  * `data` - The returned [Position](https://developer.mozilla.org/en-US/docs/Web/API/Position) object from the callback in [Geolocation.getCurrentPosition()](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/getCurrentPosition) or [Geolocation.watchPosition()](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/watchPosition).
@@ -11981,6 +12015,42 @@ export type GeolocateControlOptions = {
  * // when a trackuserlocationstart event occurs.
  * geolocate.on('trackuserlocationstart', () => {
  *   console.log('A trackuserlocationstart event has occurred.')
+ * });
+ * ```
+ *
+ * @example
+ * ```ts
+ * // Initialize the geolocate control.
+ * let geolocate = new GeolocateControl({
+ *   positionOptions: {
+ *       enableHighAccuracy: true
+ *   },
+ *   trackUserLocation: true
+ * });
+ * // Add the control to the map.
+ * map.addControl(geolocate);
+ * // Set an event listener that fires
+ * // when an userlocationlostfocus event occurs.
+ * geolocate.on('userlocationlostfocus', function() {
+ *   console.log('An userlocationlostfocus event has occurred.')
+ * });
+ * ```
+ *
+ * @example
+ * ```ts
+ * // Initialize the geolocate control.
+ * let geolocate = new GeolocateControl({
+ *   positionOptions: {
+ *       enableHighAccuracy: true
+ *   },
+ *   trackUserLocation: true
+ * });
+ * // Add the control to the map.
+ * map.addControl(geolocate);
+ * // Set an event listener that fires
+ * // when an userlocationfocus event occurs.
+ * geolocate.on('userlocationfocus', function() {
+ *   console.log('An userlocationfocus event has occurred.')
  * });
  * ```
  *
@@ -12053,6 +12123,9 @@ export declare class GeolocateControl extends Evented implements IControl {
 	_accuracyCircleMarker: Marker;
 	_accuracy: number;
 	_setup: boolean;
+	/**
+	 * @param options - the control's options
+	 */
 	constructor(options: GeolocateControlOptions);
 	/** {@inheritDoc IControl.onAdd} */
 	onAdd(map: Map$1): HTMLElement;
@@ -12137,6 +12210,9 @@ export declare class LogoControl implements IControl {
 	_map: Map$1;
 	_compact: boolean;
 	_container: HTMLElement;
+	/**
+	 * @param options - the control's options
+	 */
 	constructor(options?: LogoControlOptions);
 	getDefaultPosition(): ControlPosition;
 	/** {@inheritDoc IControl.onAdd} */
@@ -12184,6 +12260,9 @@ export declare class ScaleControl implements IControl {
 	_map: Map$1;
 	_container: HTMLElement;
 	options: ScaleControlOptions;
+	/**
+	 * @param options - the control's options
+	 */
 	constructor(options?: ScaleControlOptions);
 	getDefaultPosition(): ControlPosition;
 	_onMove: () => void;
@@ -12236,6 +12315,9 @@ export declare class FullscreenControl extends Evented implements IControl {
 	_fullscreenButton: HTMLButtonElement;
 	_container: HTMLElement;
 	_prevCooperativeGesturesEnabled: boolean;
+	/**
+	 * @param options - the control's options
+	 */
 	constructor(options?: FullscreenControlOptions);
 	/** {@inheritDoc IControl.onAdd} */
 	onAdd(map: Map$1): HTMLElement;
@@ -12270,6 +12352,9 @@ export declare class TerrainControl implements IControl {
 	_map: Map$1;
 	_container: HTMLElement;
 	_terrainButton: HTMLButtonElement;
+	/**
+	 * @param options - the control's options
+	 */
 	constructor(options: TerrainSpecification);
 	/** {@inheritDoc IControl.onAdd} */
 	onAdd(map: Map$1): HTMLElement;
@@ -12321,7 +12406,7 @@ export type GeoJSONSourceOptions = GeoJSONSourceSpecification & {
 	collectResourceTiming?: boolean;
 	data: GeoJSON.GeoJSON | string;
 };
-export type GeoJSONSourceIntenalOptions = {
+export type GeoJSONSourceInternalOptions = {
 	data?: GeoJSON.GeoJSON | string | undefined;
 	cluster?: boolean;
 	clusterMaxZoom?: number;
@@ -12411,7 +12496,7 @@ export declare class GeoJSONSource extends Evented implements Source {
 	isTileClipped: boolean;
 	reparseOverscaled: boolean;
 	_data: GeoJSON.GeoJSON | string | undefined;
-	_options: GeoJSONSourceIntenalOptions;
+	_options: GeoJSONSourceInternalOptions;
 	workerOptions: GeoJSONWorkerOptions;
 	map: Map$1;
 	actor: Actor;
@@ -12479,7 +12564,7 @@ export declare class GeoJSONSource extends Evented implements Source {
 	 * @param clusterId - The value of the cluster's `cluster_id` property.
 	 * @param limit - The maximum number of features to return.
 	 * @param offset - The number of features to skip (e.g. for pagination).
-	 * @returns a promise that is resolved when the features are retreived
+	 * @returns a promise that is resolved when the features are retrieved
 	 * @example
 	 * Retrieve cluster leaves on click
 	 * ```ts
@@ -12926,7 +13011,7 @@ export declare function setWorkerUrl(value: string): void;
  *
  * It can be useful for the following examples:
  * 1. Using `self.addProtocol` in the worker thread - note that you might need to also register the protocol on the main thread.
- * 2. Using `self.registerWorkerSource(workerSource: WorkerSource)` to register a worker source, which sould come with `addSourceType` usually.
+ * 2. Using `self.registerWorkerSource(workerSource: WorkerSource)` to register a worker source, which should come with `addSourceType` usually.
  * 3. using `self.actor.registerMessageHandler` to override some internal worker operations
  * @param workerUrl - the worker url e.g. a url of a javascript file to load in the worker
  * @returns
@@ -12945,7 +13030,7 @@ export declare function setWorkerUrl(value: string): void;
  *         throw new Error(`Tile fetch error: ${t.statusText}`);
  *     }
  * }
- * self.addPRotocol('custom', loadFn);
+ * self.addProtocol('custom', loadFn);
  *
  * // main.js
  * importScriptInWorkers('add-protocol-worker.js');

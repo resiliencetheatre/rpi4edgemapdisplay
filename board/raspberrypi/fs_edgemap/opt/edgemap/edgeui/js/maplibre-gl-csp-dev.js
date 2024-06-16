@@ -1,6 +1,6 @@
 /**
  * MapLibre GL JS
- * @license 3-Clause BSD. Full text of license: https://github.com/maplibre/maplibre-gl-js/blob/v4.3.1/LICENSE.txt
+ * @license 3-Clause BSD. Full text of license: https://github.com/maplibre/maplibre-gl-js/blob/v4.4.0/LICENSE.txt
  */
 (function (global, factory) {
 typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -10,7 +10,7 @@ typeof define === 'function' && define.amd ? define(['exports'], factory) :
 
 var name = "maplibre-gl";
 var description = "BSD licensed community fork of mapbox-gl, a WebGL interactive maps library";
-var version$2 = "4.3.1";
+var version$2 = "4.4.0";
 var main = "dist/maplibre-gl.js";
 var style = "dist/maplibre-gl.css";
 var license = "BSD-3-Clause";
@@ -33,7 +33,7 @@ var dependencies = {
 	"@mapbox/unitbezier": "^0.0.1",
 	"@mapbox/vector-tile": "^1.3.1",
 	"@mapbox/whoots-js": "^3.1.0",
-	"@maplibre/maplibre-gl-style-spec": "^20.2.0",
+	"@maplibre/maplibre-gl-style-spec": "^20.3.0",
 	"@types/geojson": "^7946.0.14",
 	"@types/geojson-vt": "3.2.5",
 	"@types/junit-report-builder": "^3.0.2",
@@ -55,12 +55,13 @@ var dependencies = {
 	"vt-pbf": "^3.1.3"
 };
 var devDependencies = {
+	autoprefixer: "^10.4.19",
 	"@mapbox/mapbox-gl-rtl-text": "^0.2.3",
 	"@mapbox/mvt-fixtures": "^3.10.0",
-	"@rollup/plugin-commonjs": "^25.0.7",
+	"@rollup/plugin-commonjs": "^26.0.1",
 	"@rollup/plugin-json": "^6.1.0",
 	"@rollup/plugin-node-resolve": "^15.2.3",
-	"@rollup/plugin-replace": "^5.0.5",
+	"@rollup/plugin-replace": "^5.0.7",
 	"@rollup/plugin-strip": "^3.0.4",
 	"@rollup/plugin-terser": "^0.4.4",
 	"@rollup/plugin-typescript": "^11.1.6",
@@ -73,51 +74,50 @@ var devDependencies = {
 	"@types/gl": "^6.0.5",
 	"@types/glob": "^8.1.0",
 	"@types/jest": "^29.5.12",
-	"@types/jsdom": "^21.1.6",
+	"@types/jsdom": "^21.1.7",
 	"@types/minimist": "^1.2.5",
 	"@types/murmurhash-js": "^1.0.6",
 	"@types/nise": "^1.4.4",
-	"@types/node": "^20.12.12",
+	"@types/node": "^20.14.1",
 	"@types/offscreencanvas": "^2019.7.3",
 	"@types/pixelmatch": "^5.2.6",
 	"@types/pngjs": "^6.0.5",
-	"@types/react": "^18.3.2",
+	"@types/react": "^18.3.3",
 	"@types/react-dom": "^18.3.0",
 	"@types/request": "^2.48.12",
 	"@types/shuffle-seed": "^1.1.3",
 	"@types/window-or-global": "^1.0.6",
-	"@typescript-eslint/eslint-plugin": "^7.9.0",
-	"@typescript-eslint/parser": "^7.9.0",
+	"@typescript-eslint/eslint-plugin": "^7.13.0",
+	"@typescript-eslint/parser": "^7.13.0",
 	address: "^2.0.2",
 	benchmark: "^2.1.4",
 	canvas: "^2.11.2",
-	cssnano: "^7.0.1",
+	cssnano: "^7.0.2",
 	d3: "^7.9.0",
 	"d3-queue": "^3.0.7",
-	"devtools-protocol": "^0.0.1301748",
+	"devtools-protocol": "^0.0.1312386",
 	diff: "^5.2.0",
 	"dts-bundle-generator": "^9.5.1",
 	eslint: "^8.57.0",
 	"eslint-config-mourner": "^3.0.0",
 	"eslint-plugin-html": "^8.1.1",
 	"eslint-plugin-import": "^2.29.1",
-	"eslint-plugin-jest": "^28.5.0",
-	"eslint-plugin-react": "^7.34.1",
-	"eslint-plugin-tsdoc": "0.2.17",
+	"eslint-plugin-jest": "^28.6.0",
+	"eslint-plugin-react": "^7.34.2",
+	"eslint-plugin-tsdoc": "0.3.0",
 	expect: "^29.7.0",
-	glob: "^10.3.15",
+	glob: "^10.4.1",
 	"is-builtin-module": "^4.0.0",
 	jest: "^29.7.0",
 	"jest-environment-jsdom": "^29.7.0",
 	"jest-junit": "^16.0.0",
 	"jest-monocart-coverage": "^1.1.0",
 	"jest-webgl-canvas-mock": "^2.5.3",
-	jsdom: "^24.0.0",
-	"json-stringify-pretty-compact": "^4.0.0",
+	jsdom: "^24.1.0",
 	"junit-report-builder": "^3.2.1",
 	minimist: "^1.2.8",
 	"mock-geolocation": "^1.0.11",
-	"monocart-coverage-reports": "^2.8.1",
+	"monocart-coverage-reports": "^2.8.3",
 	nise: "^6.0.0",
 	"npm-font-open-sans": "^1.1.0",
 	"npm-run-all": "^4.1.5",
@@ -128,24 +128,24 @@ var devDependencies = {
 	"postcss-cli": "^11.0.0",
 	"postcss-inline-svg": "^6.0.0",
 	"pretty-bytes": "^6.1.1",
-	puppeteer: "^22.8.2",
+	puppeteer: "^22.11.0",
 	react: "^18.3.1",
 	"react-dom": "^18.3.1",
-	rollup: "^4.17.2",
+	rollup: "^4.18.0",
 	"rollup-plugin-sourcemaps": "^0.6.3",
 	rw: "^1.3.3",
 	semver: "^7.6.2",
 	"shuffle-seed": "^1.1.6",
 	"source-map-explorer": "^2.5.3",
 	st: "^3.0.0",
-	stylelint: "^16.5.0",
+	stylelint: "^16.6.1",
 	"stylelint-config-standard": "^36.0.0",
-	"ts-jest": "^29.1.2",
+	"ts-jest": "^29.1.4",
 	"ts-node": "^10.9.2",
-	tslib: "^2.6.2",
+	tslib: "^2.6.3",
 	typedoc: "^0.25.13",
-	"typedoc-plugin-markdown": "^4.0.2",
-	"typedoc-plugin-missing-exports": "^2.2.0",
+	"typedoc-plugin-markdown": "^4.0.3",
+	"typedoc-plugin-missing-exports": "^2.3.0",
 	typescript: "^5.4.5"
 };
 var overrides = {
@@ -164,11 +164,12 @@ var scripts = {
 	"generate-typings": "dts-bundle-generator --export-referenced-types --umd-module-name=maplibregl -o ./dist/maplibre-gl.d.ts ./src/index.ts",
 	"generate-docs": "typedoc && node --no-warnings --loader ts-node/esm build/generate-docs.ts",
 	"generate-images": "node --no-warnings --loader ts-node/esm build/generate-doc-images.ts",
-	"build-dist": "npm run build-css && npm run generate-typings && npm run build-dev && npm run build-csp-dev && npm run build-prod && npm run build-csp",
+	"build-dist": "npm run build-css && npm run generate-typings && npm run build-dev && npm run build-csp-dev && npm run build-prod && npm run build-prod-unminified && npm run build-csp",
 	"build-dev": "rollup --configPlugin @rollup/plugin-typescript -c --environment BUILD:dev",
 	"watch-dev": "rollup --configPlugin @rollup/plugin-typescript -c --environment BUILD:dev --watch",
-	"build-prod": "rollup --configPlugin @rollup/plugin-typescript -c --environment BUILD:production",
-	"build-csp": "rollup --configPlugin @rollup/plugin-typescript -c rollup.config.csp.ts",
+	"build-prod": "rollup --configPlugin @rollup/plugin-typescript -c --environment BUILD:production,MINIFY:true",
+	"build-prod-unminified": "rollup --configPlugin @rollup/plugin-typescript -c --environment BUILD:production",
+	"build-csp": "rollup --configPlugin @rollup/plugin-typescript -c rollup.config.csp.ts --environment BUILD:production,MINIFY:true",
 	"build-csp-dev": "rollup --configPlugin @rollup/plugin-typescript -c rollup.config.csp.ts --environment BUILD:dev",
 	"build-css": "postcss -o dist/maplibre-gl.css src/css/maplibre-gl.css",
 	"watch-css": "postcss --watch -o dist/maplibre-gl.css src/css/maplibre-gl.css",
@@ -179,13 +180,13 @@ var scripts = {
 	start: "run-p watch-css watch-dev start-server",
 	"start-bench": "run-p watch-css watch-benchmarks start-server",
 	lint: "eslint --cache --ext .ts,.tsx,.js,.html --ignore-path .gitignore .",
-	"lint-css": "stylelint src/css/maplibre-gl.css",
+	"lint-css": "stylelint **/*.css --fix -f verbose",
 	test: "run-p lint lint-css test-render jest",
 	jest: "jest",
 	"test-build": "jest --selectProjects=build --reporters=default",
 	"test-build-ci": "jest --selectProjects=build",
 	"test-integration": "jest --selectProjects=integration --reporters=default",
-	"test-integration-ci": "jest --selectProjects=integration",
+	"test-integration-ci": "jest --coverage --selectProjects=integration",
 	"test-render": "node --no-warnings --loader ts-node/esm test/integration/render/run_render_tests.ts",
 	"test-unit": "jest --selectProjects=unit --reporters=default",
 	"test-unit-ci": "jest --coverage --selectProjects unit",
@@ -457,8 +458,9 @@ function __await(v) {
 function __asyncGenerator(thisArg, _arguments, generator) {
     if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
     var g = generator.apply(thisArg, _arguments || []), i, q = [];
-    return i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i;
-    function verb(n) { if (g[n]) i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; }
+    return i = {}, verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function () { return this; }, i;
+    function awaitReturn(f) { return function (v) { return Promise.resolve(v).then(f, reject); }; }
+    function verb(n, f) { if (g[n]) { i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; if (f) i[n] = f(i[n]); } }
     function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
     function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r); }
     function fulfill(value) { resume("next", value); }
@@ -524,7 +526,7 @@ function __classPrivateFieldIn(state, receiver) {
 function __addDisposableResource(env, value, async) {
     if (value !== null && value !== void 0) {
         if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
-        var dispose;
+        var dispose, inner;
         if (async) {
             if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
             dispose = value[Symbol.asyncDispose];
@@ -532,14 +534,17 @@ function __addDisposableResource(env, value, async) {
         if (dispose === void 0) {
             if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
             dispose = value[Symbol.dispose];
+            if (async) inner = dispose;
         }
         if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
+        if (inner) dispose = function() { try { inner.call(this); } catch (e) { return Promise.reject(e); } };
         env.stack.push({ value: value, dispose: dispose, async: async });
     }
     else if (async) {
         env.stack.push({ async: true });
     }
     return value;
+
 }
 
 var _SuppressedError = typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
@@ -1319,7 +1324,7 @@ function warnOnce(message) {
  *
  * @returns true for a counter clockwise set of points
  */
-// http://bryceboe.com/2006/10/23/line-segment-intersection-algorithm/
+// https://bryceboe.com/2006/10/23/line-segment-intersection-algorithm/
 function isCounterClockwise(a, b, c) {
     return (c.y - a.y) * (b.x - a.x) > (b.y - a.y) * (c.x - a.x);
 }
@@ -1948,7 +1953,8 @@ function makeFetchRequest(requestParameters, abortController) {
             referrer: getReferrer(),
             signal: abortController.signal
         });
-        if (requestParameters.type === 'json') {
+        // If the user has already set an Accept header, do not overwrite it here
+        if (requestParameters.type === 'json' && !request.headers.has('Accept')) {
             request.headers.set('Accept', 'application/json');
         }
         const response = yield fetch(request);
@@ -1975,6 +1981,7 @@ function makeFetchRequest(requestParameters, abortController) {
 }
 function makeXMLHttpRequest(requestParameters, abortController) {
     return new Promise((resolve, reject) => {
+        var _a;
         const xhr = new XMLHttpRequest();
         xhr.open(requestParameters.method || 'GET', requestParameters.url, true);
         if (requestParameters.type === 'arrayBuffer' || requestParameters.type === 'image') {
@@ -1985,7 +1992,10 @@ function makeXMLHttpRequest(requestParameters, abortController) {
         }
         if (requestParameters.type === 'json') {
             xhr.responseType = 'text';
-            xhr.setRequestHeader('Accept', 'application/json');
+            // Do not overwrite the user-provided Accept header
+            if (!((_a = requestParameters.headers) === null || _a === void 0 ? void 0 : _a.Accept)) {
+                xhr.setRequestHeader('Accept', 'application/json');
+            }
         }
         xhr.withCredentials = requestParameters.credentials === 'include';
         xhr.onerror = () => {
@@ -2531,6 +2541,9 @@ var $root = {
 	},
 	sky: {
 		type: "sky"
+	},
+	projection: {
+		type: "projection"
 	},
 	terrain: {
 		type: "terrain"
@@ -4175,6 +4188,18 @@ var sky = {
 		},
 		transition: true
 	},
+	"horizon-color": {
+		type: "color",
+		"property-type": "data-constant",
+		"default": "#ffffff",
+		expression: {
+			interpolated: true,
+			parameters: [
+				"zoom"
+			]
+		},
+		transition: true
+	},
 	"fog-color": {
 		type: "color",
 		"property-type": "data-constant",
@@ -4187,7 +4212,7 @@ var sky = {
 		},
 		transition: true
 	},
-	"fog-blend": {
+	"fog-ground-blend": {
 		type: "number",
 		"property-type": "data-constant",
 		"default": 0.5,
@@ -4201,7 +4226,35 @@ var sky = {
 		},
 		transition: true
 	},
-	"horizon-blend": {
+	"horizon-fog-blend": {
+		type: "number",
+		"property-type": "data-constant",
+		"default": 0.8,
+		minimum: 0,
+		maximum: 1,
+		expression: {
+			interpolated: true,
+			parameters: [
+				"zoom"
+			]
+		},
+		transition: true
+	},
+	"sky-horizon-blend": {
+		type: "number",
+		"property-type": "data-constant",
+		"default": 0.8,
+		minimum: 0,
+		maximum: 1,
+		expression: {
+			interpolated: true,
+			parameters: [
+				"zoom"
+			]
+		},
+		transition: true
+	},
+	"atmosphere-blend": {
 		type: "number",
 		"property-type": "data-constant",
 		"default": 0.8,
@@ -4225,6 +4278,18 @@ var terrain = {
 		type: "number",
 		minimum: 0,
 		"default": 1
+	}
+};
+var projection$1 = {
+	type: {
+		type: "enum",
+		"default": "mercator",
+		values: {
+			mercator: {
+			},
+			globe: {
+			}
+		}
 	}
 };
 var paint$9 = [
@@ -5445,6 +5510,7 @@ var v8Spec = {
 	light: light,
 	sky: sky,
 	terrain: terrain,
+	projection: projection$1,
 	paint: paint$9,
 	paint_fill: paint_fill,
 	"paint_fill-extrusion": {
@@ -5938,6 +6004,9 @@ function diffStyles(before, after) {
         }
         if (!deepEqual(before.sky, after.sky)) {
             commands.push({ command: 'setSky', args: [after.sky] });
+        }
+        if (!deepEqual(before.projection, after.projection)) {
+            commands.push({ command: 'setProjection', args: [after.projection] });
         }
         // Handle changes to `sources`
         // If a source is to be removed, we also--before the removeSource
@@ -12915,6 +12984,36 @@ function validateSprite(options) {
     }
 }
 
+function validateProjection(options) {
+    const projection = options.value;
+    const styleSpec = options.styleSpec;
+    const projectionSpec = styleSpec.projection;
+    const style = options.style;
+    const rootType = getType(projection);
+    if (projection === undefined) {
+        return [];
+    }
+    else if (rootType !== 'object') {
+        return [new ValidationError('projection', projection, `object expected, ${rootType} found`)];
+    }
+    let errors = [];
+    for (const key in projection) {
+        if (projectionSpec[key]) {
+            errors = errors.concat(options.validateSpec({
+                key,
+                value: projection[key],
+                valueSpec: projectionSpec[key],
+                style,
+                styleSpec
+            }));
+        }
+        else {
+            errors = errors.concat([new ValidationError(key, projection[key], `unknown property "${key}"`)]);
+        }
+    }
+    return errors;
+}
+
 const VALIDATORS = {
     '*'() {
         return [];
@@ -12933,6 +13032,7 @@ const VALIDATORS = {
     'light': validateLight$1,
     'sky': validateSky,
     'terrain': validateTerrain$1,
+    'projection': validateProjection,
     'string': validateString,
     'formatted': validateFormatted,
     'resolvedImage': validateImage,
@@ -13881,8 +13981,8 @@ class ZoomHistory {
     }
 }
 
-// The following table comes from <http://www.unicode.org/Public/12.0.0/ucd/Blocks.txt>.
-// Keep it synchronized with <http://www.unicode.org/Public/UCD/latest/ucd/Blocks.txt>.
+// The following table comes from <https://www.unicode.org/Public/12.0.0/ucd/Blocks.txt>.
+// Keep it synchronized with <https://www.unicode.org/Public/UCD/latest/ucd/Blocks.txt>.
 const unicodeBlockLookup = {
     // 'Basic Latin': (char) => char >= 0x0000 && char <= 0x007F,
     'Latin-1 Supplement': (char) => char >= 0x0080 && char <= 0x00FF,
@@ -14268,9 +14368,9 @@ function charAllowsIdeographicBreaking(char) {
     return false;
 }
 // The following logic comes from
-// <http://www.unicode.org/Public/12.0.0/ucd/VerticalOrientation.txt>.
+// <https://www.unicode.org/Public/12.0.0/ucd/VerticalOrientation.txt>.
 // Keep it synchronized with
-// <http://www.unicode.org/Public/UCD/latest/ucd/VerticalOrientation.txt>.
+// <https://www.unicode.org/Public/UCD/latest/ucd/VerticalOrientation.txt>.
 // The data file denotes with “U” or “Tu” any codepoint that may be drawn
 // upright in vertical text but does not distinguish between upright and
 // “neutral” characters.
@@ -14390,7 +14490,7 @@ function charHasUprightVerticalOrientation(char) {
  *
  * A character has neutral orientation if it may be drawn rotated or unrotated
  * when the line is oriented vertically, depending on the orientation of the
- * adjacent characters. For example, along a verticlly oriented line, the vulgar
+ * adjacent characters. For example, along a vertically oriented line, the vulgar
  * fraction ½ is drawn upright among Chinese characters but rotated among Latin
  * letters. A neutrally oriented character does not influence whether an
  * adjacent character is drawn upright or rotated.
@@ -14528,7 +14628,7 @@ function charInSupportedScript(char, canRenderRTL) {
         unicodeBlockLookup['Khmer'](char)) {
         // These blocks cover common scripts that require
         // complex text shaping, based on unicode script metadata:
-        // http://www.unicode.org/repos/cldr/trunk/common/properties/scriptMetadata.txt
+        // https://www.unicode.org/repos/cldr/trunk/common/properties/scriptMetadata.txt
         // where "Web Rank <= 32" "Shaping Required = YES"
         return false;
     }
@@ -15346,7 +15446,7 @@ const RESIZE_MULTIPLIER = 5;
  * we implement a more specific subclass that inherits from one of the
  * StructArrayLayouts and adds a `get(i): T` accessor that returns a structured
  * object whose properties are proxies into the underlying memory space for the
- * i-th element.  This affords the convience of working with (seemingly) plain
+ * i-th element.  This affords the convenience of working with (seemingly) plain
  * Javascript objects without the overhead of serializing/deserializing them
  * into ArrayBuffers for efficient web worker transfer.
  */
@@ -15391,7 +15491,7 @@ class StructArray {
         }
     }
     /**
-     * Resets the length of the array to 0 without de-allocating capcacity.
+     * Resets the length of the array to 0 without de-allocating capacity.
      */
     clear() {
         this.length = 0;
@@ -17189,7 +17289,7 @@ class ProgramConfiguration {
     }
     setUniforms(context, binderUniforms, properties, globals) {
         // Uniform state bindings are owned by the Program, but we set them
-        // from within the ProgramConfiguraton's binder members.
+        // from within the ProgramConfiguration's binder members.
         for (const { name, property, binding } of binderUniforms) {
             this.binders[property].setUniform(binding, globals, properties.get(property), name);
         }
@@ -17613,7 +17713,7 @@ function pointIntersectsBufferedLine(p, line, radius) {
     }
     return false;
 }
-// Code from http://stackoverflow.com/a/1501725/331379.
+// Code from https://stackoverflow.com/a/1501725/331379.
 function distToSegmentSquared(p, v, w) {
     const l2 = v.distSqr(w);
     if (l2 === 0)
@@ -27055,8 +27155,8 @@ class FillExtrusionBucket {
         this.centroidVertexBuffer.destroy();
     }
     addFeature(feature, geometry, index, canonical, imagePositions) {
-        const centroid = { x: 0, y: 0, vertexCount: 0 };
         for (const polygon of classifyRings$1(geometry, EARCUT_MAX_RINGS)) {
+            const centroid = { x: 0, y: 0, vertexCount: 0 };
             let numVertices = 0;
             for (const ring of polygon) {
                 numVertices += ring.length;
@@ -27141,10 +27241,12 @@ class FillExtrusionBucket {
             }
             segment.primitiveLength += indices.length / 3;
             segment.vertexLength += numVertices;
-        }
-        // remember polygon centroid to calculate elevation in GPU
-        for (let i = 0; i < centroid.vertexCount; i++) {
-            this.centroidVertexArray.emplaceBack(Math.floor(centroid.x / centroid.vertexCount), Math.floor(centroid.y / centroid.vertexCount));
+            // remember polygon centroid to calculate elevation in GPU
+            for (let i = 0; i < centroid.vertexCount; i++) {
+                const averageX = Math.floor(centroid.x / centroid.vertexCount);
+                const averageY = Math.floor(centroid.y / centroid.vertexCount);
+                this.centroidVertexArray.emplaceBack(averageX, averageY);
+            }
         }
         this.programConfigurations.populatePaintArrays(this.layoutVertexArray.length, feature, index, imagePositions, canonical);
     }
@@ -29310,7 +29412,7 @@ function breakLines(input, lineBreakPoints) {
     }
     return lines;
 }
-function shapeText(text, glyphMap, glyphPositions, imagePositions, defaultFontStack, maxWidth, lineHeight, textAnchor, textJustify, spacing, translate, writingMode, allowVerticalPlacement, symbolPlacement, layoutTextSize, layoutTextSizeThisZoom) {
+function shapeText(text, glyphMap, glyphPositions, imagePositions, defaultFontStack, maxWidth, lineHeight, textAnchor, textJustify, spacing, translate, writingMode, allowVerticalPlacement, layoutTextSize, layoutTextSizeThisZoom) {
     const logicalInput = TaggedString.fromFeature(text, defaultFontStack);
     if (writingMode === WritingMode.vertical) {
         logicalInput.verticalizePunctuation();
@@ -29320,7 +29422,7 @@ function shapeText(text, glyphMap, glyphPositions, imagePositions, defaultFontSt
     if (processBidirectionalText && logicalInput.sections.length === 1) {
         // Bidi doesn't have to be style-aware
         lines = [];
-        const untaggedLines = processBidirectionalText(logicalInput.toString(), determineLineBreaks(logicalInput, spacing, maxWidth, glyphMap, imagePositions, symbolPlacement, layoutTextSize));
+        const untaggedLines = processBidirectionalText(logicalInput.toString(), determineLineBreaks(logicalInput, spacing, maxWidth, glyphMap, imagePositions, layoutTextSize));
         for (const line of untaggedLines) {
             const taggedLine = new TaggedString();
             taggedLine.text = line;
@@ -29335,7 +29437,7 @@ function shapeText(text, glyphMap, glyphPositions, imagePositions, defaultFontSt
         // Need version of mapbox-gl-rtl-text with style support for combining RTL text
         // with formatting
         lines = [];
-        const processedLines = processStyledBidirectionalText(logicalInput.text, logicalInput.sectionIndex, determineLineBreaks(logicalInput, spacing, maxWidth, glyphMap, imagePositions, symbolPlacement, layoutTextSize));
+        const processedLines = processStyledBidirectionalText(logicalInput.text, logicalInput.sectionIndex, determineLineBreaks(logicalInput, spacing, maxWidth, glyphMap, imagePositions, layoutTextSize));
         for (const line of processedLines) {
             const taggedLine = new TaggedString();
             taggedLine.text = line[0];
@@ -29345,7 +29447,7 @@ function shapeText(text, glyphMap, glyphPositions, imagePositions, defaultFontSt
         }
     }
     else {
-        lines = breakLines(logicalInput, determineLineBreaks(logicalInput, spacing, maxWidth, glyphMap, imagePositions, symbolPlacement, layoutTextSize));
+        lines = breakLines(logicalInput, determineLineBreaks(logicalInput, spacing, maxWidth, glyphMap, imagePositions, layoutTextSize));
     }
     const positionedLines = [];
     const shaping = {
@@ -29378,7 +29480,6 @@ const breakable = {
     [0x0a]: true, // newline
     [0x20]: true, // space
     [0x26]: true, // ampersand
-    [0x28]: true, // left parenthesis
     [0x29]: true, // right parenthesis
     [0x2b]: true, // plus sign
     [0x2d]: true, // hyphen-minus
@@ -29392,6 +29493,10 @@ const breakable = {
     // Many other characters may be reasonable breakpoints
     // Consider "neutral orientation" characters at scriptDetection.charHasNeutralVerticalOrientation
     // See https://github.com/mapbox/mapbox-gl-js/issues/3658
+};
+// Allow breaks depending on the following character
+const breakableBefore = {
+    [0x28]: true, // left parenthesis
 };
 function getGlyphAdvance(codePoint, section, glyphMap, imagePositions, spacing, layoutTextSize) {
     if (!section.imageName) {
@@ -29479,9 +29584,7 @@ function leastBadBreaks(lastLineBreak) {
     }
     return leastBadBreaks(lastLineBreak.priorBreak).concat(lastLineBreak.index);
 }
-function determineLineBreaks(logicalInput, spacing, maxWidth, glyphMap, imagePositions, symbolPlacement, layoutTextSize) {
-    if (symbolPlacement !== 'point')
-        return [];
+function determineLineBreaks(logicalInput, spacing, maxWidth, glyphMap, imagePositions, layoutTextSize) {
     if (!logicalInput)
         return [];
     const potentialLineBreaks = [];
@@ -29497,7 +29600,7 @@ function determineLineBreaks(logicalInput, spacing, maxWidth, glyphMap, imagePos
         // surrounding spaces.
         if ((i < logicalInput.length() - 1)) {
             const ideographicBreak = charAllowsIdeographicBreaking(codePoint);
-            if (breakable[codePoint] || ideographicBreak || section.imageName) {
+            if (breakable[codePoint] || ideographicBreak || section.imageName || (i !== logicalInput.length() - 2 && breakableBefore[logicalInput.getCharCode(i + 1)])) {
                 potentialLineBreaks.push(evaluateBreak(i + 1, currentX, targetWidth, potentialLineBreaks, calculatePenalty(codePoint, logicalInput.getCharCode(i + 1), ideographicBreak && hasServerSuggestedBreakpoints), false));
             }
         }
@@ -29701,13 +29804,13 @@ function applyTextFit(shapedIcon) {
     let iconTop = shapedIcon.top;
     let iconWidth = shapedIcon.right - iconLeft;
     let iconHeight = shapedIcon.bottom - iconTop;
-    // Size of the origional content area
+    // Size of the original content area
     const contentWidth = shapedIcon.image.content[2] - shapedIcon.image.content[0];
     const contentHeight = shapedIcon.image.content[3] - shapedIcon.image.content[1];
     const textFitWidth = (_a = shapedIcon.image.textFitWidth) !== null && _a !== void 0 ? _a : "stretchOrShrink" /* TextFit.stretchOrShrink */;
     const textFitHeight = (_b = shapedIcon.image.textFitHeight) !== null && _b !== void 0 ? _b : "stretchOrShrink" /* TextFit.stretchOrShrink */;
     const contentAspectRatio = contentWidth / contentHeight;
-    // Scale to the proportional axis first note that height takes precidence if
+    // Scale to the proportional axis first note that height takes precedence if
     // both axes are set to proportional.
     if (textFitHeight === "proportional" /* TextFit.proportional */) {
         if ((textFitWidth === "stretchOnly" /* TextFit.stretchOnly */ && iconWidth / iconHeight < contentAspectRatio) || textFitWidth === "proportional" /* TextFit.proportional */) {
@@ -30174,7 +30277,7 @@ class SymbolBucket {
         this.icon.programConfigurations.updatePaintArrays(states, vtLayer, this.layers, imagePositions);
     }
     isEmpty() {
-        // When the bucket encounters only rtl-text but the plugin isnt loaded, no symbol instances will be created.
+        // When the bucket encounters only rtl-text but the plugin isn't loaded, no symbol instances will be created.
         // In order for the bucket to be serialized, and not discarded as an empty bucket both checks are necessary.
         return this.symbolInstances.length === 0 && !this.hasRTLText;
     }
@@ -30657,17 +30760,17 @@ class SymbolStyleLayer extends StyleLayer {
             if (!SymbolStyleLayer.hasPaintOverride(this.layout, overridable)) {
                 continue;
             }
-            const overriden = this.paint.get(overridable);
-            const override = new FormatSectionOverride(overriden);
-            const styleExpression = new StyleExpression(override, overriden.property.specification);
+            const overridden = this.paint.get(overridable);
+            const override = new FormatSectionOverride(overridden);
+            const styleExpression = new StyleExpression(override, overridden.property.specification);
             let expression = null;
-            if (overriden.value.kind === 'constant' || overriden.value.kind === 'source') {
+            if (overridden.value.kind === 'constant' || overridden.value.kind === 'source') {
                 expression = new ZoomConstantExpression('source', styleExpression);
             }
             else {
-                expression = new ZoomDependentExpression('composite', styleExpression, overriden.value.zoomStops);
+                expression = new ZoomDependentExpression('composite', styleExpression, overridden.value.zoomStops);
             }
-            this.paint._values[overridable] = new PossiblyEvaluatedPropertyValue(overriden.property, expression, overriden.parameters);
+            this.paint._values[overridable] = new PossiblyEvaluatedPropertyValue(overridden.property, expression, overridden.parameters);
         }
     }
     _handleOverridablePaintPropertyUpdate(name, oldValue, newValue) {
@@ -31845,7 +31948,7 @@ class ThrottledInvoker {
 }
 
 /**
- * An implementation of the [Actor design pattern](http://en.wikipedia.org/wiki/Actor_model)
+ * An implementation of the [Actor design pattern](https://en.wikipedia.org/wiki/Actor_model)
  * that maintains the relationship between asynchronous tasks and the objects
  * that spin them off - in this case, tasks like parsing parts of styles,
  * owned by the styles
@@ -32783,12 +32886,12 @@ class LngLatBounds {
 /*
  * The average circumference of the world in meters.
  */
-const earthCircumfrence = 2 * Math.PI * earthRadius; // meters
+const earthCircumference = 2 * Math.PI * earthRadius; // meters
 /*
  * The circumference at a line of latitude in meters.
  */
 function circumferenceAtLatitude(latitude) {
-    return earthCircumfrence * Math.cos(latitude * Math.PI / 180);
+    return earthCircumference * Math.cos(latitude * Math.PI / 180);
 }
 function mercatorXfromLng(lng) {
     return (180 + lng) / 360;
@@ -32907,7 +33010,7 @@ class MercatorCoordinate {
      */
     meterInMercatorCoordinateUnits() {
         // 1 meter / circumference at equator in meters * Mercator projection scale factor at this latitude
-        return 1 / earthCircumfrence * mercatorScale(latFromMercatorY(this.y));
+        return 1 / earthCircumference * mercatorScale(latFromMercatorY(this.y));
     }
 }
 
@@ -33603,7 +33706,7 @@ register('OverscaledTileID', OverscaledTileID, { omit: ['posMatrix'] });
 
 /**
  * DEMData is a data structure for decoding, backfilling, and storing elevation data for processing in the hillshade shaders
- * data can be populated either from a pngraw image tile or from serliazed data sent back from a worker. When data is initially
+ * data can be populated either from a pngraw image tile or from serialized data sent back from a worker. When data is initially
  * loaded from a image tile, we decode the pixel values using the appropriate decoding formula, but we store the
  * elevation data as an Int32 value. we add 65536 (2^16) to eliminate negative values and enable the use of
  * integer overflow when creating the texture used in the hillshadePrepare step.
@@ -34088,7 +34191,7 @@ class GeoJSONSource extends Evented {
      * @param clusterId - The value of the cluster's `cluster_id` property.
      * @param limit - The maximum number of features to return.
      * @param offset - The number of features to skip (e.g. for pagination).
-     * @returns a promise that is resolved when the features are retreived
+     * @returns a promise that is resolved when the features are retrieved
      * @example
      * Retrieve cluster leaves on click
      * ```ts
@@ -35536,7 +35639,7 @@ class Tile {
 
 /**
  * @internal
- * A [least-recently-used cache](http://en.wikipedia.org/wiki/Cache_algorithms)
+ * A [least-recently-used cache](https://en.wikipedia.org/wiki/Cache_algorithms)
  * with hash lookup made possible by keeping a list of keys in parallel to
  * an array of dictionary of values
  */
@@ -38208,7 +38311,7 @@ function getCenterAnchor(line, maxAngle, shapedText, shapedIcon, glyphSize, boxS
 }
 function getAnchors(line, spacing, maxAngle, shapedText, shapedIcon, glyphSize, boxScale, overscaling, tileExtent) {
     // Resample a line to get anchor points for labels and check that each
-    // potential label passes text-max-angle check and has enough froom to fit
+    // potential label passes text-max-angle check and has enough room to fit
     // on the line.
     const angleWindowSize = getAngleWindowSize(shapedText, glyphSize, boxScale);
     const shapedLabelLength = getShapedLabelLength(shapedText, shapedIcon);
@@ -38668,13 +38771,13 @@ function defaultCompare(a, b) {
 }
 
 /**
- * Finds an approximation of a polygon's Pole Of Inaccessibiliy https://en.wikipedia.org/wiki/Pole_of_inaccessibility
- * This is a copy of http://github.com/mapbox/polylabel adapted to use Points
+ * Finds an approximation of a polygon's Pole Of Inaccessibility https://en.wikipedia.org/wiki/Pole_of_inaccessibility
+ * This is a copy of https://github.com/mapbox/polylabel adapted to use Points
  *
  * @param polygonRings - first item in array is the outer ring followed optionally by the list of holes, should be an element of the result of util/classify_rings
  * @param precision - Specified in input coordinate units. If 0 returns after first run, if `> 0` repeatedly narrows the search space until the radius of the area searched for the best pole is less than precision
  * @param debug - Print some statistics to the console during execution
- * @returns Pole of Inaccessibiliy.
+ * @returns Pole of Inaccessibility.
  */
 function findPoleOfInaccessibility(polygonRings, precision = 1, debug = false) {
     // find the bounding box of the outer ring
@@ -38986,13 +39089,13 @@ function performSymbolLayout(args) {
             const symbolPlacement = layout.get('symbol-placement');
             const maxWidth = symbolPlacement === 'point' ?
                 layout.get('text-max-width').evaluate(feature, {}, args.canonical) * ONE_EM :
-                0;
+                Infinity;
             const addVerticalShapingForPointLabelIfNeeded = () => {
                 if (args.bucket.allowVerticalPlacement && allowsVerticalWritingMode(unformattedText)) {
                     // Vertical POI label placement is meant to be used for scripts that support vertical
                     // writing mode, thus, default left justification is used. If Latin
                     // scripts would need to be supported, this should take into account other justifications.
-                    shapedTextOrientations.vertical = shapeText(text, args.glyphMap, args.glyphPositions, args.imagePositions, fontstack, maxWidth, lineHeight, textAnchor, 'left', spacingIfAllowed, textOffset, WritingMode.vertical, true, symbolPlacement, layoutTextSize, layoutTextSizeThisZoom);
+                    shapedTextOrientations.vertical = shapeText(text, args.glyphMap, args.glyphPositions, args.imagePositions, fontstack, maxWidth, lineHeight, textAnchor, 'left', spacingIfAllowed, textOffset, WritingMode.vertical, true, layoutTextSize, layoutTextSizeThisZoom);
                 }
             };
             // If this layer uses text-variable-anchor, generate shapings for all justification possibilities.
@@ -39018,7 +39121,7 @@ function performSymbolLayout(args) {
                     else {
                         // If using text-variable-anchor for the layer, we use a center anchor for all shapings and apply
                         // the offsets for the anchor in the placement step.
-                        const shaping = shapeText(text, args.glyphMap, args.glyphPositions, args.imagePositions, fontstack, maxWidth, lineHeight, 'center', justification, spacingIfAllowed, textOffset, WritingMode.horizontal, false, symbolPlacement, layoutTextSize, layoutTextSizeThisZoom);
+                        const shaping = shapeText(text, args.glyphMap, args.glyphPositions, args.imagePositions, fontstack, maxWidth, lineHeight, 'center', justification, spacingIfAllowed, textOffset, WritingMode.horizontal, false, layoutTextSize, layoutTextSizeThisZoom);
                         if (shaping) {
                             shapedTextOrientations.horizontal[justification] = shaping;
                             singleLine = shaping.positionedLines.length === 1;
@@ -39032,14 +39135,14 @@ function performSymbolLayout(args) {
                     textJustify = getAnchorJustification(textAnchor);
                 }
                 // Horizontal point or line label.
-                const shaping = shapeText(text, args.glyphMap, args.glyphPositions, args.imagePositions, fontstack, maxWidth, lineHeight, textAnchor, textJustify, spacingIfAllowed, textOffset, WritingMode.horizontal, false, symbolPlacement, layoutTextSize, layoutTextSizeThisZoom);
+                const shaping = shapeText(text, args.glyphMap, args.glyphPositions, args.imagePositions, fontstack, maxWidth, lineHeight, textAnchor, textJustify, spacingIfAllowed, textOffset, WritingMode.horizontal, false, layoutTextSize, layoutTextSizeThisZoom);
                 if (shaping)
                     shapedTextOrientations.horizontal[textJustify] = shaping;
                 // Vertical point label (if allowVerticalPlacement is enabled).
                 addVerticalShapingForPointLabelIfNeeded();
                 // Verticalized line label.
                 if (allowsVerticalWritingMode(unformattedText) && textAlongLine && keepUpright) {
-                    shapedTextOrientations.vertical = shapeText(text, args.glyphMap, args.glyphPositions, args.imagePositions, fontstack, maxWidth, lineHeight, textAnchor, textJustify, spacingIfAllowed, textOffset, WritingMode.vertical, false, symbolPlacement, layoutTextSize, layoutTextSizeThisZoom);
+                    shapedTextOrientations.vertical = shapeText(text, args.glyphMap, args.glyphPositions, args.imagePositions, fontstack, maxWidth, lineHeight, textAnchor, textJustify, spacingIfAllowed, textOffset, WritingMode.vertical, false, layoutTextSize, layoutTextSizeThisZoom);
                 }
             }
         }
@@ -39275,13 +39378,13 @@ function addSymbol(bucket, anchor, line, shapedTextOrientations, shapedIcon, ima
             }
         }
         bucket.addSymbols(bucket.icon, iconQuads, iconSizeData, iconOffset, iconAlongLine, feature, WritingMode.none, anchor, lineArray.lineStartIndex, lineArray.lineLength, 
-        // The icon itself does not have an associated symbol since the text isnt placed yet
+        // The icon itself does not have an associated symbol since the text isn't placed yet
         -1, canonical);
         placedIconSymbolIndex = bucket.icon.placedSymbolArray.length - 1;
         if (verticalIconQuads) {
             numVerticalIconVertices = verticalIconQuads.length * 4;
             bucket.addSymbols(bucket.icon, verticalIconQuads, iconSizeData, iconOffset, iconAlongLine, feature, WritingMode.vertical, anchor, lineArray.lineStartIndex, lineArray.lineLength, 
-            // The icon itself does not have an associated symbol since the text isnt placed yet
+            // The icon itself does not have an associated symbol since the text isn't placed yet
             -1, canonical);
             verticalPlacedIconSymbolIndex = bucket.icon.placedSymbolArray.length - 1;
         }
@@ -41955,7 +42058,7 @@ class Style extends Evented {
             this._updatedSources[layer.source] = 'reload';
             this.sourceCaches[layer.source].pause();
         }
-        // upon updating, serilized layer dictionary should be reset.
+        // upon updating, serialized layer dictionary should be reset.
         // When needed, it will be populated with the correct copy again.
         this._serializedLayers = null;
         this._changed = true;
@@ -43705,7 +43808,7 @@ class BaseValue {
         // overridden in child classes;
     }
     getDefault() {
-        return this.default; // overriden in child classes
+        return this.default; // overridden in child classes
     }
     setDefault() {
         this.set(this.default);
@@ -45173,7 +45276,7 @@ function drawLine(painter, sourceCache, layer, coords) {
 
 /**
  * A simple helper shared by draw_fill and draw_fill_extrusions to find the correct pattern positions AND update program.
- * For transtionable properties, especially 'fill-pattern' and 'fill-extrusion-pattern', while rendering certain frames
+ * For transitionable properties, especially 'fill-pattern' and 'fill-extrusion-pattern', while rendering certain frames
  * tile.imageAtlas has been updated by worker to hold the new pattern only, but rendering code is still looking for the previous image.
  * The mismatch was causing setConstantPatternPositions method not being called and pixelRatio was always the
  * default of 1, instead of actual values set by original map.addImage.
@@ -46059,7 +46162,7 @@ class Painter {
             return;
         }
         const prevMatrix = this.terrainFacilitator.matrix;
-        const currMatrix = this.transform.projMatrix;
+        const currMatrix = this.transform.modelViewProjectionMatrix;
         // Update coords/depth-framebuffer on camera movement, or tile reloading
         let doUpdate = this.terrainFacilitator.dirty;
         doUpdate || (doUpdate = requireExact ? !exactEquals$5(prevMatrix, currMatrix) : !equals$6(prevMatrix, currMatrix));
@@ -46590,7 +46693,7 @@ class Transform {
         if (this._edgeInsets.equals(padding))
             return;
         this._unmodified = false;
-        //Update edge-insets inplace
+        //Update edge-insets in place
         this._edgeInsets.interpolate(this._edgeInsets, padding, 1);
         this._calcMatrices();
     }
@@ -46677,7 +46780,7 @@ class Transform {
         const numTiles = Math.pow(2, z);
         const cameraPoint = [numTiles * cameraCoord.x, numTiles * cameraCoord.y, 0];
         const centerPoint = [numTiles * centerCoord.x, numTiles * centerCoord.y, 0];
-        const cameraFrustum = Frustum.fromInvProjectionMatrix(this.invProjMatrix, this.worldSize, z);
+        const cameraFrustum = Frustum.fromInvProjectionMatrix(this.invModelViewProjectionMatrix, this.worldSize, z);
         // No change of LOD behavior for pitch lower than 60 and when there is no top padding: return only tile ids from the requested zoom level
         let minZoom = options.minzoom || 0;
         // Use 0.1 as an epsilon to avoid for explicit == 0.0 floating point checks
@@ -46797,7 +46900,7 @@ class Transform {
     }
     /**
      * This method works in combination with freezeElevation activated.
-     * freezeElevtion is enabled during map-panning because during this the camera should sit in constant height.
+     * freezeElevation is enabled during map-panning because during this the camera should sit in constant height.
      * After panning finished, call this method to recalculate the zoomlevel for the current camera-height in current terrain.
      * @param terrain - the terrain
      */
@@ -46981,7 +47084,7 @@ class Transform {
         const posMatrix = identity$2(new Float64Array(16));
         translate$1(posMatrix, posMatrix, [unwrappedX * scale, canonical.y * scale, 0]);
         scale$5(posMatrix, posMatrix, [scale / EXTENT, scale / EXTENT, 1]);
-        multiply$5(posMatrix, aligned ? this.alignedProjMatrix : this.projMatrix, posMatrix);
+        multiply$5(posMatrix, aligned ? this.alignedModelViewProjectionMatrix : this.modelViewProjectionMatrix, posMatrix);
         cache[posMatrixKey] = new Float32Array(posMatrix);
         return cache[posMatrixKey];
     }
@@ -47120,9 +47223,9 @@ class Transform {
         // - the more depth precision is available for features (good)
         // - clipping starts appearing sooner when the camera is close to 3d features (bad)
         //
-        // Other values work for mapbox-gl-js but deckgl was encountering precision issues
+        // Other values work for mapbox-gl-js but deck.gl was encountering precision issues
         // when rendering custom layers. This value was experimentally chosen and
-        // seems to solve z-fighting issues in deckgl while not clipping buildings too close to the camera.
+        // seems to solve z-fighting issues in deck.gl while not clipping buildings too close to the camera.
         const nearZ = this.height / 50;
         // matrix for conversion from location to clip space(-1 .. 1)
         m = new Float64Array(16);
@@ -47144,8 +47247,8 @@ class Transform {
         this.pixelMatrix = multiply$5(new Float64Array(16), this.labelPlaneMatrix, m);
         // matrix for conversion from world space to clip space (-1 .. 1)
         translate$1(m, m, [0, 0, -this.elevation]); // elevate camera over terrain
-        this.projMatrix = m;
-        this.invProjMatrix = invert$2([], m);
+        this.modelViewProjectionMatrix = m;
+        this.invModelViewProjectionMatrix = invert$2([], m);
         // matrix for conversion from world space to screen coordinates in 3D
         this.pixelMatrix3D = multiply$5(new Float64Array(16), this.labelPlaneMatrix, m);
         // Make a second projection matrix that is aligned to a pixel grid for rendering raster tiles.
@@ -47157,7 +47260,7 @@ class Transform {
         const xShift = (this.width % 2) / 2, yShift = (this.height % 2) / 2, angleCos = Math.cos(this.angle), angleSin = Math.sin(this.angle), dx = x - Math.round(x) + angleCos * xShift + angleSin * yShift, dy = y - Math.round(y) + angleCos * yShift + angleSin * xShift;
         const alignedM = new Float64Array(m);
         translate$1(alignedM, alignedM, [dx > 0.5 ? dx - 1 : dx, dy > 0.5 ? dy - 1 : dy, 0]);
-        this.alignedProjMatrix = alignedM;
+        this.alignedModelViewProjectionMatrix = alignedM;
         // inverse matrix for conversion from screen coordinates to location
         m = invert$2(new Float64Array(16), this.pixelMatrix);
         if (!m)
@@ -47237,7 +47340,7 @@ class Transform {
     lngLatToCameraDepth(lngLat, elevation) {
         const coord = this.locationCoordinate(lngLat);
         const p = [coord.x * this.worldSize, coord.y * this.worldSize, elevation, 1];
-        transformMat4$1(p, p, this.projMatrix);
+        transformMat4$1(p, p, this.modelViewProjectionMatrix);
         return (p[2] / p[3]);
     }
 }
@@ -48917,7 +49020,7 @@ class ScrollZoomHandler {
             // This is likely a new scroll action.
             this._type = null;
             this._lastValue = value;
-            // Start a timeout in case this was a singular event, and dely it by up to 40ms.
+            // Start a timeout in case this was a singular event, and delay it by up to 40ms.
             this._timeout = setTimeout(this._onTimeout, 40, e);
         }
         else if (!this._type) {
@@ -49565,7 +49668,7 @@ class CooperativeGesturesHandler {
     }
 }
 
-const isMoving = p => p.zoom || p.drag || p.pitch || p.rotate;
+const isMoving = (p) => p.zoom || p.drag || p.pitch || p.rotate;
 class RenderFrameEvent extends Event {
 }
 function hasChange(result) {
@@ -49887,11 +49990,6 @@ class HandlerManager {
                 this._terrainMovement = true;
                 this._map._elevationFreeze = true;
                 tr.setLocationAtPoint(loc, around);
-                this._map.once('moveend', () => {
-                    this._map._elevationFreeze = false;
-                    this._terrainMovement = false;
-                    tr.recalculateZoom(map.terrain);
-                });
             }
             else if (combinedEventsInProgress.drag && this._terrainMovement) {
                 // drag map
@@ -49946,7 +50044,13 @@ class HandlerManager {
             this._fireEvent(name, endEvents[name]);
         }
         const stillMoving = isMoving(this._eventsInProgress);
-        if (allowEndAnimation && (wasMoving || nowMoving) && !stillMoving) {
+        const finishedMoving = (wasMoving || nowMoving) && !stillMoving;
+        if (finishedMoving && this._terrainMovement) {
+            this._map._elevationFreeze = false;
+            this._terrainMovement = false;
+            this._map.transform.recalculateZoom(this._map.terrain);
+        }
+        if (allowEndAnimation && finishedMoving) {
             this._updatingCamera = true;
             const inertialEase = this._inertia._onMoveEnd(this._map.dragPan._inertiaOptions);
             const shouldSnapToNorth = bearing => bearing !== 0 && -this._bearingSnap < bearing && bearing < this._bearingSnap;
@@ -50930,6 +51034,7 @@ class Camera extends Evented {
         return this._stop();
     }
     _stop(allowGestures, easeId) {
+        var _a;
         if (this._easeFrameId) {
             this._cancelRenderFrame(this._easeFrameId);
             delete this._easeFrameId;
@@ -50944,9 +51049,7 @@ class Camera extends Evented {
             onEaseEnd.call(this, easeId);
         }
         if (!allowGestures) {
-            const handlers = this.handlers;
-            if (handlers)
-                handlers.stop(false);
+            (_a = this.handlers) === null || _a === void 0 ? void 0 : _a.stop(false);
         }
         return this;
     }
@@ -51002,7 +51105,7 @@ class Camera extends Evented {
     }
 }
 
-const defaultAtributionControlOptions = {
+const defaultAttributionControlOptions = {
     compact: true,
     customAttribution: '<a href="https://maplibre.org/" target="_blank">MapLibre</a>'
 };
@@ -51021,7 +51124,7 @@ class AttributionControl {
     /**
      * @param options - the attribution options
      */
-    constructor(options = defaultAtributionControlOptions) {
+    constructor(options = defaultAttributionControlOptions) {
         this._toggleAttribution = () => {
             if (this._container.classList.contains('maplibregl-compact')) {
                 if (this._container.classList.contains('maplibregl-compact-show')) {
@@ -51176,6 +51279,9 @@ class AttributionControl {
  * ```
  **/
 class LogoControl {
+    /**
+     * @param options - the control's options
+     */
     constructor(options = {}) {
         this._updateCompact = () => {
             const containerChildren = this._container.children;
@@ -51491,7 +51597,7 @@ class TerrainSourceCache extends Evented {
     /**
      * find the covering raster-dem tile
      * @param tileID - the tile to look for
-     * @param searchForDEM - Optinal parameter to search for (parent) souretiles with loaded dem.
+     * @param searchForDEM - Optional parameter to search for (parent) sourcetiles with loaded dem.
      * @returns the tile
      */
     getSourceTile(tileID, searchForDEM) {
@@ -52090,9 +52196,12 @@ const defaultLocale = {
     'GeolocateControl.FindMyLocation': 'Find my location',
     'GeolocateControl.LocationNotAvailable': 'Location not available',
     'LogoControl.Title': 'MapLibre logo',
+    'Map.Title': 'Map',
+    'Marker.Title': 'Map marker',
     'NavigationControl.ResetBearing': 'Reset bearing to north',
     'NavigationControl.ZoomIn': 'Zoom in',
     'NavigationControl.ZoomOut': 'Zoom out',
+    'Popup.Close': 'Close popup',
     'ScaleControl.Feet': 'ft',
     'ScaleControl.Meters': 'm',
     'ScaleControl.Kilometers': 'km',
@@ -52114,16 +52223,19 @@ const defaultMaxPitch = 60;
 // use this variable to check maxPitch for validity
 const maxPitchThreshold = 85;
 const defaultOptions$4 = {
-    center: [0, 0],
-    zoom: 0,
-    bearing: 0,
-    pitch: 0,
+    hash: false,
+    interactive: true,
+    bearingSnap: 7,
+    attributionControl: defaultAttributionControlOptions,
+    maplibreLogo: false,
+    failIfMajorPerformanceCaveat: false,
+    preserveDrawingBuffer: false,
+    refreshExpiredTiles: true,
+    scrollZoom: true,
     minZoom: defaultMinZoom,
     maxZoom: defaultMaxZoom,
     minPitch: defaultMinPitch,
     maxPitch: defaultMaxPitch,
-    interactive: true,
-    scrollZoom: true,
     boxZoom: true,
     dragRotate: true,
     dragPan: true,
@@ -52132,24 +52244,21 @@ const defaultOptions$4 = {
     touchZoomRotate: true,
     touchPitch: true,
     cooperativeGestures: false,
-    bearingSnap: 7,
-    clickTolerance: 3,
-    pitchWithRotate: true,
-    hash: false,
-    attributionControl: defaultAtributionControlOptions,
-    maplibreLogo: false,
-    failIfMajorPerformanceCaveat: false,
-    preserveDrawingBuffer: false,
     trackResize: true,
+    center: [0, 0],
+    zoom: 0,
+    bearing: 0,
+    pitch: 0,
     renderWorldCopies: true,
-    refreshExpiredTiles: true,
     maxTileCacheSize: null,
     maxTileCacheZoomLevels: config.MAX_TILE_CACHE_ZOOM_LEVELS,
-    localIdeographFontFamily: 'sans-serif',
     transformRequest: null,
     transformCameraUpdate: null,
     fadeDuration: 300,
     crossSourceCollisions: true,
+    clickTolerance: 3,
+    localIdeographFontFamily: 'sans-serif',
+    pitchWithRotate: true,
     validateStyle: true,
     /**Because GL MAX_TEXTURE_SIZE is usually at least 4096px. */
     maxCanvasSize: [4096, 4096],
@@ -52189,21 +52298,26 @@ const defaultOptions$4 = {
 let Map$1 = class Map extends Camera {
     constructor(options) {
         PerformanceUtils.mark(PerformanceMarkers.create);
-        options = extend({}, defaultOptions$4, options);
-        if (options.minZoom != null && options.maxZoom != null && options.minZoom > options.maxZoom) {
+        const resolvedOptions = Object.assign(Object.assign({}, defaultOptions$4), options);
+        if (resolvedOptions.minZoom != null && resolvedOptions.maxZoom != null && resolvedOptions.minZoom > resolvedOptions.maxZoom) {
             throw new Error('maxZoom must be greater than or equal to minZoom');
         }
-        if (options.minPitch != null && options.maxPitch != null && options.minPitch > options.maxPitch) {
+        if (resolvedOptions.minPitch != null && resolvedOptions.maxPitch != null && resolvedOptions.minPitch > resolvedOptions.maxPitch) {
             throw new Error('maxPitch must be greater than or equal to minPitch');
         }
-        if (options.minPitch != null && options.minPitch < defaultMinPitch) {
+        if (resolvedOptions.minPitch != null && resolvedOptions.minPitch < defaultMinPitch) {
             throw new Error(`minPitch must be greater than or equal to ${defaultMinPitch}`);
         }
-        if (options.maxPitch != null && options.maxPitch > maxPitchThreshold) {
+        if (resolvedOptions.maxPitch != null && resolvedOptions.maxPitch > maxPitchThreshold) {
             throw new Error(`maxPitch must be less than or equal to ${maxPitchThreshold}`);
         }
-        const transform = new Transform(options.minZoom, options.maxZoom, options.minPitch, options.maxPitch, options.renderWorldCopies);
-        super(transform, { bearingSnap: options.bearingSnap });
+        const transform = new Transform(resolvedOptions.minZoom, resolvedOptions.maxZoom, resolvedOptions.minPitch, resolvedOptions.maxPitch, resolvedOptions.renderWorldCopies);
+        super(transform, { bearingSnap: resolvedOptions.bearingSnap });
+        this._idleTriggered = false;
+        this._crossFadingFactor = 1;
+        this._renderTaskQueue = new TaskQueue();
+        this._controls = [];
+        this._mapId = uniqueId();
         this._contextLost = (event) => {
             event.preventDefault();
             if (this._frameRequest) {
@@ -52229,55 +52343,51 @@ let Map$1 = class Map extends Camera {
         this._onWindowOnline = () => {
             this._update();
         };
-        this._interactive = options.interactive;
-        this._maxTileCacheSize = options.maxTileCacheSize;
-        this._maxTileCacheZoomLevels = options.maxTileCacheZoomLevels;
-        this._failIfMajorPerformanceCaveat = options.failIfMajorPerformanceCaveat;
-        this._preserveDrawingBuffer = options.preserveDrawingBuffer;
-        this._antialias = options.antialias;
-        this._trackResize = options.trackResize;
-        this._bearingSnap = options.bearingSnap;
-        this._refreshExpiredTiles = options.refreshExpiredTiles;
-        this._fadeDuration = options.fadeDuration;
-        this._crossSourceCollisions = options.crossSourceCollisions;
-        this._crossFadingFactor = 1;
-        this._collectResourceTiming = options.collectResourceTiming;
-        this._renderTaskQueue = new TaskQueue();
-        this._controls = [];
-        this._mapId = uniqueId();
-        this._locale = extend({}, defaultLocale, options.locale);
-        this._clickTolerance = options.clickTolerance;
-        this._overridePixelRatio = options.pixelRatio;
-        this._maxCanvasSize = options.maxCanvasSize;
-        this.transformCameraUpdate = options.transformCameraUpdate;
-        this.cancelPendingTileRequestsWhileZooming = options.cancelPendingTileRequestsWhileZooming;
+        this._interactive = resolvedOptions.interactive;
+        this._maxTileCacheSize = resolvedOptions.maxTileCacheSize;
+        this._maxTileCacheZoomLevels = resolvedOptions.maxTileCacheZoomLevels;
+        this._failIfMajorPerformanceCaveat = resolvedOptions.failIfMajorPerformanceCaveat === true;
+        this._preserveDrawingBuffer = resolvedOptions.preserveDrawingBuffer === true;
+        this._antialias = resolvedOptions.antialias === true;
+        this._trackResize = resolvedOptions.trackResize === true;
+        this._bearingSnap = resolvedOptions.bearingSnap;
+        this._refreshExpiredTiles = resolvedOptions.refreshExpiredTiles === true;
+        this._fadeDuration = resolvedOptions.fadeDuration;
+        this._crossSourceCollisions = resolvedOptions.crossSourceCollisions === true;
+        this._collectResourceTiming = resolvedOptions.collectResourceTiming === true;
+        this._locale = Object.assign(Object.assign({}, defaultLocale), resolvedOptions.locale);
+        this._clickTolerance = resolvedOptions.clickTolerance;
+        this._overridePixelRatio = resolvedOptions.pixelRatio;
+        this._maxCanvasSize = resolvedOptions.maxCanvasSize;
+        this.transformCameraUpdate = resolvedOptions.transformCameraUpdate;
+        this.cancelPendingTileRequestsWhileZooming = resolvedOptions.cancelPendingTileRequestsWhileZooming === true;
         this._imageQueueHandle = ImageRequest.addThrottleControl(() => this.isMoving());
-        this._requestManager = new RequestManager(options.transformRequest);
-        if (typeof options.container === 'string') {
-            this._container = document.getElementById(options.container);
+        this._requestManager = new RequestManager(resolvedOptions.transformRequest);
+        if (typeof resolvedOptions.container === 'string') {
+            this._container = document.getElementById(resolvedOptions.container);
             if (!this._container) {
-                throw new Error(`Container '${options.container}' not found.`);
+                throw new Error(`Container '${resolvedOptions.container}' not found.`);
             }
         }
-        else if (options.container instanceof HTMLElement) {
-            this._container = options.container;
+        else if (resolvedOptions.container instanceof HTMLElement) {
+            this._container = resolvedOptions.container;
         }
         else {
             throw new Error('Invalid type: \'container\' must be a String or HTMLElement.');
         }
-        if (options.maxBounds) {
-            this.setMaxBounds(options.maxBounds);
+        if (resolvedOptions.maxBounds) {
+            this.setMaxBounds(resolvedOptions.maxBounds);
         }
         this._setupContainer();
         this._setupPainter();
-        this.on('move', () => this._update(false));
-        this.on('moveend', () => this._update(false));
-        this.on('zoom', () => this._update(true));
-        this.on('terrain', () => {
+        this.on('move', () => this._update(false))
+            .on('moveend', () => this._update(false))
+            .on('zoom', () => this._update(true))
+            .on('terrain', () => {
             this.painter.terrainFacilitator.dirty = true;
             this._update(true);
-        });
-        this.once('idle', () => { this._idleTriggered = true; });
+        })
+            .once('idle', () => { this._idleTriggered = true; });
         if (typeof window !== 'undefined') {
             addEventListener('online', this._onWindowOnline, false);
             let initialResizeEventCaptured = false;
@@ -52295,31 +52405,31 @@ let Map$1 = class Map extends Camera {
             });
             this._resizeObserver.observe(this._container);
         }
-        this.handlers = new HandlerManager(this, options);
-        const hashName = (typeof options.hash === 'string' && options.hash) || undefined;
-        this._hash = options.hash && (new Hash(hashName)).addTo(this);
+        this.handlers = new HandlerManager(this, resolvedOptions);
+        const hashName = (typeof resolvedOptions.hash === 'string' && resolvedOptions.hash) || undefined;
+        this._hash = resolvedOptions.hash && (new Hash(hashName)).addTo(this);
         // don't set position from options if set through hash
         if (!this._hash || !this._hash._onHashChange()) {
             this.jumpTo({
-                center: options.center,
-                zoom: options.zoom,
-                bearing: options.bearing,
-                pitch: options.pitch
+                center: resolvedOptions.center,
+                zoom: resolvedOptions.zoom,
+                bearing: resolvedOptions.bearing,
+                pitch: resolvedOptions.pitch
             });
-            if (options.bounds) {
+            if (resolvedOptions.bounds) {
                 this.resize();
-                this.fitBounds(options.bounds, extend({}, options.fitBoundsOptions, { duration: 0 }));
+                this.fitBounds(resolvedOptions.bounds, extend({}, resolvedOptions.fitBoundsOptions, { duration: 0 }));
             }
         }
         this.resize();
-        this._localIdeographFontFamily = options.localIdeographFontFamily;
-        this._validateStyle = options.validateStyle;
-        if (options.style)
-            this.setStyle(options.style, { localIdeographFontFamily: options.localIdeographFontFamily });
-        if (options.attributionControl)
-            this.addControl(new AttributionControl(typeof options.attributionControl === 'boolean' ? undefined : options.attributionControl));
-        if (options.maplibreLogo)
-            this.addControl(new LogoControl(), options.logoPosition);
+        this._localIdeographFontFamily = resolvedOptions.localIdeographFontFamily;
+        this._validateStyle = resolvedOptions.validateStyle;
+        if (resolvedOptions.style)
+            this.setStyle(resolvedOptions.style, { localIdeographFontFamily: resolvedOptions.localIdeographFontFamily });
+        if (resolvedOptions.attributionControl)
+            this.addControl(new AttributionControl(typeof resolvedOptions.attributionControl === 'boolean' ? undefined : resolvedOptions.attributionControl));
+        if (resolvedOptions.maplibreLogo)
+            this.addControl(new LogoControl(), resolvedOptions.logoPosition);
         this.on('style.load', () => {
             if (this.transform.unmodified) {
                 this.jumpTo(this.style.stylesheet);
@@ -54162,8 +54272,8 @@ let Map$1 = class Map extends Camera {
         this._canvas = DOM.create('canvas', 'maplibregl-canvas', canvasContainer);
         this._canvas.addEventListener('webglcontextlost', this._contextLost, false);
         this._canvas.addEventListener('webglcontextrestored', this._contextRestored, false);
-        this._canvas.setAttribute('tabindex', '0');
-        this._canvas.setAttribute('aria-label', 'Map');
+        this._canvas.setAttribute('tabindex', this._interactive ? '0' : '-1');
+        this._canvas.setAttribute('aria-label', this._getUIString('Map.Title'));
         this._canvas.setAttribute('role', 'region');
         const dimensions = this._containerDimensions();
         const clampedPixelRatio = this._getClampedPixelRatio(dimensions[0], dimensions[1]);
@@ -54410,7 +54520,7 @@ let Map$1 = class Map extends Camera {
         ImageRequest.removeThrottleControl(this._imageQueueHandle);
         (_a = this._resizeObserver) === null || _a === void 0 ? void 0 : _a.disconnect();
         const extension = this.painter.context.gl.getExtension('WEBGL_lose_context');
-        if (extension)
+        if (extension === null || extension === void 0 ? void 0 : extension.loseContext)
             extension.loseContext();
         this._canvas.removeEventListener('webglcontextrestored', this._contextRestored, false);
         this._canvas.removeEventListener('webglcontextlost', this._contextLost, false);
@@ -54809,7 +54919,7 @@ function checkGeolocationSupport() {
             return supportsGeolocation;
         }
         // navigator.permissions has incomplete browser support
-        // http://caniuse.com/#feat=permissions-api
+        // https://caniuse.com/#feat=permissions-api
         // Test for the case where a browser disables Geolocation because of an
         // insecure origin
         try {
@@ -55061,7 +55171,6 @@ class Marker extends Evented {
         if (!options || !options.element) {
             this._defaultMarker = true;
             this._element = DOM.create('div');
-            this._element.setAttribute('aria-label', 'Map marker');
             // create default map marker SVG
             const svg = DOM.createNS('http://www.w3.org/2000/svg', 'svg');
             const defaultHeight = 41;
@@ -55179,6 +55288,7 @@ class Marker extends Evented {
     addTo(map) {
         this.remove();
         this._map = map;
+        this._element.setAttribute('aria-label', map._getUIString('Marker.Title'));
         map.getCanvasContainer().appendChild(this._element);
         map.on('move', this._update);
         map.on('moveend', this._update);
@@ -55592,6 +55702,10 @@ let noTimeout = false;
  * * disabled - occurs if Geolocation is not available, disabled or denied.
  *
  * These interaction states can't be controlled programmatically, rather they are set based on user interactions.
+ *
+ * ## State Diagram
+ * ![GeolocateControl state diagram](https://github.com/maplibre/maplibre-gl-js/assets/3269297/78e720e5-d781-4da8-9803-a7a0e6aaaa9f)
+ *
  * @group Markers and Controls
  *
  * @example
@@ -55610,6 +55724,10 @@ let noTimeout = false;
  * **Event** `trackuserlocationend` of type {@link Event} will be fired when the `GeolocateControl` changes to the background state, which happens when a user changes the camera during an active position lock. This only applies when `trackUserLocation` is `true`. In the background state, the dot on the map will update with location updates but the camera will not.
  *
  * **Event** `trackuserlocationstart` of type {@link Event} will be fired when the `GeolocateControl` changes to the active lock state, which happens either upon first obtaining a successful Geolocation API position for the user (a `geolocate` event will follow), or the user clicks the geolocate button when in the background state which uses the last known position to recenter the map and enter active lock state (no `geolocate` event will follow unless the users's location changes).
+ *
+ * **Event** `userlocationlostfocus` of type {@link Event} will be fired when the `GeolocateControl` changes to the background state, which happens when a user changes the camera during an active position lock. This only applies when `trackUserLocation` is `true`. In the background state, the dot on the map will update with location updates but the camera will not.
+ *
+ * **Event** `userlocationfocus` of type {@link Event} will be fired when the `GeolocateControl` changes to the active lock state, which happens upon the user clicks the geolocate button when in the background state which uses the last known position to recenter the map and enter active lock state.
  *
  * **Event** `geolocate` of type {@link Event} will be fired on each Geolocation API position update which returned as success.
  * `data` - The returned [Position](https://developer.mozilla.org/en-US/docs/Web/API/Position) object from the callback in [Geolocation.getCurrentPosition()](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/getCurrentPosition) or [Geolocation.watchPosition()](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/watchPosition).
@@ -55668,6 +55786,42 @@ let noTimeout = false;
  * // Add the control to the map.
  * map.addControl(geolocate);
  * // Set an event listener that fires
+ * // when an userlocationlostfocus event occurs.
+ * geolocate.on('userlocationlostfocus', function() {
+ *   console.log('An userlocationlostfocus event has occurred.')
+ * });
+ * ```
+ *
+ * @example
+ * ```ts
+ * // Initialize the geolocate control.
+ * let geolocate = new GeolocateControl({
+ *   positionOptions: {
+ *       enableHighAccuracy: true
+ *   },
+ *   trackUserLocation: true
+ * });
+ * // Add the control to the map.
+ * map.addControl(geolocate);
+ * // Set an event listener that fires
+ * // when an userlocationfocus event occurs.
+ * geolocate.on('userlocationfocus', function() {
+ *   console.log('An userlocationfocus event has occurred.')
+ * });
+ * ```
+ *
+ * @example
+ * ```ts
+ * // Initialize the geolocate control.
+ * let geolocate = new GeolocateControl({
+ *   positionOptions: {
+ *       enableHighAccuracy: true
+ *   },
+ *   trackUserLocation: true
+ * });
+ * // Add the control to the map.
+ * map.addControl(geolocate);
+ * // Set an event listener that fires
  * // when a geolocate event occurs.
  * geolocate.on('geolocate', () => {
  *   console.log('A geolocate event has occurred.')
@@ -55711,6 +55865,9 @@ let noTimeout = false;
  * ```
  */
 class GeolocateControl extends Evented {
+    /**
+     * @param options - the control's options
+     */
     constructor(options) {
         super();
         /**
@@ -55903,6 +56060,7 @@ class GeolocateControl extends Evented {
                         this._geolocateButton.classList.add('maplibregl-ctrl-geolocate-background');
                         this._geolocateButton.classList.remove('maplibregl-ctrl-geolocate-active');
                         this.fire(new Event('trackuserlocationend'));
+                        this.fire(new Event('userlocationlostfocus'));
                     }
                 });
             }
@@ -56042,6 +56200,7 @@ class GeolocateControl extends Evented {
                     if (this._lastKnownPosition)
                         this._updateCamera(this._lastKnownPosition);
                     this.fire(new Event('trackuserlocationstart'));
+                    this.fire(new Event('userlocationfocus'));
                     break;
                 default:
                     throw new Error(`Unexpected watchState ${this._watchState}`);
@@ -56122,6 +56281,9 @@ const defaultOptions$1 = {
  * ```
  */
 class ScaleControl {
+    /**
+     * @param options - the control's options
+     */
     constructor(options) {
         this._onMove = () => {
             updateScale(this._map, this._container, this.options);
@@ -56232,6 +56394,9 @@ function getRoundNum(num) {
  * **Event** `fullscreenend` of type {@link Event} will be fired when fullscreen mode has ended.
  */
 class FullscreenControl extends Evented {
+    /**
+     * @param options - the control's options
+     */
     constructor(options = {}) {
         super();
         this._onFullscreenChange = () => {
@@ -56383,6 +56548,9 @@ class FullscreenControl extends Evented {
  * ```
  */
 class TerrainControl {
+    /**
+     * @param options - the control's options
+     */
     constructor(options) {
         this._toggleTerrain = () => {
             if (this._map.getTerrain()) {
@@ -56562,6 +56730,9 @@ class Popup extends Evented {
                     for (const name of this.options.className.split(' ')) {
                         this._container.classList.add(name);
                     }
+                }
+                if (this._closeButton) {
+                    this._closeButton.setAttribute('aria-label', this._map._getUIString('Popup.Close'));
                 }
                 if (this._trackPointer) {
                     this._container.classList.add('maplibregl-popup-track-pointer');
@@ -56935,7 +57106,6 @@ class Popup extends Evented {
         if (this.options.closeButton) {
             this._closeButton = DOM.create('button', 'maplibregl-popup-close-button', this._content);
             this._closeButton.type = 'button';
-            this._closeButton.setAttribute('aria-label', 'Close popup');
             this._closeButton.innerHTML = '&#215;';
             this._closeButton.addEventListener('click', this._onClose);
         }
@@ -57092,7 +57262,7 @@ function setWorkerUrl(value) { config.WORKER_URL = value; }
  *
  * It can be useful for the following examples:
  * 1. Using `self.addProtocol` in the worker thread - note that you might need to also register the protocol on the main thread.
- * 2. Using `self.registerWorkerSource(workerSource: WorkerSource)` to register a worker source, which sould come with `addSourceType` usually.
+ * 2. Using `self.registerWorkerSource(workerSource: WorkerSource)` to register a worker source, which should come with `addSourceType` usually.
  * 3. using `self.actor.registerMessageHandler` to override some internal worker operations
  * @param workerUrl - the worker url e.g. a url of a javascript file to load in the worker
  * @returns
@@ -57111,7 +57281,7 @@ function setWorkerUrl(value) { config.WORKER_URL = value; }
  *         throw new Error(`Tile fetch error: ${t.statusText}`);
  *     }
  * }
- * self.addPRotocol('custom', loadFn);
+ * self.addProtocol('custom', loadFn);
  *
  * // main.js
  * importScriptInWorkers('add-protocol-worker.js');

@@ -12,3 +12,6 @@ fi
 
 # Remove janus-gateway.service
 rm ${TARGET_DIR}/usr/lib/systemd/system/janus-gateway.service
+
+# Alter permissions to /opt/edgemap-persist
+chmod o+w ${TARGET_DIR}/opt/edgemap-persist
