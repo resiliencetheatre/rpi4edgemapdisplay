@@ -818,6 +818,30 @@
             const msgLocation =  msgArray[2];
             const msgMessage =  msgArray[3];
             
+            //
+            // GPIO Sensor - work in progress demo
+            //
+            if ( msgType === "sensor" ) {
+                const sensorMsgArray=trimmedString.split(" ");
+                
+                if ( sensorMsgArray[1] === "detected" ) {
+                    loadSensor(msgFrom);
+                    notifyMessage( "Sensor alarm: " + msgFrom, 5000);
+                    return;
+                }
+                if ( sensorMsgArray[1] === "state:" ) {
+                    var sensorKeepAliveState = sensorMsgArray[2];
+                    if ( sensorKeepAliveState == 0 )
+                        sensorKeepAliveStateText = "Inactive";
+                    if ( sensorKeepAliveState == 1 )
+                        sensorKeepAliveStateText = "Active";
+                    notifyMessage( "Sensor keep alive: " + msgFrom + " (" + sensorKeepAliveStateText + ")", 15000);
+                    return;
+                }
+                
+                
+            }
+            
             // 
             // meshpipe join (from meshtastic network)
             //
@@ -928,7 +952,7 @@
             // Normal message 
             // TODO: sanitize, validate & parse etc (this is just an demo)
             //
-            if ( msgArray.length != 4 && msgType != "dragMarker" && msgType != "trackMarker" && msgType != "sensorMarker" && msgType != "imageMarker" && msgType != "joinMessage" ) {
+            if ( msgArray.length != 4 && msgType != "dragMarker" && msgType != "trackMarker" && msgType != "sensorMarker" && msgType != "imageMarker" && msgType != "joinMessage" && msgType != "sensor" ) {
                 openMessageEntryBox(); 
                 getElementItem('#msgChannelLog').innerHTML += trimmedString;
                 getElementItem('#msgChannelLog').innerHTML += "<br>";

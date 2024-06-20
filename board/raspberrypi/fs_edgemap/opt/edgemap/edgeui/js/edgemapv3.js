@@ -1372,6 +1372,217 @@ function loadCallSign() {
 }
 
 
+// Work in progress
+function loadSensor(id) {
+    // console.log("#1 loadSensor(" + id + ") " + id);
+    fetch('load_sensor.php?id=' + id )
+    .then(response => response.json())
+    .then(data => {
+        const sensorDataArray = data.data.split(",");
+        // addSensorDot(sensorDataArray[2],sensorDataArray[1],sensorDataArray[0]);
+        addSensorIcon(sensorDataArray[2],sensorDataArray[1],sensorDataArray[0]);
+        return;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        return;
+    });
+}
+
+//
+// Example from maplibre-gl pulsedot
+//
+function addSensorDot(lon,lat,sensorText) {
+    const size = 100;
+    const pulsingDot = {
+        width: size,
+        height: size,
+        data: new Uint8Array(size * size * 4),
+
+        // get rendering context for the map canvas when layer is added to the map
+        onAdd () {
+            const canvas = document.createElement('canvas');
+            canvas.width = this.width;
+            canvas.height = this.height;
+            this.context = canvas.getContext('2d');
+        },
+        // called once before every frame where the icon will be used
+        render () {
+            const duration = 1000;
+            const t = (performance.now() % duration) / duration;
+            const radius = (size / 2) * 0.3;
+            const outerRadius = (size / 2) * 0.7 * t + radius;
+            const context = this.context;
+            // draw outer circle
+            context.clearRect(0, 0, this.width, this.height);
+            context.beginPath();
+            context.arc(
+                this.width / 2,
+                this.height / 2,
+                outerRadius,
+                0,
+                Math.PI * 2
+            );
+            context.fillStyle = `rgba(255, 200, 200,${1 - t})`;
+            context.fill();
+            // draw inner circle
+            context.beginPath();
+            context.arc(
+                this.width / 2,
+                this.height / 2,
+                radius,
+                0,
+                Math.PI * 2
+            );
+            context.fillStyle = 'rgba(255, 100, 100, 1)';
+            context.strokeStyle = 'white';
+            context.lineWidth = 2 + 4 * (1 - t);
+            context.fill();
+            context.stroke();
+            // update this image's data with data from the canvas
+            this.data = context.getImageData(
+                0,
+                0,
+                this.width,
+                this.height
+            ).data;
+            // continuously repaint the map, resulting in the smooth animation of the dot
+            map.triggerRepaint();
+            // return `true` to let the map know that the image was updated
+            return true;
+        }
+    };
+    // 
+    map.addImage('pulsing-dot', pulsingDot, {pixelRatio: 1.5});
+    map.addSource('pulsingpoints', {
+        'type': 'geojson',
+        'data': {
+            'type': 'FeatureCollection',
+            'features': [
+                {
+                    'type': 'Feature',
+                    'geometry': {
+                        'type': 'Point',
+                        'coordinates': [lon,lat]
+                    }
+                }
+            ]
+        }
+    });
+    map.addLayer({
+        'id': 'pulsepointslayer',
+        'type': 'symbol',
+        'source': 'pulsingpoints',
+        'layout': {
+            'icon-image': 'pulsing-dot',
+            'text-font': ['Open Sans Regular'],
+            'text-size': 12,
+            'text-anchor': 'top',
+            'text-offset': [0,1],
+            'text-transform': "uppercase",
+            'text-letter-spacing': 0.05,
+            'text-field': sensorText
+        },
+        "paint": {
+            "text-color": "#F02",
+            "text-halo-color": "#fFF",
+            "text-halo-width": 2
+        },
+    });
+    // https://maplibre.org/maplibre-style-spec/layers/#text-anchor
+    map.flyTo({
+        center: [lon,lat],
+        zoom: 12,
+        speed: 0.6,
+        curve: 1,
+        essential: true 
+    });
+        
+}
+/*function removeDot() {
+    if (map.getImage("pulsing-dot")) {
+        map.removeImage('pulsing-dot');
+    }
+    if (map.getLayer("pulsepointslayer")) {
+        map.removeLayer('pulsepointslayer');
+    }
+    if (map.getSource("pulsingpoints")) {
+        map.removeSource('pulsingpoints');
+    }
+}*/
+
+
+// https://maplibre.org/maplibre-gl-js/docs/examples/add-image/
+// Work in progress: this supports only one sensor at the moment
+async function addSensorIcon(lon,lat,sensorText) {
+    
+    if ( ! map.getLayer('pulsepointslayer') ) {
+    
+        image = await map.loadImage('img/sensor-icon.png');
+        map.addImage('sensor-icon', image.data);
+        map.addSource('point', {
+            'type': 'geojson',
+            'data': {
+                'type': 'FeatureCollection',
+                'features': [
+                    {
+                        'type': 'Feature',
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': [lon, lat]
+                        }
+                    }
+                ]
+            }
+        });
+        
+        map.addLayer({
+            'id': 'pulsepointslayer',
+            'type': 'symbol',
+            'source': 'point',
+            'layout': {
+                'icon-image': 'sensor-icon',
+                'icon-size': 0.35,
+                'text-font': ['Open Sans Regular'],
+                'text-size': 12,
+                'text-anchor': 'top',
+                'text-offset': [0,1],
+                'text-transform': "uppercase",
+                'text-letter-spacing': 0.10,
+                'text-field': sensorText
+            },
+            "paint": {
+                "text-color": "#F02",
+                "text-halo-color": "#fFF",
+                "text-halo-width": 2
+            },
+        });
+        map.flyTo({
+            center: [lon,lat],
+            zoom: 12,
+            speed: 0.6,
+            curve: 1,
+            essential: true
+        });
+    } else {
+        // Sensor is created, let's update just detection counter if multiple alarms arrives
+        var sensorTextField = map.getLayoutProperty('pulsepointslayer', 'text-field');
+        const sensorTextArray = sensorTextField.split("x");
+        if ( sensorTextArray[1] ) {
+            var count=sensorTextArray[1];
+            count++;
+            var setSensorTextField = sensorText + ' x ' + count;
+            map.setLayoutProperty('pulsepointslayer', 'text-field', setSensorTextField);
+        } else {
+            var count=2;
+            var setSensorTextField = sensorText + ' x ' + count;
+            map.setLayoutProperty('pulsepointslayer', 'text-field', setSensorTextField);
+        }
+    }
+}
+
+
+
 
 
 

@@ -7,6 +7,6 @@ if (file_exists('/opt/edgemap-persist/callsign.txt')) {
     // Return the data as JSON
     echo json_encode(['data' => $data]);
 } else {
-    echo json_encode(['data' => 'No data found']);
+    echo json_encode(['data' => 'Alpha']);
 }
 ?>
