@@ -1516,7 +1516,7 @@ function addSensorDot(lon,lat,sensorText) {
 // Work in progress: this supports only one sensor at the moment
 async function addSensorIcon(lon,lat,sensorText) {
     
-    if ( ! map.getLayer('pulsepointslayer') ) {
+    if ( ! map.getLayer('sensorIconLayer') ) {
     
         image = await map.loadImage('img/sensor-icon.png');
         map.addImage('sensor-icon', image.data);
@@ -1537,7 +1537,7 @@ async function addSensorIcon(lon,lat,sensorText) {
         });
         
         map.addLayer({
-            'id': 'pulsepointslayer',
+            'id': 'sensorIconLayer',
             'type': 'symbol',
             'source': 'point',
             'layout': {
@@ -1566,17 +1566,17 @@ async function addSensorIcon(lon,lat,sensorText) {
         });
     } else {
         // Sensor is created, let's update just detection counter if multiple alarms arrives
-        var sensorTextField = map.getLayoutProperty('pulsepointslayer', 'text-field');
+        var sensorTextField = map.getLayoutProperty('sensorIconLayer', 'text-field');
         const sensorTextArray = sensorTextField.split("x");
         if ( sensorTextArray[1] ) {
             var count=sensorTextArray[1];
             count++;
             var setSensorTextField = sensorText + ' x ' + count;
-            map.setLayoutProperty('pulsepointslayer', 'text-field', setSensorTextField);
+            map.setLayoutProperty('sensorIconLayer', 'text-field', setSensorTextField);
         } else {
             var count=2;
             var setSensorTextField = sensorText + ' x ' + count;
-            map.setLayoutProperty('pulsepointslayer', 'text-field', setSensorTextField);
+            map.setLayoutProperty('sensorIconLayer', 'text-field', setSensorTextField);
         }
     }
 }
