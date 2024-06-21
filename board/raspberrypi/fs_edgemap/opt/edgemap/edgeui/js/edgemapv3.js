@@ -1403,6 +1403,7 @@ function sensorDefine() {
         console.error('Sensor create error:', error);
     });
     keyEventListener=1;
+    unknownSensorCreateInProgress=0;
     sensorClose();
     
 }
@@ -1441,6 +1442,7 @@ function unknownSensorNotifyMessage(message,id,timeout) {
     // Pass sensor ID with global variable
     sensorToBeCreated = id;
     keyEventListener=0;
+    unknownSensorCreateInProgress=1;
     
     if (timeout > 0 ) {
         setTimeout(() => {
@@ -1515,7 +1517,7 @@ async function addSensorIcon(lon,lat,sensorText) {
         });
         map.flyTo({
             center: [lon,lat],
-            zoom: 13,
+            zoom: 17,
             speed: 0.6,
             curve: 1,
             essential: true

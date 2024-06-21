@@ -625,8 +625,8 @@
 
     // Sensor globals
     var sensorToBeCreated=0;
-    
     var keyEventListener=1;
+    var unknownSensorCreateInProgress=0;
 
     // Create marker from messaging window
 	function createNewDragableMarker() {
@@ -1341,16 +1341,20 @@
           if ( key == 'lat' ) {
               let uLat = value.toString();
               document.getElementById('lat').innerHTML = uLat.substring(0,10);
-              document.getElementById('sensorLat').innerHTML = uLat.substring(0,10);
-              document.getElementById('sensorLatLonComma').innerHTML = ",";
-              document.getElementById('sensorLocationTooltip').innerHTML = "Location: ";
-              document.getElementById('sensor-create-input-placeholder').style.display = "none";
-              document.getElementById('sensor-create-input').style.display = "block";
+                if ( unknownSensorCreateInProgress == 1 ) {
+                  document.getElementById('sensorLat').innerHTML = uLat.substring(0,10);
+                  document.getElementById('sensorLatLonComma').innerHTML = ",";
+                  document.getElementById('sensorLocationTooltip').innerHTML = "Location: ";
+                  document.getElementById('sensor-create-input-placeholder').style.display = "none";
+                  document.getElementById('sensor-create-input').style.display = "block";
+                }
           }
           if ( key == 'lng' ) {
               let uLon = value.toString();
               document.getElementById('lon').innerHTML = uLon.substring(0,10);
-              document.getElementById('sensorLon').innerHTML = uLon.substring(0,10);
+                if ( unknownSensorCreateInProgress == 1 ) {
+                    document.getElementById('sensorLon').innerHTML = uLon.substring(0,10);
+                }
           }
         });	
     });
