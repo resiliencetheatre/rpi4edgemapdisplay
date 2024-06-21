@@ -63,6 +63,34 @@ sensorMarker|[58.0549952,27.0552062]|path24,Starlink uplink detected 04:19,30015
 
 To save bandwidth on Meshtastic communication, some of messaging channel functions have been commented out on UI code. We don't deliver 'drag marker' or 'geolocation' over Meshtastic and we have increased presence indication sending interval to 2 minute.
 
+### Meshtastic detection sensor
+
+![meshtastic](https://github.com/resiliencetheatre/rpi4edgemapdisplay/blob/secureptt/doc/sensor.alarm?raw=true)
+
+Edgemap contains simple example which shows you how to use Meshtastic node as detection sensor. Example is done with RAK wireless 
+[Wisblock Meshtastic Starter Kit](https://store.rakwireless.com/products/wisblock-meshtastic-starter-kit?variant=43683420438726)
+and you can use closing switch between J12: PIN1 (VDD) and J11: PIN2 (IO2). 
+
+First you need to configure your Sensor unit. Note that 'detection_sensor.name' must contain given 
+format and only ID ('12') can be changed by user, based on your sensor numbering.
+
+```
+meshtastic --port /dev/ttyACM0 --set detection_sensor.name "12|sensor|||"
+meshtastic --port /dev/ttyACM0 --set detection_sensor.monitor_pin 34
+meshtastic --port /dev/ttyACM0 --set detection_sensor.state_broadcast_secs 300
+meshtastic --port /dev/ttyACM0 --set detection_sensor.minimum_broadcast_secs 5
+meshtastic --port /dev/ttyACM0 --set detection_sensor.detection_triggered_high true
+meshtastic --port /dev/ttyACM0 --set detection_sensor.enabled true
+```
+
+![meshtastic](https://github.com/resiliencetheatre/rpi4edgemapdisplay/blob/secureptt/doc/sensor.alarm?raw=true)
+
+Configuring sensor to Edgemap is simple. You send one alarm event and Edgemap will show 'unknown sensor' indication, 
+where you can pick location on map and give description. All further alarms are then shown on map.
+
+Note that this implementation is still work in progress.
+
+
 ### SecurePTT
 
 SecurePTT branch contains possbility to use small scale demo of full duplex Push-To-Talk (PTT) with exclusive level of security, where PTT streams are encrypted with One-Time-Pad (OTP). This functionality can be configured to following modes, depending on use case:
