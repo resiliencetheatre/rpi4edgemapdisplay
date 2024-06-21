@@ -65,7 +65,7 @@ To save bandwidth on Meshtastic communication, some of messaging channel functio
 
 ### Meshtastic detection sensor
 
-![meshtastic](https://github.com/resiliencetheatre/rpi4edgemapdisplay/blob/secureptt/doc/sensor.alarm?raw=true)
+![meshtastic](https://github.com/resiliencetheatre/rpi4edgemapdisplay/blob/secureptt/doc/sensor-alarm.png?raw=true)
 
 Edgemap contains simple example which shows you how to use Meshtastic node as detection sensor. Example is done with RAK wireless 
 [Wisblock Meshtastic Starter Kit](https://store.rakwireless.com/products/wisblock-meshtastic-starter-kit?variant=43683420438726)
@@ -83,7 +83,7 @@ meshtastic --port /dev/ttyACM0 --set detection_sensor.detection_triggered_high t
 meshtastic --port /dev/ttyACM0 --set detection_sensor.enabled true
 ```
 
-![meshtastic](https://github.com/resiliencetheatre/rpi4edgemapdisplay/blob/secureptt/doc/sensor.alarm?raw=true)
+![meshtastic](https://github.com/resiliencetheatre/rpi4edgemapdisplay/blob/secureptt/doc/sensor-alarm-create.png?raw=true)
 
 Configuring sensor to Edgemap is simple. You send one alarm event and Edgemap will show 'unknown sensor' indication, 
 where you can pick location on map and give description. All further alarms are then shown on map.
