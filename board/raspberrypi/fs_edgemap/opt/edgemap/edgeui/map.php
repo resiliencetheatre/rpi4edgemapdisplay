@@ -399,10 +399,6 @@
                                 </tr>
                             </table>
                         </div>
-                        
-                        
-                         
-                        
                         <div class="sensor-define-button-style" id="sensor-define-button" style="display: block;" onclick="sensorDefine();"><center>Create</center></div>
                         <div class="sensor-close-button-style" id="sensor-close-button" style="display: block;" onclick="sensorClose();"><center>Close</center></div>
                     </td>
@@ -626,6 +622,11 @@
                 padding: 5
                 });
     var trackMessageMarkerGraphDom = trackMessageMarkerGraph.asDOM();
+
+    // Sensor globals
+    var sensorToBeCreated=0;
+    
+    var keyEventListener=1;
 
     // Create marker from messaging window
 	function createNewDragableMarker() {
@@ -1364,70 +1365,76 @@
     // Keypress functions
     //
     function handleKeyPress(e){
-     var key=e.keyCode || e.which;
-      if (key==13){
-        let inputValue = document.getElementById('coordinateInput').value;
-        const coordValue = inputValue.split(",");
-        if ( check_lat_lon(coordValue[1],coordValue[0]) == true) {
-            console.log("AddDot");
-            addDot(coordValue[1],coordValue[0]);
-        }
-        document.getElementById('coordinateInput').value="";   
-        closeCoordinateSearchEntryBox();
+        if (keyEventListener) {
+         var key=e.keyCode || e.which;
+          if (key==13){
+            let inputValue = document.getElementById('coordinateInput').value;
+            const coordValue = inputValue.split(",");
+            if ( check_lat_lon(coordValue[1],coordValue[0]) == true) {
+                console.log("AddDot");
+                addDot(coordValue[1],coordValue[0]);
+            }
+            document.getElementById('coordinateInput').value="";   
+            closeCoordinateSearchEntryBox();
+          }
       }
     }
 
     document.addEventListener("keyup", function(event) {
         const key = event.key;
-        // Messaging
-        if (key === "m") {
-           if ( isHidden(logDiv) ) openMessageEntryBox();
-        }
-        // Radio list
-        if (key === "r") {
-           if ( isHidden(radiolistblockDiv) || isHidden(logDiv) ) {
-               openRadioList();
-           }
-        }
-        // Enable map features debugging if needed
-         if (key === "D") {
-            if ( isHidden(logDiv) ) { 
-                if ( document.getElementById('features').style.display === 'block' ) {
-                    document.getElementById('features').style.display = 'none'; 
-                    map.off('mousemove', showFeatures );
-                } else {
-                    document.getElementById('features').style.display = 'block'; 
-                    map.on('mousemove', showFeatures );
+        
+        if (keyEventListener) {
+        
+            // Messaging
+            if (key === "m") {
+               if ( isHidden(logDiv) ) openMessageEntryBox();
+            }
+            // Radio list
+            if (key === "r") {
+               if ( isHidden(radiolistblockDiv) || isHidden(logDiv) ) {
+                   openRadioList();
+               }
+            }
+            // Enable map features debugging if needed
+            if (key === "D") {
+                if ( isHidden(logDiv) ) { 
+                    if ( document.getElementById('features').style.display === 'block' ) {
+                        document.getElementById('features').style.display = 'none'; 
+                        map.off('mousemove', showFeatures );
+                    } else {
+                        document.getElementById('features').style.display = 'block'; 
+                        map.on('mousemove', showFeatures );
+                    }
                 }
             }
-        }
-        // Open coordinate find only if message entry (logDiv) is hidden
-        if (key === "f") {   
-            if ( isHidden(logDiv) ) {
-                removeDot();
-                openCoordinateSearchEntryBox();
-                document.getElementById('coordinateInput').value="";
+            // Open coordinate find only if message entry (logDiv) is hidden
+            if (key === "f") {   
+                if ( isHidden(logDiv) ) {
+                    removeDot();
+                    openCoordinateSearchEntryBox();
+                    document.getElementById('coordinateInput').value="";
+                }
             }
-        }
-        if (key === "Escape") {
-            document.getElementById('coordinateInput').value="";   
-            if ( !isHidden(coordinateEntryBoxDiv) ) closeCoordinateSearchEntryBox();
-            if ( !isHidden(languageSelectDialogDiv) ) closeLanguageSelectBox();
-            if ( !isHidden(logDiv) ) closeMessageEntryBox();
-            if ( !isHidden(radiolistblockDiv) ) closeRadioList();
-            
-        }
-        if (key === "h") {
-            if ( isHidden(logDiv) ) {
-                const visibility = map.getLayoutProperty(
-                    "hills",
-                    'visibility'
-                );
-                if (visibility === 'visible') {
-                    map.setLayoutProperty("hills", 'visibility', 'none');
-                } else {
-                    map.setLayoutProperty("hills", 'visibility', 'visible');
-                }   
+            if (key === "Escape") {
+                document.getElementById('coordinateInput').value="";   
+                if ( !isHidden(coordinateEntryBoxDiv) ) closeCoordinateSearchEntryBox();
+                if ( !isHidden(languageSelectDialogDiv) ) closeLanguageSelectBox();
+                if ( !isHidden(logDiv) ) closeMessageEntryBox();
+                if ( !isHidden(radiolistblockDiv) ) closeRadioList();
+                
+            }
+            if (key === "h") {
+                if ( isHidden(logDiv) ) {
+                    const visibility = map.getLayoutProperty(
+                        "hills",
+                        'visibility'
+                    );
+                    if (visibility === 'visible') {
+                        map.setLayoutProperty("hills", 'visibility', 'none');
+                    } else {
+                        map.setLayoutProperty("hills", 'visibility', 'visible');
+                    }   
+                }
             }
         }
     });

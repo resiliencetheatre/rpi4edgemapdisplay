@@ -1377,9 +1377,34 @@ function loadCallSign() {
 
 
 // Work in progress
+//
+// TODO: Disable key shortcuts when entering desc to sensor
+//       Erase sensors?
 
 function sensorDefine() {
-    console.log("sensorDefine()");
+    
+    var sensorDescription = document.getElementById('sensorNameInput').value;
+    var sensorLocation = document.getElementById('sensorLat').innerHTML + "," + document.getElementById('sensorLon').innerHTML;
+    console.log("sensorDefine() ",sensorToBeCreated, sensorDescription,sensorLocation);
+    
+    // Save changes to "/opt/edgemap-persist/callsign.txt"
+    fetch('save_sensor.php?id='+sensorToBeCreated, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ data: [sensorDescription,',',sensorLocation] })
+    })
+    .then(response => response.text())
+    .then(data => {
+        console.log('Sensor created');
+    })
+    .catch(error => {
+        console.error('Sensor create error:', error);
+    });
+    keyEventListener=1;
+    sensorClose();
+    
 }
 function sensorClose() {
     console.log("sensorClose()");
@@ -1387,7 +1412,6 @@ function sensorClose() {
     document.getElementById('sensorLat').innerHTML = "";
     document.getElementById('sensorLon').innerHTML = "";
     document.getElementById('sensorLatLonComma').innerHTML = "";
-    // document.getElementById('sensorLocationTooltip').innerHTML = "Click on sensor location";
     document.getElementById("sensor-create-input").style.display = "none";
     document.getElementById("sensorNameInput").value = ""; 
 }
@@ -1395,6 +1419,7 @@ function sensorClose() {
 function sensorNotifyMessage(message, timeout) {
     fadeIn(document.getElementById("sensorNotify") ,400);
     document.getElementById("sensor-define-button").style.display = "none";
+    document.getElementById("sensor-create-input").style.display = "none";
     document.getElementById("sensorMessage").innerHTML = message;
     if( timeout > 0 ) {
         setTimeout(() => {
@@ -1403,7 +1428,7 @@ function sensorNotifyMessage(message, timeout) {
     }
 }
 
-function unknownSensorNotifyMessage(message, timeout) {
+function unknownSensorNotifyMessage(message,id,timeout) {
     fadeIn(document.getElementById("sensorNotify") ,400);
     document.getElementById("sensorMessage").innerHTML = message;
     document.getElementById("sensor-define-button").style.display = "block";
@@ -1413,6 +1438,9 @@ function unknownSensorNotifyMessage(message, timeout) {
     document.getElementById('sensor-create-input-placeholder').style.display = "block";
     document.getElementById('sensor-create-input-placeholder').innerHTML = "Click on map to create new";
     document.getElementById("sensor-create-input").style.display = "none"; 
+    // Pass sensor ID with global variable
+    sensorToBeCreated = id;
+    keyEventListener=0;
     
     if (timeout > 0 ) {
         setTimeout(() => {
@@ -1428,7 +1456,7 @@ function loadSensor(id) {
     .then(data => {
         if ( data.data == "no-sensor" ) {
             console.log("No sensor found with given ID");
-            unknownSensorNotifyMessage( "Unknown sensor alarm: "+id, 0);
+            unknownSensorNotifyMessage( "Unknown sensor alarm: "+id,id, 0);
         } else {
             const sensorDataArray = data.data.split(",");
             addSensorIcon(sensorDataArray[2],sensorDataArray[1],sensorDataArray[0]);
