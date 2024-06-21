@@ -379,6 +379,37 @@
     </table>
     </div>
     
+            <div class="map-bottom-sensor-entries" id="sensorNotify" style="display: none;">
+            <table width=100% border=0>
+                <tr valign="top">
+                    <td ><i data-feather="alert-triangle" id="sensorNotifyMessageIcon" class="feather-submitCallSignEntry"></i></td>
+                    <td width=90%>
+                        <div class="sensor-message-style" id="sensorMessage"></div>
+                        
+                        <div id="sensor-create-input-placeholder"></div>
+                        <div id="sensor-create-input">
+                            <table border=0 width=80%>
+                                <tr>
+                                    <td><span id="sensorLocationTooltip"></span></td>
+                                    <td><span id="sensorLat"></span><span id="sensorLatLonComma"></span><span id="sensorLon"></span></td>
+                                </tr>
+                                <tr valign="top">
+                                    <td valign="top"><span id="sensorNameEntryDesc">Description:</span></td>
+                                    <td valign="top"><span id="sensorNameEntryInput"><input type="text" id="sensorNameInput" type="text" class="sensorNameInputStyle"></span></td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        
+                         
+                        
+                        <div class="sensor-define-button-style" id="sensor-define-button" style="display: block;" onclick="sensorDefine();"><center>Create</center></div>
+                        <div class="sensor-close-button-style" id="sensor-close-button" style="display: block;" onclick="sensorClose();"><center>Close</center></div>
+                    </td>
+                </tr>
+            </table>
+            </div>
+    
     <div class="map-right-userlist-button" id="userlistbutton" >
     <div class="map-right-userlist-button-inner">
         <center>
@@ -676,6 +707,7 @@
     };
 
     // Websocket for highrate marker
+    /*
     if ( wsProtocol == "ws://" )
         highrateSocket = new WebSocket(wsProtocol+wsHost+':7890');
     if ( wsProtocol == "wss://" )
@@ -685,6 +717,7 @@
         document.getElementById('highRateSocketStatus').style="display:block;";
         highrateSocketConnected = true;
     };
+    */
     
     // Websocket for messaging
     if ( wsProtocol == "ws://" )
@@ -777,7 +810,7 @@
         document.getElementById('meshtasticStatus').style="display:none;";
     };
     
-    
+    /*
     highrateSocket.onmessage = function(event) {
 			var incomingMessage = event.data;
 			var trimmedString = incomingMessage.substring(0, 80);
@@ -800,7 +833,7 @@
     highrateSocket.onclose = function(event) {
         document.getElementById('highRateSocketStatus').style="display:none;";
         highrateSocketConnected=false;
-    };
+    };*/
 
     //
     // msgSocket incoming
@@ -826,7 +859,6 @@
                 
                 if ( sensorMsgArray[1] === "detected" ) {
                     loadSensor(msgFrom);
-                    notifyMessage( "Sensor alarm: " + msgFrom, 5000);
                     return;
                 }
                 if ( sensorMsgArray[1] === "state:" ) {
@@ -835,7 +867,7 @@
                         sensorKeepAliveStateText = "Inactive";
                     if ( sensorKeepAliveState == 1 )
                         sensorKeepAliveStateText = "Active";
-                    notifyMessage( "Sensor keep alive: " + msgFrom + " (" + sensorKeepAliveStateText + ")", 15000);
+                    sensorNotifyMessage( "Sensor keep alive: " + msgFrom + " (" + sensorKeepAliveStateText + ")", 15000);
                     return;
                 }
                 
@@ -1308,10 +1340,16 @@
           if ( key == 'lat' ) {
               let uLat = value.toString();
               document.getElementById('lat').innerHTML = uLat.substring(0,10);
+              document.getElementById('sensorLat').innerHTML = uLat.substring(0,10);
+              document.getElementById('sensorLatLonComma').innerHTML = ",";
+              document.getElementById('sensorLocationTooltip').innerHTML = "Location: ";
+              document.getElementById('sensor-create-input-placeholder').style.display = "none";
+              document.getElementById('sensor-create-input').style.display = "block";
           }
           if ( key == 'lng' ) {
               let uLon = value.toString();
               document.getElementById('lon').innerHTML = uLon.substring(0,10);
+              document.getElementById('sensorLon').innerHTML = uLon.substring(0,10);
           }
         });	
     });

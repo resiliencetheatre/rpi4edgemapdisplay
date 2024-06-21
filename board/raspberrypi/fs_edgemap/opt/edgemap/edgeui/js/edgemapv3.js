@@ -278,6 +278,10 @@ function notifyMessage(message, timeout) {
         }, timeout);
 }
 
+
+
+
+
 // 
 // Replace window.location.reload(); on page reload
 // 
@@ -781,7 +785,7 @@ function checkVideoServer(cb){
 }
 function videoPanelsVisible(videoAvail) {
 	var x = document.getElementById("leftVideo");
-	var y = document.getElementById("rightVideo");
+	var y = document.getElementById("rightVideo"); 
 	if ( videoAvail == true ) {
 		x.style.display = "";
 		y.style.display = "";
@@ -1373,17 +1377,67 @@ function loadCallSign() {
 
 
 // Work in progress
+
+function sensorDefine() {
+    console.log("sensorDefine()");
+}
+function sensorClose() {
+    console.log("sensorClose()");
+    fadeOut(document.getElementById("sensorNotify") ,400);
+    document.getElementById('sensorLat').innerHTML = "";
+    document.getElementById('sensorLon').innerHTML = "";
+    document.getElementById('sensorLatLonComma').innerHTML = "";
+    // document.getElementById('sensorLocationTooltip').innerHTML = "Click on sensor location";
+    document.getElementById("sensor-create-input").style.display = "none";
+    document.getElementById("sensorNameInput").value = ""; 
+}
+
+function sensorNotifyMessage(message, timeout) {
+    fadeIn(document.getElementById("sensorNotify") ,400);
+    document.getElementById("sensor-define-button").style.display = "none";
+    document.getElementById("sensorMessage").innerHTML = message;
+    if( timeout > 0 ) {
+        setTimeout(() => {
+            fadeOut(document.getElementById("sensorNotify") ,400);
+        }, timeout);
+    }
+}
+
+function unknownSensorNotifyMessage(message, timeout) {
+    fadeIn(document.getElementById("sensorNotify") ,400);
+    document.getElementById("sensorMessage").innerHTML = message;
+    document.getElementById("sensor-define-button").style.display = "block";
+    document.getElementById('sensorLat').innerHTML = "";
+    document.getElementById('sensorLon').innerHTML = "";
+    document.getElementById('sensorLatLonComma').innerHTML = "";
+    document.getElementById('sensor-create-input-placeholder').style.display = "block";
+    document.getElementById('sensor-create-input-placeholder').innerHTML = "Click on map to create new";
+    document.getElementById("sensor-create-input").style.display = "none"; 
+    
+    if (timeout > 0 ) {
+        setTimeout(() => {
+                fadeOut(document.getElementById("sensorNotify") ,400);
+        }, timeout);
+    }
+}
+
+
 function loadSensor(id) {
     fetch('load_sensor.php?id=' + id )
     .then(response => response.json())
     .then(data => {
-        const sensorDataArray = data.data.split(",");
-        addSensorIcon(sensorDataArray[2],sensorDataArray[1],sensorDataArray[0]);
-        return;
+        if ( data.data == "no-sensor" ) {
+            console.log("No sensor found with given ID");
+            unknownSensorNotifyMessage( "Unknown sensor alarm: "+id, 0);
+        } else {
+            const sensorDataArray = data.data.split(",");
+            addSensorIcon(sensorDataArray[2],sensorDataArray[1],sensorDataArray[0]);
+            sensorNotifyMessage( "Sensor alarm: " + id, 0);
+        }
     })
     .catch(error => {
         console.error('Error:', error);
-        return;
+        return 0;
     });
 }
 
@@ -1433,7 +1487,7 @@ async function addSensorIcon(lon,lat,sensorText) {
         });
         map.flyTo({
             center: [lon,lat],
-            zoom: 12,
+            zoom: 13,
             speed: 0.6,
             curve: 1,
             essential: true

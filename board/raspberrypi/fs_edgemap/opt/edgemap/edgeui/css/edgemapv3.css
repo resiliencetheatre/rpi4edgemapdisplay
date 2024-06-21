@@ -541,6 +541,21 @@ input:focus {
 	font-size: 14px;
 }
 
+.sensorNameInputStyle {
+  width: 50%;
+  padding: 0px 0px;
+  margin: 0px 0;
+  	border-top-style: hidden;
+	border-right-style: hidden;
+	border-left-style: hidden;
+	border-bottom-style: groove;
+	border-bottom: 1.5px solid #0F0;
+  background-color: transparent;
+  color: #0F0;
+  
+  font-size: 12px;
+}
+
 
 .feather-msgbutton {
   width: 15px;
@@ -1059,6 +1074,51 @@ input:focus {
 	padding: 8px;
 	opacity: 0.8;
 }
+
+.map-bottom-sensor-entries {
+    font: 12px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	background-color: #333;
+	color: #0f0;
+	position: absolute;
+	border-radius: 5px;
+    width: 320px;
+    height: 50px;
+	bottom: 60px;
+    left: 10px;
+	padding: 10px;
+	opacity: 0.8;
+}
+
+.sensor-close-button-style {
+	font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	position: absolute;
+	width: 40px;
+    color: #0f0;
+    border: 1px solid #00fF00;
+	border-radius: 5px;
+	top: 4px;
+	right: 4px;
+	padding: 2px;
+	opacity: 1.0;
+}
+.sensor-define-button-style {
+	font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	position: absolute;
+	width: 40px;
+    color: #0f0;
+    border: 1px solid #00fF00;
+	border-radius: 5px;
+	top: 34px;
+	right: 4px;
+	padding: 2px;
+	opacity: 1.0;
+}
+
+.sensor-message-style {
+
+}
+
+
 
 
 .map-right-userlist-button {
