@@ -1483,7 +1483,7 @@ function loadSensor(id, event, state) {
             } else {
                 const sensorDataArray = data.data.split(",");
                 console.log("Periodic notify: known sensor: ", sensorDataArray[2],sensorDataArray[1],sensorDataArray[0]);
-                sensorNotifyMessage( "Periodic notify from: " + sensorDataArray[0] + " " + sensorDataArray[2] + "," + sensorDataArray[1], 0);
+                sensorNotifyMessage( "Periodic notify from: " + sensorDataArray[0] + "<br>" + sensorDataArray[1] + "," + sensorDataArray[2], 0);
             }
         })
         .catch(error => {

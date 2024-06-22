@@ -1419,7 +1419,6 @@
                 if ( !isHidden(languageSelectDialogDiv) ) closeLanguageSelectBox();
                 if ( !isHidden(logDiv) ) closeMessageEntryBox();
                 if ( !isHidden(radiolistblockDiv) ) closeRadioList();
-                
             }
             if (key === "h") {
                 if ( isHidden(logDiv) ) {
