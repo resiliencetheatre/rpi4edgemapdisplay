@@ -854,25 +854,19 @@
             
             //
             // GPIO Sensor - work in progress demo
-            //
+            // 
             if ( msgType === "sensor" ) {
                 const sensorMsgArray=trimmedString.split(" ");
                 
                 if ( sensorMsgArray[1] === "detected" ) {
-                    loadSensor(msgFrom);
+                    loadSensor(msgFrom,0,1);
                     return;
                 }
                 if ( sensorMsgArray[1] === "state:" ) {
                     var sensorKeepAliveState = sensorMsgArray[2];
-                    if ( sensorKeepAliveState == 0 )
-                        sensorKeepAliveStateText = "Inactive";
-                    if ( sensorKeepAliveState == 1 )
-                        sensorKeepAliveStateText = "Active";
-                    sensorNotifyMessage( "Sensor keep alive: " + msgFrom + " (" + sensorKeepAliveStateText + ")", 15000);
+                    loadSensor(msgFrom,1,sensorKeepAliveState);
                     return;
                 }
-                
-                
             }
             
             // 

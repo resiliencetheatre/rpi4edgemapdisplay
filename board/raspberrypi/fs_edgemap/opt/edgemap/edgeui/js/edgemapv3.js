@@ -1375,11 +1375,11 @@ function loadCallSign() {
     });
 }
 
-
+// 
 // Work in progress
 //
-// TODO: Disable key shortcuts when entering desc to sensor
-//       Erase sensors?
+// TODO: Erase sensors. Now we need to erase file under /opt/edgemap-persist/
+// 
 
 function sensorDefine() {
     
@@ -1387,7 +1387,6 @@ function sensorDefine() {
     var sensorLocation = document.getElementById('sensorLat').innerHTML + "," + document.getElementById('sensorLon').innerHTML;
     console.log("sensorDefine() ",sensorToBeCreated, sensorDescription,sensorLocation);
     
-    // Save changes to "/opt/edgemap-persist/callsign.txt"
     fetch('save_sensor.php?id='+sensorToBeCreated, {
         method: 'POST',
         headers: {
@@ -1451,31 +1450,53 @@ function unknownSensorNotifyMessage(message,id,timeout) {
     }
 }
 
-
-function loadSensor(id) {
-    fetch('load_sensor.php?id=' + id )
-    .then(response => response.json())
-    .then(data => {
-        if ( data.data == "no-sensor" ) {
-            console.log("No sensor found with given ID");
-            unknownSensorNotifyMessage( "Unknown sensor alarm: "+id,id, 0);
-        } else {
-            const sensorDataArray = data.data.split(",");
-            addSensorIcon(sensorDataArray[2],sensorDataArray[1],sensorDataArray[0]);
-            sensorNotifyMessage( "Sensor alarm: " + id, 0);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        return 0;
-    });
+// event:   0 = alarm, 1 = periodic notify
+function loadSensor(id, event, state) {
+    
+    // Alarm
+    if (event == 0) {
+        fetch('load_sensor.php?id=' + id )
+        .then(response => response.json())
+        .then(data => {
+            if ( data.data == "no-sensor" ) {
+                console.log("No sensor found with given ID");
+                unknownSensorNotifyMessage( "Unknown sensor alarm: "+id,id, 0);
+            } else {
+                const sensorDataArray = data.data.split(",");
+                addSensorIcon(sensorDataArray[2],sensorDataArray[1],sensorDataArray[0]);
+                sensorNotifyMessage( "Sensor alarm: " + id, 0);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            return 0;
+        });
+    }
+    
+    // Periodic
+    if (event == 1) {
+        fetch('load_sensor.php?id=' + id )
+        .then(response => response.json())
+        .then(data => {
+            if ( data.data == "no-sensor" ) {
+                sensorNotifyMessage( "Periodic notify: unknown sensor: ", 0);
+            } else {
+                const sensorDataArray = data.data.split(",");
+                console.log("Periodic notify: known sensor: ", sensorDataArray[2],sensorDataArray[1],sensorDataArray[0]);
+                sensorNotifyMessage( "Periodic notify from: " + sensorDataArray[0] + " " + sensorDataArray[2] + "," + sensorDataArray[1], 0);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            return 0;
+        });
+    }
 }
 
-// Work in progress: this supports only one sensor at the moment
+// Work in progress: This supports only one sensor at the moment.
 async function addSensorIcon(lon,lat,sensorText) {
     
     if ( ! map.getLayer('sensorIconLayer') ) {
-    
         image = await map.loadImage('img/sensor-icon.png');
         map.addImage('sensor-icon', image.data);
         map.addSource('sensorPoint', {
