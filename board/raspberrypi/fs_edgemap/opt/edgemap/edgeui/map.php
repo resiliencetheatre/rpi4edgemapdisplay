@@ -394,7 +394,7 @@
                                     <td><span id="sensorLat"></span><span id="sensorLatLonComma"></span><span id="sensorLon"></span></td>
                                 </tr>
                                 <tr valign="top">
-                                    <td valign="top"><span id="sensorNameEntryDesc">Description:</span></td>
+                                    <td valign="top"><span id="sensorNameEntryDesc">Desc:</span></td>
                                     <td valign="top"><span id="sensorNameEntryInput"><input type="text" id="sensorNameInput" type="text" class="sensorNameInputStyle"></span></td>
                                 </tr>
                             </table>
@@ -842,6 +842,7 @@
     msgSocket.onmessage = function(event) {
         var incomingMessage = event.data;
         var trimmedString = incomingMessage.substring(0, 200);
+        console.log("Incoming: ", trimmedString);
         const msgArray=trimmedString.split("|");
         const msgFrom =  msgArray[0];
         const msgType =  msgArray[1];
@@ -1340,7 +1341,7 @@
                 if ( unknownSensorCreateInProgress == 1 ) {
                   document.getElementById('sensorLat').innerHTML = uLat.substring(0,10);
                   document.getElementById('sensorLatLonComma').innerHTML = ",";
-                  document.getElementById('sensorLocationTooltip').innerHTML = "Location: ";
+                  document.getElementById('sensorLocationTooltip').innerHTML = "Pos: ";
                   document.getElementById('sensor-create-input-placeholder').style.display = "none";
                   document.getElementById('sensor-create-input').style.display = "block";
                 }

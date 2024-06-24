@@ -1081,12 +1081,12 @@ input:focus {
 	color: #0f0;
 	position: absolute;
 	border-radius: 5px;
-    width: 320px;
+    width: 290px;
     height: 50px;
-	bottom: 60px;
+	bottom: 220px;
     left: 10px;
 	padding: 10px;
-	opacity: 0.8;
+	opacity: 0.6;
 }
 
 .sensor-close-button-style {

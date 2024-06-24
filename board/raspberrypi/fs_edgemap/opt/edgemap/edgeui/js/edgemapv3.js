@@ -1407,8 +1407,8 @@ function sensorDefine() {
     
 }
 function sensorClose() {
-    console.log("sensorClose()");
-    fadeOut(document.getElementById("sensorNotify") ,400);
+    const elementOpacity=0.8;
+    fadeOutFrom09(document.getElementById("sensorNotify"),400,elementOpacity);
     document.getElementById('sensorLat').innerHTML = "";
     document.getElementById('sensorLon').innerHTML = "";
     document.getElementById('sensorLatLonComma').innerHTML = "";
@@ -1417,19 +1417,21 @@ function sensorClose() {
 }
 
 function sensorNotifyMessage(message, timeout) {
-    fadeIn(document.getElementById("sensorNotify") ,400);
+    const elementOpacity=0.8;
+    fadeInTo09(document.getElementById("sensorNotify") ,400,elementOpacity);
     document.getElementById("sensor-define-button").style.display = "none";
     document.getElementById("sensor-create-input").style.display = "none";
     document.getElementById("sensorMessage").innerHTML = message;
     if( timeout > 0 ) {
         setTimeout(() => {
-            fadeOut(document.getElementById("sensorNotify") ,400);
+            fadeOutFrom09(document.getElementById("sensorNotify"),400,elementOpacity);
         }, timeout);
     }
 }
 
 function unknownSensorNotifyMessage(message,id,timeout) {
-    fadeIn(document.getElementById("sensorNotify") ,400);
+    const elementOpacity=0.8;
+    fadeInTo09(document.getElementById("sensorNotify") ,400,elementOpacity);
     document.getElementById("sensorMessage").innerHTML = message;
     document.getElementById("sensor-define-button").style.display = "block";
     document.getElementById('sensorLat').innerHTML = "";
@@ -1459,12 +1461,11 @@ function loadSensor(id, event, state) {
         .then(response => response.json())
         .then(data => {
             if ( data.data == "no-sensor" ) {
-                console.log("No sensor found with given ID");
                 unknownSensorNotifyMessage( "Unknown sensor alarm: "+id,id, 0);
             } else {
                 const sensorDataArray = data.data.split(",");
                 addSensorIcon(sensorDataArray[2],sensorDataArray[1],sensorDataArray[0]);
-                sensorNotifyMessage( "Sensor alarm: " + id, 0);
+                sensorNotifyMessage( "Sensor alarm: " +  sensorDataArray[0] + "<br>" + sensorDataArray[1] + "," + sensorDataArray[2], 0);
             }
         })
         .catch(error => {
@@ -1482,7 +1483,6 @@ function loadSensor(id, event, state) {
                 sensorNotifyMessage( "Periodic notify: unknown sensor: ", 0);
             } else {
                 const sensorDataArray = data.data.split(",");
-                console.log("Periodic notify: known sensor: ", sensorDataArray[2],sensorDataArray[1],sensorDataArray[0]);
                 sensorNotifyMessage( "Periodic notify from: " + sensorDataArray[0] + "<br>" + sensorDataArray[1] + "," + sensorDataArray[2], 0);
             }
         })
