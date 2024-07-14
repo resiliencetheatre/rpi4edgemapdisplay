@@ -238,6 +238,14 @@ def send_msg_from_fifo(interface, Message):
     print('Message: {}'.format(Message))
     print('')
 
+def send_msg_from_fifo_to_one_node(interface, Message, nodeId):
+    outMsg = Message + '\n'
+    interface.sendText(outMsg, wantAck=True,destinationId=nodeId)
+    print("== FIFO Packet to one node SENT ==")
+    print("To:      {}".format(nodeId))
+    print("From:    BaseStation")
+    print('Message: {}'.format(Message))
+    print('')
 
 def GetMyNodeInfo(interface):
 
@@ -419,7 +427,23 @@ def main():
       print('after fifo read')
       if not fifo_msg_in == "":
         print('FIFO Message in: ', fifo_msg_in)
-        send_msg_from_fifo(interface,fifo_msg_in)
+        
+        # Send to single NODE:  [CALLSIGN]|[MESSAGE]|[TO_NODE_ID]
+        # Send to broadcast:    [CALLSIGN]|[MESSAGE]
+        answer_array=fifo_msg_in.split("|")
+        # Evaluate array len
+        array_len = len(answer_array)
+        # Send as broadcast by default on Edgemap UI
+        if array_len == 2 or array_len == 4:
+            print("Sending to broadcast")
+            send_msg_from_fifo(interface, fifo_msg_in)
+        # Send as individual recipient
+        if array_len == 3:
+            print("Sending to single recipient")
+            answer_recipient = '!'+answer_array[2]
+            answer_payload = answer_array[0]+"|"+answer_array[1]
+            send_msg_from_fifo_to_one_node(interface, answer_payload, answer_recipient)
+            
       else:
         # No fifo data
         pass
