@@ -1480,10 +1480,10 @@ function loadSensor(id, event, state) {
         .then(response => response.json())
         .then(data => {
             if ( data.data == "no-sensor" ) {
-                sensorNotifyMessage( "Periodic notify: unknown sensor: ", 0);
+                sensorNotifyMessage( "Periodic notify: unknown sensor: ", 5000);
             } else {
                 const sensorDataArray = data.data.split(",");
-                sensorNotifyMessage( "Periodic notify from: " + sensorDataArray[0] + "<br>" + sensorDataArray[1] + "," + sensorDataArray[2], 0);
+                sensorNotifyMessage( "Periodic notify from: " + sensorDataArray[0] + "<br>" + sensorDataArray[1] + "," + sensorDataArray[2], 5000);
             }
         })
         .catch(error => {
@@ -1572,13 +1572,69 @@ function removeSensorIcon() {
     }
 }
 
+// manual location manualLocationNotify
+function setManualLocationNotifyMessage() {
+    message="Set your location manually";
+    const elementOpacity=0.8;
+    fadeInTo09(document.getElementById("manualLocationNotify") ,400,elementOpacity);
+    document.getElementById("manualLocation-Message").innerHTML = message;
+    document.getElementById("manualLocation-define-button").style.display = "block";
+    document.getElementById('manualLocation-Lat').innerHTML = "";
+    document.getElementById('manualLocation-Lon').innerHTML = "";
+    document.getElementById('manualLocation-LatLonComma').innerHTML = "";
+    document.getElementById('manualLocation-create-input-placeholder').style.display = "block";
+    document.getElementById('manualLocation-create-input-placeholder').innerHTML = "Click on map to pick location";
+    document.getElementById("manualLocation-create-input").style.display = "none"; 
+    keyEventListener=0;
+    manualLocationCreateInProgress=1;
+}
 
+function manualLocationSet() {
+    var manualLocationValue = document.getElementById('manualLocation-Lat').innerHTML + "," + document.getElementById('manualLocation-Lon').innerHTML;
+    fetch('save_manual_location.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ data: [manualLocationValue] })
+    })
+    .then(response => response.text())
+    .then(data => {
+        console.log('Position saved!');
+    })
+    .catch(error => {
+        console.error('Position save error:', error);
+    });
+    keyEventListener=1;
+    unknownSensorCreateInProgress=0;
+    manualLocationClose();
+}
 
+function manualLocationErase() {
+    
+    fetch('erase_manual_location.php', {
+        method: 'GET'
+    })
+    .then(response => response.text())
+    .then(data => {
+        console.log('Manual location erased');
+    })
+    .catch(error => {
+        console.error('Manual location erase error:', error);
+    });
+    keyEventListener=1;
+    unknownSensorCreateInProgress=0;
+    manualLocationClose();
+}
 
-
-
-
-
+function manualLocationClose() {
+    const elementOpacity=0.8;
+    fadeOutFrom09(document.getElementById("manualLocationNotify"),400,elementOpacity);
+    document.getElementById('manualLocation-Lat').innerHTML = "";
+    document.getElementById('manualLocation-Lon').innerHTML = "";
+    document.getElementById('manualLocation-LatLonComma').innerHTML = "";
+    document.getElementById("manualLocation-create-input-placeholder").style.display = "none";
+}
 
 
 

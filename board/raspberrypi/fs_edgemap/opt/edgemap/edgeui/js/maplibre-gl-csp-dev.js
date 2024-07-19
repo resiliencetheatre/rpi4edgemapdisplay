@@ -1,6 +1,6 @@
 /**
  * MapLibre GL JS
- * @license 3-Clause BSD. Full text of license: https://github.com/maplibre/maplibre-gl-js/blob/v4.4.0/LICENSE.txt
+ * @license 3-Clause BSD. Full text of license: https://github.com/maplibre/maplibre-gl-js/blob/v4.5.0/LICENSE.txt
  */
 (function (global, factory) {
 typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -10,7 +10,7 @@ typeof define === 'function' && define.amd ? define(['exports'], factory) :
 
 var name = "maplibre-gl";
 var description = "BSD licensed community fork of mapbox-gl, a WebGL interactive maps library";
-var version$2 = "4.4.0";
+var version$2 = "4.5.0";
 var main = "dist/maplibre-gl.js";
 var style = "dist/maplibre-gl.css";
 var license = "BSD-3-Clause";
@@ -42,7 +42,7 @@ var dependencies = {
 	"@types/pbf": "^3.0.5",
 	"@types/supercluster": "^7.1.3",
 	earcut: "^2.2.4",
-	"geojson-vt": "^3.2.1",
+	"geojson-vt": "^4.0.2",
 	"gl-matrix": "^3.4.3",
 	"global-prefix": "^3.0.0",
 	kdbush: "^4.0.2",
@@ -78,7 +78,7 @@ var devDependencies = {
 	"@types/minimist": "^1.2.5",
 	"@types/murmurhash-js": "^1.0.6",
 	"@types/nise": "^1.4.4",
-	"@types/node": "^20.14.1",
+	"@types/node": "^20.14.9",
 	"@types/offscreencanvas": "^2019.7.3",
 	"@types/pixelmatch": "^5.2.6",
 	"@types/pngjs": "^6.0.5",
@@ -87,15 +87,15 @@ var devDependencies = {
 	"@types/request": "^2.48.12",
 	"@types/shuffle-seed": "^1.1.3",
 	"@types/window-or-global": "^1.0.6",
-	"@typescript-eslint/eslint-plugin": "^7.13.0",
-	"@typescript-eslint/parser": "^7.13.0",
-	address: "^2.0.2",
+	"@typescript-eslint/eslint-plugin": "^7.14.1",
+	"@typescript-eslint/parser": "^7.14.1",
+	address: "^2.0.3",
 	benchmark: "^2.1.4",
 	canvas: "^2.11.2",
-	cssnano: "^7.0.2",
+	cssnano: "^7.0.3",
 	d3: "^7.9.0",
 	"d3-queue": "^3.0.7",
-	"devtools-protocol": "^0.0.1312386",
+	"devtools-protocol": "^0.0.1319565",
 	diff: "^5.2.0",
 	"dts-bundle-generator": "^9.5.1",
 	eslint: "^8.57.0",
@@ -103,10 +103,10 @@ var devDependencies = {
 	"eslint-plugin-html": "^8.1.1",
 	"eslint-plugin-import": "^2.29.1",
 	"eslint-plugin-jest": "^28.6.0",
-	"eslint-plugin-react": "^7.34.2",
+	"eslint-plugin-react": "^7.34.3",
 	"eslint-plugin-tsdoc": "0.3.0",
 	expect: "^29.7.0",
-	glob: "^10.4.1",
+	glob: "^10.4.2",
 	"is-builtin-module": "^4.0.0",
 	jest: "^29.7.0",
 	"jest-environment-jsdom": "^29.7.0",
@@ -117,18 +117,18 @@ var devDependencies = {
 	"junit-report-builder": "^3.2.1",
 	minimist: "^1.2.8",
 	"mock-geolocation": "^1.0.11",
-	"monocart-coverage-reports": "^2.8.3",
+	"monocart-coverage-reports": "^2.8.5",
 	nise: "^6.0.0",
 	"npm-font-open-sans": "^1.1.0",
 	"npm-run-all": "^4.1.5",
-	"pdf-merger-js": "^5.1.1",
+	"pdf-merger-js": "^5.1.2",
 	pixelmatch: "^5.3.0",
 	pngjs: "^7.0.0",
 	postcss: "^8.4.38",
 	"postcss-cli": "^11.0.0",
 	"postcss-inline-svg": "^6.0.0",
 	"pretty-bytes": "^6.1.1",
-	puppeteer: "^22.11.0",
+	puppeteer: "^22.12.0",
 	react: "^18.3.1",
 	"react-dom": "^18.3.1",
 	rollup: "^4.18.0",
@@ -139,14 +139,14 @@ var devDependencies = {
 	"source-map-explorer": "^2.5.3",
 	st: "^3.0.0",
 	stylelint: "^16.6.1",
-	"stylelint-config-standard": "^36.0.0",
-	"ts-jest": "^29.1.4",
+	"stylelint-config-standard": "^36.0.1",
+	"ts-jest": "^29.1.5",
 	"ts-node": "^10.9.2",
 	tslib: "^2.6.3",
-	typedoc: "^0.25.13",
-	"typedoc-plugin-markdown": "^4.0.3",
-	"typedoc-plugin-missing-exports": "^2.3.0",
-	typescript: "^5.4.5"
+	typedoc: "^0.26.2",
+	"typedoc-plugin-markdown": "^4.1.0",
+	"typedoc-plugin-missing-exports": "^3.0.0",
+	typescript: "^5.5.2"
 };
 var overrides = {
 	"postcss-inline-svg": {
@@ -12804,7 +12804,7 @@ function validateLight$1(options) {
     return errors;
 }
 
-function validateSky(options) {
+function validateSky$1(options) {
     const sky = options.value;
     const styleSpec = options.styleSpec;
     const skySpec = styleSpec.sky;
@@ -13030,7 +13030,7 @@ const VALIDATORS = {
     'object': validateObject,
     'source': validateSource$1,
     'light': validateLight$1,
-    'sky': validateSky,
+    'sky': validateSky$1,
     'terrain': validateTerrain$1,
     'projection': validateProjection,
     'string': validateString,
@@ -13136,7 +13136,7 @@ validateStyleMin.source = wrapCleanErrors(injectValidateSpec(validateSource$1));
 validateStyleMin.sprite = wrapCleanErrors(injectValidateSpec(validateSprite));
 validateStyleMin.glyphs = wrapCleanErrors(injectValidateSpec(validateGlyphsUrl));
 validateStyleMin.light = wrapCleanErrors(injectValidateSpec(validateLight$1));
-validateStyleMin.sky = wrapCleanErrors(injectValidateSpec(validateSky));
+validateStyleMin.sky = wrapCleanErrors(injectValidateSpec(validateSky$1));
 validateStyleMin.terrain = wrapCleanErrors(injectValidateSpec(validateTerrain$1));
 validateStyleMin.layer = wrapCleanErrors(injectValidateSpec(validateLayer));
 validateStyleMin.filter = wrapCleanErrors(injectValidateSpec(validateFilter$1));
@@ -13571,6 +13571,7 @@ const visit = { eachLayer, eachProperty, eachSource };
 const validateStyle = validateStyleMin;
 const validateSource = validateStyle.source;
 const validateLight = validateStyle.light;
+const validateSky = validateStyle.sky;
 const validateTerrain = validateStyle.terrain;
 const validateFilter = validateStyle.filter;
 const validatePaintProperty = validateStyle.paintProperty;
@@ -13798,114 +13799,22 @@ function isArrayBuffer(value) {
     return value && typeof ArrayBuffer !== 'undefined' &&
         (value instanceof ArrayBuffer || (value.constructor && value.constructor.name === 'ArrayBuffer'));
 }
-/**
- * Serialize the given object for transfer to or from a web worker.
- *
- * For non-builtin types, recursively serialize each property (possibly
- * omitting certain properties - see register()), and package the result along
- * with the constructor's `name` so that the appropriate constructor can be
- * looked up in `deserialize()`.
- *
- * If a `transferables` array is provided, add any transferable objects (i.e.,
- * any ArrayBuffers or ArrayBuffer views) to the list. (If a copy is needed,
- * this should happen in the client code, before using serialize().)
- */
-function serialize(input, transferables) {
-    if (input === null ||
-        input === undefined ||
-        typeof input === 'boolean' ||
-        typeof input === 'number' ||
-        typeof input === 'string' ||
-        input instanceof Boolean ||
-        input instanceof Number ||
-        input instanceof String ||
-        input instanceof Date ||
-        input instanceof RegExp ||
-        input instanceof Blob ||
-        input instanceof Error) {
-        return input;
-    }
-    if (isArrayBuffer(input)) {
-        if (transferables) {
-            transferables.push(input);
-        }
-        return input;
-    }
-    if (isImageBitmap(input)) {
-        if (transferables) {
-            transferables.push(input);
-        }
-        return input;
-    }
-    if (ArrayBuffer.isView(input)) {
-        const view = input;
-        if (transferables) {
-            transferables.push(view.buffer);
-        }
-        return view;
-    }
-    if (input instanceof ImageData) {
-        if (transferables) {
-            transferables.push(input.data.buffer);
-        }
-        return input;
-    }
-    if (Array.isArray(input)) {
-        const serialized = [];
-        for (const item of input) {
-            serialized.push(serialize(item, transferables));
-        }
-        return serialized;
-    }
-    if (typeof input === 'object') {
-        const klass = input.constructor;
-        const name = klass._classRegistryKey;
-        if (!name) {
-            throw new Error(`can't serialize object of unregistered class ${klass.name}`);
-        }
-        if (!registry[name])
-            throw new Error(`${name} is not registered.`);
-        const properties = klass.serialize ?
-            // (Temporary workaround) allow a class to provide static
-            // `serialize()` and `deserialize()` methods to bypass the generic
-            // approach.
-            // This temporary workaround lets us use the generic serialization
-            // approach for objects whose members include instances of dynamic
-            // StructArray types. Once we refactor StructArray to be static,
-            // we can remove this complexity.
-            klass.serialize(input, transferables) : {};
-        if (!klass.serialize) {
-            for (const key in input) {
-                if (!input.hasOwnProperty(key))
-                    continue; // eslint-disable-line no-prototype-builtins
-                if (registry[name].omit.indexOf(key) >= 0)
-                    continue;
-                const property = input[key];
-                properties[key] = registry[name].shallow.indexOf(key) >= 0 ?
-                    property :
-                    serialize(property, transferables);
-            }
-            if (input instanceof Error) {
-                properties.message = input.message;
-            }
-        }
-        else {
-            if (transferables && properties === transferables[transferables.length - 1]) {
-                throw new Error('statically serialized object won\'t survive transfer of $name property');
-            }
-        }
-        if (properties.$name) {
-            throw new Error('$name property is reserved for worker serialization logic.');
-        }
-        if (name !== 'Object') {
-            properties.$name = name;
-        }
-        return properties;
-    }
-    throw new Error(`can't serialize object of type ${typeof input}`);
+function getClassRegistryKey(input) {
+    const klass = input.constructor;
+    return input.$name || klass._classRegistryKey;
 }
-function deserialize$1(input) {
-    if (input === null ||
+function isRegistered(input) {
+    if (input === null || typeof input !== 'object') {
+        return false;
+    }
+    const classRegistryKey = getClassRegistryKey(input);
+    if (classRegistryKey && classRegistryKey !== 'Object') {
+        return true;
+    }
+    return false;
+}
+function isSerializeHandledByBuiltin(input) {
+    return (!isRegistered(input) && (input === null ||
         input === undefined ||
         typeof input === 'boolean' ||
         typeof input === 'number' ||
@@ -13920,34 +13829,123 @@ function deserialize$1(input) {
         isArrayBuffer(input) ||
         isImageBitmap(input) ||
         ArrayBuffer.isView(input) ||
-        input instanceof ImageData) {
+        input instanceof ImageData));
+}
+/**
+ * Serialize the given object for transfer to or from a web worker.
+ *
+ * For non-builtin types, recursively serialize each property (possibly
+ * omitting certain properties - see register()), and package the result along
+ * with the constructor's `name` so that the appropriate constructor can be
+ * looked up in `deserialize()`.
+ *
+ * If a `transferables` array is provided, add any transferable objects (i.e.,
+ * any ArrayBuffers or ArrayBuffer views) to the list. (If a copy is needed,
+ * this should happen in the client code, before using serialize().)
+ */
+function serialize(input, transferables) {
+    if (isSerializeHandledByBuiltin(input)) {
+        if (isArrayBuffer(input) || isImageBitmap(input)) {
+            if (transferables) {
+                transferables.push(input);
+            }
+        }
+        if (ArrayBuffer.isView(input)) {
+            const view = input;
+            if (transferables) {
+                transferables.push(view.buffer);
+            }
+        }
+        if (input instanceof ImageData) {
+            if (transferables) {
+                transferables.push(input.data.buffer);
+            }
+        }
+        return input;
+    }
+    if (Array.isArray(input)) {
+        const serialized = [];
+        for (const item of input) {
+            serialized.push(serialize(item, transferables));
+        }
+        return serialized;
+    }
+    if (typeof input !== 'object') {
+        throw new Error(`can't serialize object of type ${typeof input}`);
+    }
+    const classRegistryKey = getClassRegistryKey(input);
+    if (!classRegistryKey) {
+        throw new Error(`can't serialize object of unregistered class ${input.constructor.name}`);
+    }
+    if (!registry[classRegistryKey])
+        throw new Error(`${classRegistryKey} is not registered.`);
+    const { klass } = registry[classRegistryKey];
+    const properties = klass.serialize ?
+        // (Temporary workaround) allow a class to provide static
+        // `serialize()` and `deserialize()` methods to bypass the generic
+        // approach.
+        // This temporary workaround lets us use the generic serialization
+        // approach for objects whose members include instances of dynamic
+        // StructArray types. Once we refactor StructArray to be static,
+        // we can remove this complexity.
+        klass.serialize(input, transferables) : {};
+    if (!klass.serialize) {
+        for (const key in input) {
+            if (!input.hasOwnProperty(key))
+                continue; // eslint-disable-line no-prototype-builtins
+            if (registry[classRegistryKey].omit.indexOf(key) >= 0)
+                continue;
+            const property = input[key];
+            properties[key] = registry[classRegistryKey].shallow.indexOf(key) >= 0 ?
+                property :
+                serialize(property, transferables);
+        }
+        if (input instanceof Error) {
+            properties.message = input.message;
+        }
+    }
+    else {
+        if (transferables && properties === transferables[transferables.length - 1]) {
+            throw new Error('statically serialized object won\'t survive transfer of $name property');
+        }
+    }
+    if (properties.$name) {
+        throw new Error('$name property is reserved for worker serialization logic.');
+    }
+    if (classRegistryKey !== 'Object') {
+        properties.$name = classRegistryKey;
+    }
+    return properties;
+}
+function deserialize$1(input) {
+    if (isSerializeHandledByBuiltin(input)) {
         return input;
     }
     if (Array.isArray(input)) {
         return input.map(deserialize$1);
     }
-    if (typeof input === 'object') {
-        const name = input.$name || 'Object';
-        if (!registry[name]) {
-            throw new Error(`can't deserialize unregistered class ${name}`);
-        }
-        const { klass } = registry[name];
-        if (!klass) {
-            throw new Error(`can't deserialize unregistered class ${name}`);
-        }
-        if (klass.deserialize) {
-            return klass.deserialize(input);
-        }
-        const result = Object.create(klass.prototype);
-        for (const key of Object.keys(input)) {
-            if (key === '$name')
-                continue;
-            const value = input[key];
-            result[key] = registry[name].shallow.indexOf(key) >= 0 ? value : deserialize$1(value);
-        }
-        return result;
+    if (typeof input !== 'object') {
+        throw new Error(`can't deserialize object of type ${typeof input}`);
     }
-    throw new Error(`can't deserialize object of type ${typeof input}`);
+    const classRegistryKey = getClassRegistryKey(input) || 'Object';
+    if (!registry[classRegistryKey]) {
+        throw new Error(`can't deserialize unregistered class ${classRegistryKey}`);
+    }
+    const { klass } = registry[classRegistryKey];
+    if (!klass) {
+        throw new Error(`can't deserialize unregistered class ${classRegistryKey}`);
+    }
+    if (klass.deserialize) {
+        return klass.deserialize(input);
+    }
+    const result = Object.create(klass.prototype);
+    for (const key of Object.keys(input)) {
+        if (key === '$name')
+            continue;
+        const value = input[key];
+        result[key] = registry[classRegistryKey].shallow.indexOf(key) >= 0 ? value : deserialize$1(value);
+    }
+    return result;
 }
 
 class ZoomHistory {
@@ -15213,7 +15211,7 @@ register('CrossFadedDataDrivenProperty', CrossFadedDataDrivenProperty);
 register('CrossFadedProperty', CrossFadedProperty);
 register('ColorRampProperty', ColorRampProperty);
 
-const TRANSITION_SUFFIX$1 = '-transition';
+const TRANSITION_SUFFIX$2 = '-transition';
 /**
  * A base class for style layers
  */
@@ -15273,8 +15271,8 @@ class StyleLayer extends Evented {
         this._unevaluatedLayout.setValue(name, value);
     }
     getPaintProperty(name) {
-        if (name.endsWith(TRANSITION_SUFFIX$1)) {
-            return this._transitionablePaint.getTransition(name.slice(0, -TRANSITION_SUFFIX$1.length));
+        if (name.endsWith(TRANSITION_SUFFIX$2)) {
+            return this._transitionablePaint.getTransition(name.slice(0, -TRANSITION_SUFFIX$2.length));
         }
         else {
             return this._transitionablePaint.getValue(name);
@@ -15287,8 +15285,8 @@ class StyleLayer extends Evented {
                 return false;
             }
         }
-        if (name.endsWith(TRANSITION_SUFFIX$1)) {
-            this._transitionablePaint.setTransition(name.slice(0, -TRANSITION_SUFFIX$1.length), value || undefined);
+        if (name.endsWith(TRANSITION_SUFFIX$2)) {
+            this._transitionablePaint.setTransition(name.slice(0, -TRANSITION_SUFFIX$2.length), value || undefined);
             return false;
         }
         else {
@@ -15568,7 +15566,7 @@ function align$1(offset, size) {
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Int16[2]
+ * [0] - Int16[2]
  *
  */
 class StructArrayLayout2i4 extends StructArray {
@@ -15593,7 +15591,7 @@ register('StructArrayLayout2i4', StructArrayLayout2i4);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Int16[3]
+ * [0] - Int16[3]
  *
  */
 class StructArrayLayout3i6 extends StructArray {
@@ -15619,7 +15617,7 @@ register('StructArrayLayout3i6', StructArrayLayout3i6);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Int16[4]
+ * [0] - Int16[4]
  *
  */
 class StructArrayLayout4i8 extends StructArray {
@@ -15646,8 +15644,8 @@ register('StructArrayLayout4i8', StructArrayLayout4i8);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Int16[2]
- * [4]: Int16[4]
+ * [0] - Int16[2]
+ * [4] - Int16[4]
  *
  */
 class StructArrayLayout2i4i12 extends StructArray {
@@ -15676,8 +15674,8 @@ register('StructArrayLayout2i4i12', StructArrayLayout2i4i12);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Int16[2]
- * [4]: Uint8[4]
+ * [0] - Int16[2]
+ * [4] - Uint8[4]
  *
  */
 class StructArrayLayout2i4ub8 extends StructArray {
@@ -15707,7 +15705,7 @@ register('StructArrayLayout2i4ub8', StructArrayLayout2i4ub8);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Float32[2]
+ * [0] - Float32[2]
  *
  */
 class StructArrayLayout2f8 extends StructArray {
@@ -15732,7 +15730,7 @@ register('StructArrayLayout2f8', StructArrayLayout2f8);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Uint16[10]
+ * [0] - Uint16[10]
  *
  */
 class StructArrayLayout10ui20 extends StructArray {
@@ -15765,9 +15763,9 @@ register('StructArrayLayout10ui20', StructArrayLayout10ui20);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Int16[4]
- * [8]: Uint16[4]
- * [16]: Int16[4]
+ * [0] - Int16[4]
+ * [8] - Uint16[4]
+ * [16] - Int16[4]
  *
  */
 class StructArrayLayout4i4ui4i24 extends StructArray {
@@ -15803,7 +15801,7 @@ register('StructArrayLayout4i4ui4i24', StructArrayLayout4i4ui4i24);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Float32[3]
+ * [0] - Float32[3]
  *
  */
 class StructArrayLayout3f12 extends StructArray {
@@ -15829,7 +15827,7 @@ register('StructArrayLayout3f12', StructArrayLayout3f12);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Uint32[1]
+ * [0] - Uint32[1]
  *
  */
 class StructArrayLayout1ul4 extends StructArray {
@@ -15853,9 +15851,9 @@ register('StructArrayLayout1ul4', StructArrayLayout1ul4);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Int16[6]
- * [12]: Uint32[1]
- * [16]: Uint16[2]
+ * [0] - Int16[6]
+ * [12] - Uint32[1]
+ * [16] - Uint16[2]
  *
  */
 class StructArrayLayout6i1ul2ui20 extends StructArray {
@@ -15890,9 +15888,9 @@ register('StructArrayLayout6i1ul2ui20', StructArrayLayout6i1ul2ui20);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Int16[2]
- * [4]: Int16[2]
- * [8]: Int16[2]
+ * [0] - Int16[2]
+ * [4] - Int16[2]
+ * [8] - Int16[2]
  *
  */
 class StructArrayLayout2i2i2i12 extends StructArray {
@@ -15921,9 +15919,9 @@ register('StructArrayLayout2i2i2i12', StructArrayLayout2i2i2i12);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Float32[2]
- * [8]: Float32[1]
- * [12]: Int16[2]
+ * [0] - Float32[2]
+ * [8] - Float32[1]
+ * [12] - Int16[2]
  *
  */
 class StructArrayLayout2f1f2i16 extends StructArray {
@@ -15953,9 +15951,9 @@ register('StructArrayLayout2f1f2i16', StructArrayLayout2f1f2i16);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Uint8[2]
- * [4]: Float32[2]
- * [12]: Int16[2]
+ * [0] - Uint8[2]
+ * [4] - Float32[2]
+ * [12] - Int16[2]
  *
  */
 class StructArrayLayout2ub2f2i16 extends StructArray {
@@ -15987,7 +15985,7 @@ register('StructArrayLayout2ub2f2i16', StructArrayLayout2ub2f2i16);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Uint16[3]
+ * [0] - Uint16[3]
  *
  */
 class StructArrayLayout3ui6 extends StructArray {
@@ -16013,14 +16011,14 @@ register('StructArrayLayout3ui6', StructArrayLayout3ui6);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Int16[2]
- * [4]: Uint16[2]
- * [8]: Uint32[3]
- * [20]: Uint16[3]
- * [28]: Float32[2]
- * [36]: Uint8[3]
- * [40]: Uint32[1]
- * [44]: Int16[1]
+ * [0] - Int16[2]
+ * [4] - Uint16[2]
+ * [8] - Uint32[3]
+ * [20] - Uint16[3]
+ * [28] - Float32[2]
+ * [36] - Uint8[3]
+ * [40] - Uint32[1]
+ * [44] - Int16[1]
  *
  */
 class StructArrayLayout2i2ui3ul3ui2f3ub1ul1i48 extends StructArray {
@@ -16065,11 +16063,11 @@ register('StructArrayLayout2i2ui3ul3ui2f3ub1ul1i48', StructArrayLayout2i2ui3ul3u
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Int16[8]
- * [16]: Uint16[15]
- * [48]: Uint32[1]
- * [52]: Float32[2]
- * [60]: Uint16[2]
+ * [0] - Int16[8]
+ * [16] - Uint16[15]
+ * [48] - Uint32[1]
+ * [52] - Float32[2]
+ * [60] - Uint16[2]
  *
  */
 class StructArrayLayout8i15ui1ul2f2ui64 extends StructArray {
@@ -16124,7 +16122,7 @@ register('StructArrayLayout8i15ui1ul2f2ui64', StructArrayLayout8i15ui1ul2f2ui64)
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Float32[1]
+ * [0] - Float32[1]
  *
  */
 class StructArrayLayout1f4 extends StructArray {
@@ -16148,8 +16146,8 @@ register('StructArrayLayout1f4', StructArrayLayout1f4);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Uint16[1]
- * [4]: Float32[2]
+ * [0] - Uint16[1]
+ * [4] - Float32[2]
  *
  */
 class StructArrayLayout1ui2f12 extends StructArray {
@@ -16177,8 +16175,8 @@ register('StructArrayLayout1ui2f12', StructArrayLayout1ui2f12);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Uint32[1]
- * [4]: Uint16[2]
+ * [0] - Uint32[1]
+ * [4] - Uint16[2]
  *
  */
 class StructArrayLayout1ul2ui8 extends StructArray {
@@ -16206,7 +16204,7 @@ register('StructArrayLayout1ul2ui8', StructArrayLayout1ul2ui8);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Uint16[2]
+ * [0] - Uint16[2]
  *
  */
 class StructArrayLayout2ui4 extends StructArray {
@@ -16231,7 +16229,7 @@ register('StructArrayLayout2ui4', StructArrayLayout2ui4);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Uint16[1]
+ * [0] - Uint16[1]
  *
  */
 class StructArrayLayout1ui2 extends StructArray {
@@ -16255,7 +16253,7 @@ register('StructArrayLayout1ui2', StructArrayLayout1ui2);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Float32[4]
+ * [0] - Float32[4]
  *
  */
 class StructArrayLayout4f16 extends StructArray {
@@ -17865,7 +17863,7 @@ const getPaint$8 = () => paint$8 = paint$8 || new Properties({
     "circle-stroke-color": new DataDrivenProperty(v8Spec["paint_circle"]["circle-stroke-color"]),
     "circle-stroke-opacity": new DataDrivenProperty(v8Spec["paint_circle"]["circle-stroke-opacity"]),
 });
-var properties$8 = ({ get paint() { return getPaint$8(); }, get layout() { return getLayout$3(); } });
+var properties$9 = ({ get paint() { return getPaint$8(); }, get layout() { return getLayout$3(); } });
 
 /**
  * Common utilities
@@ -25535,7 +25533,7 @@ zero: zero
  */
 class CircleStyleLayer extends StyleLayer {
     constructor(layer) {
-        super(layer, properties$8);
+        super(layer, properties$9);
     }
     createBucket(parameters) {
         return new CircleBucket(parameters);
@@ -25600,7 +25598,7 @@ const getPaint$7 = () => paint$7 = paint$7 || new Properties({
     "heatmap-color": new ColorRampProperty(v8Spec["paint_heatmap"]["heatmap-color"]),
     "heatmap-opacity": new DataConstantProperty(v8Spec["paint_heatmap"]["heatmap-opacity"]),
 });
-var properties$7 = ({ get paint() { return getPaint$7(); } });
+var properties$8 = ({ get paint() { return getPaint$7(); } });
 
 function createImage(image, { width, height }, channels, data) {
     if (!data) {
@@ -25757,7 +25755,7 @@ class HeatmapStyleLayer extends StyleLayer {
         return new HeatmapBucket(options);
     }
     constructor(layer) {
-        super(layer, properties$7);
+        super(layer, properties$8);
         // make sure color ramp texture is generated for default heatmap color too
         this._updateColorRamp();
     }
@@ -25803,11 +25801,11 @@ const getPaint$6 = () => paint$6 = paint$6 || new Properties({
     "hillshade-highlight-color": new DataConstantProperty(v8Spec["paint_hillshade"]["hillshade-highlight-color"]),
     "hillshade-accent-color": new DataConstantProperty(v8Spec["paint_hillshade"]["hillshade-accent-color"]),
 });
-var properties$6 = ({ get paint() { return getPaint$6(); } });
+var properties$7 = ({ get paint() { return getPaint$6(); } });
 
 class HillshadeStyleLayer extends StyleLayer {
     constructor(layer) {
-        super(layer, properties$6);
+        super(layer, properties$7);
     }
     hasOffscreenPass() {
         return this.paint.get('hillshade-exaggeration') !== 0 && this.visibility !== 'none';
@@ -26704,11 +26702,11 @@ const getPaint$5 = () => paint$5 = paint$5 || new Properties({
     "fill-translate-anchor": new DataConstantProperty(v8Spec["paint_fill"]["fill-translate-anchor"]),
     "fill-pattern": new CrossFadedDataDrivenProperty(v8Spec["paint_fill"]["fill-pattern"]),
 });
-var properties$5 = ({ get paint() { return getPaint$5(); }, get layout() { return getLayout$2(); } });
+var properties$6 = ({ get paint() { return getPaint$5(); }, get layout() { return getLayout$2(); } });
 
 class FillStyleLayer extends StyleLayer {
     constructor(layer) {
-        super(layer, properties$5);
+        super(layer, properties$6);
     }
     recalculate(parameters, availableImages) {
         super.recalculate(parameters, availableImages);
@@ -27276,13 +27274,13 @@ const getPaint$4 = () => paint$4 = paint$4 || new Properties({
     "fill-extrusion-base": new DataDrivenProperty(v8Spec["paint_fill-extrusion"]["fill-extrusion-base"]),
     "fill-extrusion-vertical-gradient": new DataConstantProperty(v8Spec["paint_fill-extrusion"]["fill-extrusion-vertical-gradient"]),
 });
-var properties$4 = ({ get paint() { return getPaint$4(); } });
+var properties$5 = ({ get paint() { return getPaint$4(); } });
 
 class Point3D extends Point$2 {
 }
 class FillExtrusionStyleLayer extends StyleLayer {
     constructor(layer) {
-        super(layer, properties$4);
+        super(layer, properties$5);
     }
     createBucket(parameters) {
         return new FillExtrusionBucket(parameters);
@@ -27921,7 +27919,7 @@ const getPaint$3 = () => paint$3 = paint$3 || new Properties({
     "line-pattern": new CrossFadedDataDrivenProperty(v8Spec["paint_line"]["line-pattern"]),
     "line-gradient": new ColorRampProperty(v8Spec["paint_line"]["line-gradient"]),
 });
-var properties$3 = ({ get paint() { return getPaint$3(); }, get layout() { return getLayout$1(); } });
+var properties$4 = ({ get paint() { return getPaint$3(); }, get layout() { return getLayout$1(); } });
 
 class LineFloorwidthProperty extends DataDrivenProperty {
     possiblyEvaluate(value, parameters) {
@@ -27941,11 +27939,11 @@ class LineFloorwidthProperty extends DataDrivenProperty {
 let lineFloorwidthProperty;
 class LineStyleLayer extends StyleLayer {
     constructor(layer) {
-        super(layer, properties$3);
+        super(layer, properties$4);
         this.gradientVersion = 0;
         if (!lineFloorwidthProperty) {
             lineFloorwidthProperty =
-                new LineFloorwidthProperty(properties$3.paint.properties['line-width'].specification);
+                new LineFloorwidthProperty(properties$4.paint.properties['line-width'].specification);
             lineFloorwidthProperty.useIntegerZoom = true;
         }
     }
@@ -30653,7 +30651,7 @@ const getPaint$2 = () => paint$2 = paint$2 || new Properties({
     "text-translate": new DataConstantProperty(v8Spec["paint_symbol"]["text-translate"]),
     "text-translate-anchor": new DataConstantProperty(v8Spec["paint_symbol"]["text-translate-anchor"]),
 });
-var properties$2 = ({ get paint() { return getPaint$2(); }, get layout() { return getLayout(); } });
+var properties$3 = ({ get paint() { return getPaint$2(); }, get layout() { return getLayout(); } });
 
 // This is an internal expression class. It is only used in GL JS and
 // has GL JS dependencies which can break the standalone style-spec module
@@ -30694,7 +30692,7 @@ register('FormatSectionOverride', FormatSectionOverride, { omit: ['defaultValue'
 
 class SymbolStyleLayer extends StyleLayer {
     constructor(layer) {
-        super(layer, properties$2);
+        super(layer, properties$3);
     }
     recalculate(parameters, availableImages) {
         super.recalculate(parameters, availableImages);
@@ -30756,7 +30754,7 @@ class SymbolStyleLayer extends StyleLayer {
         throw new Error('Should take a different path in FeatureIndex');
     }
     _setPaintOverrides() {
-        for (const overridable of properties$2.paint.overridableProperties) {
+        for (const overridable of properties$3.paint.overridableProperties) {
             if (!SymbolStyleLayer.hasPaintOverride(this.layout, overridable)) {
                 continue;
             }
@@ -30781,7 +30779,7 @@ class SymbolStyleLayer extends StyleLayer {
     }
     static hasPaintOverride(layout, propertyName) {
         const textField = layout.get('text-field');
-        const property = properties$2.paint.properties[propertyName];
+        const property = properties$3.paint.properties[propertyName];
         let hasOverrides = false;
         const checkSections = (sections) => {
             for (const section of sections) {
@@ -30837,11 +30835,11 @@ const getPaint$1 = () => paint$1 = paint$1 || new Properties({
     "background-pattern": new CrossFadedProperty(v8Spec["paint_background"]["background-pattern"]),
     "background-opacity": new DataConstantProperty(v8Spec["paint_background"]["background-opacity"]),
 });
-var properties$1 = ({ get paint() { return getPaint$1(); } });
+var properties$2 = ({ get paint() { return getPaint$1(); } });
 
 class BackgroundStyleLayer extends StyleLayer {
     constructor(layer) {
-        super(layer, properties$1);
+        super(layer, properties$2);
     }
 }
 
@@ -30858,11 +30856,11 @@ const getPaint = () => paint = paint || new Properties({
     "raster-resampling": new DataConstantProperty(v8Spec["paint_raster"]["raster-resampling"]),
     "raster-fade-duration": new DataConstantProperty(v8Spec["paint_raster"]["raster-fade-duration"]),
 });
-var properties = ({ get paint() { return getPaint(); } });
+var properties$1 = ({ get paint() { return getPaint(); } });
 
 class RasterStyleLayer extends StyleLayer {
     constructor(layer) {
-        super(layer, properties);
+        super(layer, properties$1);
     }
 }
 
@@ -31689,7 +31687,7 @@ class LightPositionProperty {
         };
     }
 }
-const TRANSITION_SUFFIX = '-transition';
+const TRANSITION_SUFFIX$1 = '-transition';
 let lightProperties;
 /*
  * Represents the light used to light extruded features.
@@ -31716,8 +31714,8 @@ class Light extends Evented {
         }
         for (const name in light) {
             const value = light[name];
-            if (name.endsWith(TRANSITION_SUFFIX)) {
-                this._transitionable.setTransition(name.slice(0, -TRANSITION_SUFFIX.length), value);
+            if (name.endsWith(TRANSITION_SUFFIX$1)) {
+                this._transitionable.setTransition(name.slice(0, -TRANSITION_SUFFIX$1.length), value);
             }
             else {
                 this._transitionable.setValue(name, value);
@@ -31743,6 +31741,78 @@ class Light extends Evented {
             style: { glyphs: true, sprite: true },
             styleSpec: v8Spec
         }));
+    }
+}
+
+const properties = new Properties({
+    'sky-color': new DataConstantProperty(v8Spec.sky['sky-color']),
+    'horizon-color': new DataConstantProperty(v8Spec.sky['horizon-color']),
+    'fog-color': new DataConstantProperty(v8Spec.sky['fog-color']),
+    'fog-ground-blend': new DataConstantProperty(v8Spec.sky['fog-ground-blend']),
+    'horizon-fog-blend': new DataConstantProperty(v8Spec.sky['horizon-fog-blend']),
+    'sky-horizon-blend': new DataConstantProperty(v8Spec.sky['sky-horizon-blend']),
+    'atmosphere-blend': new DataConstantProperty(v8Spec.sky['atmosphere-blend'])
+});
+const TRANSITION_SUFFIX = '-transition';
+class Sky extends Evented {
+    constructor(sky) {
+        super();
+        this._transitionable = new Transitionable(properties);
+        this.setSky(sky);
+        this._transitioning = this._transitionable.untransitioned();
+    }
+    setSky(sky, options = {}) {
+        if (this._validate(validateSky, sky, options))
+            return;
+        for (const name in sky) {
+            const value = sky[name];
+            if (name.endsWith(TRANSITION_SUFFIX)) {
+                this._transitionable.setTransition(name.slice(0, -TRANSITION_SUFFIX.length), value);
+            }
+            else {
+                this._transitionable.setValue(name, value);
+            }
+        }
+    }
+    getSky() {
+        return this._transitionable.serialize();
+    }
+    updateTransitions(parameters) {
+        this._transitioning = this._transitionable.transitioned(parameters, this._transitioning);
+    }
+    hasTransition() {
+        return this._transitioning.hasTransition();
+    }
+    recalculate(parameters) {
+        this.properties = this._transitioning.possiblyEvaluate(parameters);
+    }
+    _validate(validate, value, options = {}) {
+        if ((options === null || options === void 0 ? void 0 : options.validate) === false) {
+            return false;
+        }
+        return emitValidationErrors$1(this, validate.call(validateStyle, extend({
+            value,
+            // Workaround for https://github.com/mapbox/mapbox-gl-js/issues/2407
+            style: { glyphs: true, sprite: true },
+            styleSpec: v8Spec
+        })));
+    }
+    /**
+     * Currently fog is a very simple implementation, and should only used
+     * to create an atmosphere near the horizon.
+     * But because the fog is drawn from the far-clipping-plane to
+     * map-center, and because the fog does nothing know about the horizon,
+     * this method does a fadeout in respect of pitch. So, when the horizon
+     * gets out of view, which is at about pitch 70, this methods calculates
+     * the corresponding opacity values. Below pitch 60 the fog is completely
+     * invisible.
+     */
+    calculateFogBlendOpacity(pitch) {
+        if (pitch < 60)
+            return 0; // disable
+        if (pitch < 70)
+            return (pitch - 60) / 10; // fade in
+        return 1;
     }
 }
 
@@ -34037,7 +34107,7 @@ class RasterDEMTileSource extends RasterTileSource {
  * ```
  * @see [Draw GeoJSON points](https://maplibre.org/maplibre-gl-js/docs/examples/geojson-markers/)
  * @see [Add a GeoJSON line](https://maplibre.org/maplibre-gl-js/docs/examples/geojson-line/)
- * @see [Create a heatmap from points](https://maplibre.org/maplibre-gl-js/docs/examples/heatmap/)
+ * @see [Create a heatmap from points](https://maplibre.org/maplibre-gl-js/docs/examples/heatmap-layer/)
  * @see [Create and style clusters](https://maplibre.org/maplibre-gl-js/docs/examples/cluster/)
  */
 class GeoJSONSource extends Evented {
@@ -34954,7 +35024,7 @@ const setSourceType = (name, type) => {
 /**
  * Adds a custom source type, making it available for use with {@link Map#addSource}.
  * @param name - The name of the source type; source definition objects use this name in the `{type: ...}` field.
- * @param sourceType - A {@link SourceClass} - which is a constructor for the `Source` interface.
+ * @param SourceType - A {@link SourceClass} - which is a constructor for the `Source` interface.
  * @returns a promise that is resolved when the source type is ready or rejected with an error.
  */
 const addSourceType = (name, SourceType) => __awaiter(void 0, void 0, void 0, function* () {
@@ -41245,6 +41315,7 @@ class Style extends Evented {
         this.glyphManager.setURL(nextState.glyphs);
         this._createLayers();
         this.light = new Light(this.stylesheet.light);
+        this.sky = new Sky(this.stylesheet.sky);
         this.map.setTerrain((_a = this.stylesheet.terrain) !== null && _a !== void 0 ? _a : null);
         this.fire(new Event('data', { dataType: 'style' }));
         this.fire(new Event('style.load'));
@@ -41396,6 +41467,9 @@ class Style extends Evented {
         if (this.light && this.light.hasTransition()) {
             return true;
         }
+        if (this.sky && this.sky.hasTransition()) {
+            return true;
+        }
         for (const id in this.sourceCaches) {
             if (this.sourceCaches[id].hasTransition()) {
                 return true;
@@ -41446,6 +41520,7 @@ class Style extends Evented {
                 this._layers[id].updateTransitions(parameters);
             }
             this.light.updateTransitions(parameters);
+            this.sky.updateTransitions(parameters);
             this._resetUpdates();
         }
         const sourcesUsedBefore = {};
@@ -41480,6 +41555,7 @@ class Style extends Evented {
             }
         }
         this.light.recalculate(parameters);
+        this.sky.recalculate(parameters);
         this.z = parameters.zoom;
         if (changed) {
             this.fire(new Event('data', { dataType: 'style' }));
@@ -41600,6 +41676,9 @@ class Style extends Evented {
                     break;
                 case 'setSprite':
                     operations.push(() => this.setSprite.apply(this, op.args));
+                    break;
+                case 'setSky':
+                    operations.push(() => this.setSky.apply(this, op.args));
                     break;
                 case 'setTerrain':
                     operations.push(() => this.map.setTerrain.apply(this, op.args));
@@ -42038,6 +42117,7 @@ class Style extends Evented {
             name: myStyleSheet.name,
             metadata: myStyleSheet.metadata,
             light: myStyleSheet.light,
+            sky: myStyleSheet.sky,
             center: myStyleSheet.center,
             zoom: myStyleSheet.zoom,
             bearing: myStyleSheet.bearing,
@@ -42193,6 +42273,37 @@ class Style extends Evented {
         };
         this.light.setLight(lightOptions, options);
         this.light.updateTransitions(parameters);
+    }
+    getSky() {
+        var _a;
+        return (_a = this.stylesheet) === null || _a === void 0 ? void 0 : _a.sky;
+    }
+    setSky(skyOptions, options = {}) {
+        const sky = this.sky.getSky();
+        let update = false;
+        if (!skyOptions) {
+            if (sky) {
+                update = true;
+            }
+        }
+        for (const key in skyOptions) {
+            if (!deepEqual$1(skyOptions[key], sky[key])) {
+                update = true;
+                break;
+            }
+        }
+        if (!update)
+            return;
+        const parameters = {
+            now: browser.now(),
+            transition: extend({
+                duration: 300,
+                delay: 0
+            }, this.stylesheet.transition)
+        };
+        this.stylesheet.sky = skyOptions;
+        this.sky.setSky(skyOptions, options);
+        this.sky.updateTransitions(parameters);
     }
     _validate(validate, key, value, props, options = {}) {
         if (options && options.validate === false) {
@@ -42610,10 +42721,22 @@ var terrainDepthFrag = 'varying float v_depth;const highp vec4 bitSh=vec4(256.*2
 var terrainCoordsFrag = 'precision mediump float;uniform sampler2D u_texture;uniform float u_terrain_coords_id;varying vec2 v_texture_pos;void main() {vec4 rgba=texture2D(u_texture,v_texture_pos);gl_FragColor=vec4(rgba.r,rgba.g,rgba.b,u_terrain_coords_id);}';
 
 // This file is generated. Edit build/generate-shaders.ts, then run `npm run codegen`.
-var terrainFrag = 'uniform sampler2D u_texture;varying vec2 v_texture_pos;void main() {gl_FragColor=texture2D(u_texture,v_texture_pos);}';
+var terrainFrag = 'uniform sampler2D u_texture;uniform vec4 u_fog_color;uniform vec4 u_horizon_color;uniform float u_fog_ground_blend;uniform float u_fog_ground_blend_opacity;uniform float u_horizon_fog_blend;varying vec2 v_texture_pos;varying float v_fog_depth;const float gamma=2.2;vec4 gammaToLinear(vec4 color) {return pow(color,vec4(gamma));}vec4 linearToGamma(vec4 color) {return pow(color,vec4(1.0/gamma));}void main() {vec4 surface_color=texture2D(u_texture,v_texture_pos);if (v_fog_depth > u_fog_ground_blend) {vec4 surface_color_linear=gammaToLinear(surface_color);float blend_color=smoothstep(0.0,1.0,max((v_fog_depth-u_horizon_fog_blend)/(1.0-u_horizon_fog_blend),0.0));vec4 fog_horizon_color_linear=mix(gammaToLinear(u_fog_color),gammaToLinear(u_horizon_color),blend_color);float factor_fog=max(v_fog_depth-u_fog_ground_blend,0.0)/(1.0-u_fog_ground_blend);gl_FragColor=linearToGamma(mix(surface_color_linear,fog_horizon_color_linear,pow(factor_fog,2.0)*u_fog_ground_blend_opacity));} else {gl_FragColor=surface_color;}}';
 
 // This file is generated. Edit build/generate-shaders.ts, then run `npm run codegen`.
-var terrainVert = 'attribute vec3 a_pos3d;uniform mat4 u_matrix;uniform float u_ele_delta;varying vec2 v_texture_pos;varying float v_depth;void main() {float extent=8192.0;float ele_delta=a_pos3d.z==1.0 ? u_ele_delta : 0.0;v_texture_pos=a_pos3d.xy/extent;gl_Position=u_matrix*vec4(a_pos3d.xy,get_elevation(a_pos3d.xy)-ele_delta,1.0);v_depth=gl_Position.z/gl_Position.w;}';
+var terrainDepthVert = 'attribute vec3 a_pos3d;uniform mat4 u_matrix;uniform float u_ele_delta;varying float v_depth;void main() {float ele=get_elevation(a_pos3d.xy);float ele_delta=a_pos3d.z==1.0 ? u_ele_delta : 0.0;gl_Position=u_matrix*vec4(a_pos3d.xy,ele-ele_delta,1.0);v_depth=gl_Position.z/gl_Position.w;}';
+
+// This file is generated. Edit build/generate-shaders.ts, then run `npm run codegen`.
+var terrainCoordsVert = 'attribute vec3 a_pos3d;uniform mat4 u_matrix;uniform float u_ele_delta;varying vec2 v_texture_pos;void main() {float ele=get_elevation(a_pos3d.xy);float ele_delta=a_pos3d.z==1.0 ? u_ele_delta : 0.0;v_texture_pos=a_pos3d.xy/8192.0;gl_Position=u_matrix*vec4(a_pos3d.xy,ele-ele_delta,1.0);}';
+
+// This file is generated. Edit build/generate-shaders.ts, then run `npm run codegen`.
+var terrainVert = 'attribute vec3 a_pos3d;uniform mat4 u_matrix;uniform mat4 u_fog_matrix;uniform float u_ele_delta;varying vec2 v_texture_pos;varying float v_fog_depth;void main() {float ele=get_elevation(a_pos3d.xy);float ele_delta=a_pos3d.z==1.0 ? u_ele_delta : 0.0;v_texture_pos=a_pos3d.xy/8192.0;gl_Position=u_matrix*vec4(a_pos3d.xy,ele-ele_delta,1.0);vec4 pos=u_fog_matrix*vec4(a_pos3d.xy,ele,1.0);v_fog_depth=pos.z/pos.w*0.5+0.5;}';
+
+// This file is generated. Edit build/generate-shaders.ts, then run `npm run codegen`.
+var skyFrag = 'uniform vec4 u_sky_color;uniform vec4 u_horizon_color;uniform float u_horizon;uniform float u_sky_horizon_blend;void main() {float y=gl_FragCoord.y;if (y > u_horizon) {float blend=y-u_horizon;if (blend < u_sky_horizon_blend) {gl_FragColor=mix(u_sky_color,u_horizon_color,pow(1.0-blend/u_sky_horizon_blend,2.0));} else {gl_FragColor=u_sky_color;}}}';
+
+// This file is generated. Edit build/generate-shaders.ts, then run `npm run codegen`.
+var skyVert = 'attribute vec2 a_pos;void main() {gl_Position=vec4(a_pos,1.0,1.0);}';
 
 // Disable Flow annotations here because Flow doesn't support importing GLSL files
 const shaders = {
@@ -42644,8 +42767,9 @@ const shaders = {
     symbolSDF: compile(symbolSDFFrag, symbolSDFVert),
     symbolTextAndIcon: compile(symbolTextAndIconFrag, symbolTextAndIconVert),
     terrain: compile(terrainFrag, terrainVert),
-    terrainDepth: compile(terrainDepthFrag, terrainVert),
-    terrainCoords: compile(terrainCoordsFrag, terrainVert)
+    terrainDepth: compile(terrainDepthFrag, terrainDepthVert),
+    terrainCoords: compile(terrainCoordsFrag, terrainCoordsVert),
+    sky: compile(skyFrag, skyVert)
 };
 // Expand #pragmas to #ifdefs.
 function compile(fragmentSource, vertexSource) {
@@ -42871,7 +42995,13 @@ const terrainPreludeUniforms = (context, locations) => ({
 const terrainUniforms = (context, locations) => ({
     'u_matrix': new UniformMatrix4f(context, locations.u_matrix),
     'u_texture': new Uniform1i(context, locations.u_texture),
-    'u_ele_delta': new Uniform1f(context, locations.u_ele_delta)
+    'u_ele_delta': new Uniform1f(context, locations.u_ele_delta),
+    'u_fog_matrix': new UniformMatrix4f(context, locations.u_fog_matrix),
+    'u_fog_color': new UniformColor(context, locations.u_fog_color),
+    'u_fog_ground_blend': new Uniform1f(context, locations.u_fog_ground_blend),
+    'u_fog_ground_blend_opacity': new Uniform1f(context, locations.u_fog_ground_blend_opacity),
+    'u_horizon_color': new UniformColor(context, locations.u_horizon_color),
+    'u_horizon_fog_blend': new Uniform1f(context, locations.u_horizon_fog_blend)
 });
 const terrainDepthUniforms = (context, locations) => ({
     'u_matrix': new UniformMatrix4f(context, locations.u_matrix),
@@ -42883,10 +43013,16 @@ const terrainCoordsUniforms = (context, locations) => ({
     'u_terrain_coords_id': new Uniform1f(context, locations.u_terrain_coords_id),
     'u_ele_delta': new Uniform1f(context, locations.u_ele_delta)
 });
-const terrainUniformValues = (matrix, eleDelta) => ({
+const terrainUniformValues = (matrix, eleDelta, fogMatrix, sky, pitch) => ({
     'u_matrix': matrix,
     'u_texture': 0,
-    'u_ele_delta': eleDelta
+    'u_ele_delta': eleDelta,
+    'u_fog_matrix': fogMatrix,
+    'u_fog_color': sky ? sky.properties.get('fog-color') : Color.white,
+    'u_fog_ground_blend': sky ? sky.properties.get('fog-ground-blend') : 1,
+    'u_fog_ground_blend_opacity': sky ? sky.calculateFogBlendOpacity(pitch) : 0,
+    'u_horizon_color': sky ? sky.properties.get('horizon-color') : Color.white,
+    'u_horizon_fog_blend': sky ? sky.properties.get('horizon-fog-blend') : 1
 });
 const terrainDepthUniformValues = (matrix, eleDelta) => ({
     'u_matrix': matrix,
@@ -43627,6 +43763,19 @@ const backgroundPatternUniformValues = (matrix, opacity, painter, image, tile, c
     'u_opacity': opacity
 });
 
+const skyUniforms = (context, locations) => ({
+    'u_sky_color': new UniformColor(context, locations.u_sky_color),
+    'u_horizon_color': new UniformColor(context, locations.u_horizon_color),
+    'u_horizon': new Uniform1f(context, locations.u_horizon),
+    'u_sky_horizon_blend': new Uniform1f(context, locations.u_sky_horizon_blend),
+});
+const skyUniformValues = (sky, transform, pixelRatio) => ({
+    'u_sky_color': sky.properties.get('sky-color'),
+    'u_horizon_color': sky.properties.get('horizon-color'),
+    'u_horizon': (transform.height / 2 + transform.getHorizon()) * pixelRatio,
+    'u_sky_horizon_blend': (sky.properties.get('sky-horizon-blend') * transform.height / 2) * pixelRatio,
+});
+
 const programUniforms = {
     fillExtrusion: fillExtrusionUniforms,
     fillExtrusionPattern: fillExtrusionPatternUniforms,
@@ -43655,7 +43804,8 @@ const programUniforms = {
     backgroundPattern: backgroundPatternUniforms,
     terrain: terrainUniforms,
     terrainDepth: terrainDepthUniforms,
-    terrainCoords: terrainCoordsUniforms
+    terrainCoords: terrainCoordsUniforms,
+    sky: skyUniforms
 };
 
 /**
@@ -45862,9 +46012,49 @@ function drawTerrain(painter, terrain, tiles) {
         context.activeTexture.set(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, texture.texture);
         const posMatrix = painter.transform.calculatePosMatrix(tile.tileID.toUnwrapped());
-        const uniformValues = terrainUniformValues(posMatrix, terrain.getMeshFrameDelta(painter.transform.zoom));
+        const eleDelta = terrain.getMeshFrameDelta(painter.transform.zoom);
+        const fogMatrix = painter.transform.calculateFogMatrix(tile.tileID.toUnwrapped());
+        const uniformValues = terrainUniformValues(posMatrix, eleDelta, fogMatrix, painter.style.sky, painter.transform.pitch);
         program.draw(context, gl.TRIANGLES, depthMode, StencilMode.disabled, colorMode, CullFaceMode.backCCW, uniformValues, terrainData, 'terrain', mesh.vertexBuffer, mesh.indexBuffer, mesh.segments);
     }
+}
+
+class Mesh {
+    constructor(vertexBuffer, indexBuffer, segments) {
+        this.vertexBuffer = vertexBuffer;
+        this.indexBuffer = indexBuffer;
+        this.segments = segments;
+    }
+    destroy() {
+        this.vertexBuffer.destroy();
+        this.indexBuffer.destroy();
+        this.segments.destroy();
+        this.vertexBuffer = null;
+        this.indexBuffer = null;
+        this.segments = null;
+    }
+}
+
+function drawSky(painter, sky) {
+    const context = painter.context;
+    const gl = context.gl;
+    const skyUniforms = skyUniformValues(sky, painter.style.map.transform, painter.pixelRatio);
+    const depthMode = new DepthMode(gl.LEQUAL, DepthMode.ReadWrite, [0, 1]);
+    const stencilMode = StencilMode.disabled;
+    const colorMode = painter.colorModeForRenderPass();
+    const program = painter.useProgram('sky');
+    if (!sky.mesh) {
+        const vertexArray = new PosArray();
+        vertexArray.emplaceBack(-1, -1);
+        vertexArray.emplaceBack(1, -1);
+        vertexArray.emplaceBack(1, 1);
+        vertexArray.emplaceBack(-1, 1);
+        const indexArray = new TriangleIndexArray();
+        indexArray.emplaceBack(0, 1, 2);
+        indexArray.emplaceBack(0, 2, 3);
+        sky.mesh = new Mesh(context.createVertexBuffer(vertexArray, posAttributes.members), context.createIndexBuffer(indexArray), SegmentVector.simpleSegment(0, 0, vertexArray.length, indexArray.length));
+    }
+    program.draw(context, gl.TRIANGLES, depthMode, stencilMode, colorMode, CullFaceMode.disabled, skyUniforms, undefined, 'sky', sky.mesh.vertexBuffer, sky.mesh.indexBuffer, sky.mesh.segments);
 }
 
 /**
@@ -46110,6 +46300,9 @@ class Painter {
         // Clear buffers in preparation for drawing to the main framebuffer
         this.context.clear({ color: options.showOverdrawInspector ? Color.black : Color.transparent, depth: 1 });
         this.clearStencil();
+        // draw sky first to not overwrite symbols
+        if (this.style.stylesheet.sky)
+            drawSky(this, this.style.sky);
         this._showOverdrawInspector = options.showOverdrawInspector;
         this.depthRangeFor3D = [0, 1 - ((style._order.length + 2) * this.numSublayers * this.depthEpsilon)];
         // Opaque pass ===============================================
@@ -46550,6 +46743,7 @@ class Transform {
         this._edgeInsets = new EdgeInsets();
         this._posMatrixCache = {};
         this._alignedPosMatrixCache = {};
+        this._fogMatrixCache = {};
         this.minElevationForCurrentTile = 0;
     }
     clone() {
@@ -47068,6 +47262,15 @@ class Transform {
             this.latRange = [-MAX_VALID_LATITUDE, MAX_VALID_LATITUDE];
         }
     }
+    calculateTileMatrix(unwrappedTileID) {
+        const canonical = unwrappedTileID.canonical;
+        const scale = this.worldSize / this.zoomScale(canonical.z);
+        const unwrappedX = canonical.x + Math.pow(2, canonical.z) * unwrappedTileID.wrap;
+        const worldMatrix = identity$2(new Float64Array(16));
+        translate$1(worldMatrix, worldMatrix, [unwrappedX * scale, canonical.y * scale, 0]);
+        scale$5(worldMatrix, worldMatrix, [scale / EXTENT, scale / EXTENT, 1]);
+        return worldMatrix;
+    }
     /**
      * Calculate the posMatrix that, given a tile coordinate, would be used to display the tile on a map.
      * @param unwrappedTileID - the tile ID
@@ -47078,14 +47281,25 @@ class Transform {
         if (cache[posMatrixKey]) {
             return cache[posMatrixKey];
         }
-        const canonical = unwrappedTileID.canonical;
-        const scale = this.worldSize / this.zoomScale(canonical.z);
-        const unwrappedX = canonical.x + Math.pow(2, canonical.z) * unwrappedTileID.wrap;
-        const posMatrix = identity$2(new Float64Array(16));
-        translate$1(posMatrix, posMatrix, [unwrappedX * scale, canonical.y * scale, 0]);
-        scale$5(posMatrix, posMatrix, [scale / EXTENT, scale / EXTENT, 1]);
+        const posMatrix = this.calculateTileMatrix(unwrappedTileID);
         multiply$5(posMatrix, aligned ? this.alignedModelViewProjectionMatrix : this.modelViewProjectionMatrix, posMatrix);
         cache[posMatrixKey] = new Float32Array(posMatrix);
+        return cache[posMatrixKey];
+    }
+    /**
+     * Calculate the fogMatrix that, given a tile coordinate, would be used to calculate fog on the map.
+     * @param unwrappedTileID - the tile ID
+     * @private
+     */
+    calculateFogMatrix(unwrappedTileID) {
+        const posMatrixKey = unwrappedTileID.key;
+        const cache = this._fogMatrixCache;
+        if (cache[posMatrixKey]) {
+            return cache[posMatrixKey];
+        }
+        const fogMatrix = this.calculateTileMatrix(unwrappedTileID);
+        multiply$5(fogMatrix, this.fogMatrix, fogMatrix);
+        cache[posMatrixKey] = new Float32Array(fogMatrix);
         return cache[posMatrixKey];
     }
     customLayerMatrix() {
@@ -47249,6 +47463,19 @@ class Transform {
         translate$1(m, m, [0, 0, -this.elevation]); // elevate camera over terrain
         this.modelViewProjectionMatrix = m;
         this.invModelViewProjectionMatrix = invert$2([], m);
+        // create a fog matrix, same es proj-matrix but with near clipping-plane in mapcenter
+        // needed to calculate a correct z-value for fog calculation, because projMatrix z value is not
+        this.fogMatrix = new Float64Array(16);
+        perspective(this.fogMatrix, this._fov, this.width / this.height, cameraToSeaLevelDistance, farZ);
+        this.fogMatrix[8] = -offset.x * 2 / this.width;
+        this.fogMatrix[9] = offset.y * 2 / this.height;
+        scale$5(this.fogMatrix, this.fogMatrix, [1, -1, 1]);
+        translate$1(this.fogMatrix, this.fogMatrix, [0, 0, -this.cameraToCenterDistance]);
+        rotateX$3(this.fogMatrix, this.fogMatrix, this._pitch);
+        rotateZ$3(this.fogMatrix, this.fogMatrix, this.angle);
+        translate$1(this.fogMatrix, this.fogMatrix, [-x, -y, 0]);
+        scale$5(this.fogMatrix, this.fogMatrix, [1, 1, this._pixelPerMeter]);
+        translate$1(this.fogMatrix, this.fogMatrix, [0, 0, -this.elevation]); // elevate camera over terrain
         // matrix for conversion from world space to screen coordinates in 3D
         this.pixelMatrix3D = multiply$5(new Float64Array(16), this.labelPlaneMatrix, m);
         // Make a second projection matrix that is aligned to a pixel grid for rendering raster tiles.
@@ -47268,6 +47495,7 @@ class Transform {
         this.pixelMatrixInverse = m;
         this._posMatrixCache = {};
         this._alignedPosMatrixCache = {};
+        this._fogMatrixCache = {};
     }
     maxPitchScaleFactor() {
         // calcMatrices hasn't run yet
@@ -49588,7 +49816,7 @@ class TwoFingersTouchZoomRotateHandler {
  *   cooperativeGestures: true
  * });
  * ```
- * @see [Example: cooperative gestures](https://maplibre.org/maplibre-gl-js-docs/example/cooperative-gestures/)
+ * @see [Example: cooperative gestures](https://maplibre.org/maplibre-gl-js/docs/examples/cooperative-gestures/)
  **/
 class CooperativeGesturesHandler {
     constructor(map, options) {
@@ -51926,11 +52154,7 @@ class Terrain {
             indexArray.emplaceBack(offsetRight + y, offsetRight + y + 3, offsetRight + y + 1);
             indexArray.emplaceBack(offsetRight + y, offsetRight + y + 2, offsetRight + y + 3);
         }
-        this._mesh = {
-            indexBuffer: context.createIndexBuffer(indexArray),
-            vertexBuffer: context.createVertexBuffer(vertexArray, pos3dAttributes.members),
-            segments: SegmentVector.simpleSegment(0, 0, vertexArray.length, indexArray.length)
-        };
+        this._mesh = new Mesh(context.createVertexBuffer(vertexArray, pos3dAttributes.members), context.createIndexBuffer(indexArray), SegmentVector.simpleSegment(0, 0, vertexArray.length, indexArray.length));
         return this._mesh;
     }
     /**
@@ -54101,6 +54325,29 @@ let Map$1 = class Map extends Camera {
         return this.style.getLight();
     }
     /**
+     * Loads sky and fog defined by {@link SkySpecification} onto the map.
+     * Note: The fog only shows when using the terrain 3D feature.
+     * @param sky - Sky properties to set. Must conform to the [MapLibre Style Specification](https://maplibre.org/maplibre-gl-js-docs/style-spec/#sky).
+     * @returns `this`
+     * @example
+     * ```ts
+     * map.setSky({ 'sky-color': '#00f' });
+     * ```
+     */
+    setSky(sky) {
+        this._lazyInitEmptyStyle();
+        this.style.setSky(sky);
+        return this._update(true);
+    }
+    /**
+     * Returns the value of the sky object.
+     *
+     * @returns sky Sky properties of the style.
+     */
+    getSky() {
+        return this.style.getSky();
+    }
+    /**
      * Sets the `state` of a feature.
      * A feature's `state` is a set of user-defined key-value pairs that are assigned to a feature at runtime.
      * When using this method, the `state` object is merged with any existing key-value pairs in the feature's state.
@@ -55318,6 +55565,7 @@ class Marker extends Evented {
             this._map.off('click', this._onMapClick);
             this._map.off('move', this._update);
             this._map.off('moveend', this._update);
+            this._map.off('terrain', this._update);
             this._map.off('mousedown', this._addDragHandler);
             this._map.off('touchstart', this._addDragHandler);
             this._map.off('mouseup', this._onUp);
@@ -57174,7 +57422,7 @@ const version = packageJSON.version;
  * Necessary for supporting the Arabic and Hebrew languages, which are written right-to-left.
  *
  * @param pluginURL - URL pointing to the Mapbox RTL text plugin source.
- * @param lazy - If set to `true`, mapboxgl will defer loading the plugin until rtl text is encountered,
+ * @param lazy - If set to `true`, maplibre will defer loading the plugin until rtl text is encountered,
  * rtl text will then be rendered only after the plugin finishes loading.
  * @example
  * ```ts

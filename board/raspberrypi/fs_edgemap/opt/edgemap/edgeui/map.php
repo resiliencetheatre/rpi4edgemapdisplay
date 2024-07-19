@@ -173,6 +173,13 @@
         </center>
     </div>
 
+    <div class="map-top-local-gps-button">
+        <center>
+                <i data-feather="target" class="feather-mid" onClick="setManualLocationNotifyMessage();" ></i>
+        </center>
+    </div>
+
+
     <div class="map-right-zoom-overlay" id="rightZoomButtons">
         <div class="map-right-zoom-overlay-inner">
                 <center>
@@ -379,41 +386,66 @@
     </table>
     </div>
     
-            <div class="map-bottom-sensor-entries" id="sensorNotify" style="display: none;">
-            <table width=100% border=0>
-                <tr valign="top">
-                    <td ><i data-feather="alert-triangle" id="sensorNotifyMessageIcon" class="feather-submitCallSignEntry"></i></td>
-                    <td width=90%>
-                        <div class="sensor-message-style" id="sensorMessage"></div>
-                        
-                        <div id="sensor-create-input-placeholder"></div>
-                        <div id="sensor-create-input">
-                            <table border=0 width=80%>
-                                <tr>
-                                    <td><span id="sensorLocationTooltip"></span></td>
-                                    <td><span id="sensorLat"></span><span id="sensorLatLonComma"></span><span id="sensorLon"></span></td>
-                                </tr>
-                                <tr valign="top">
-                                    <td valign="top"><span id="sensorNameEntryDesc">Desc:</span></td>
-                                    <td valign="top"><span id="sensorNameEntryInput"><input type="text" id="sensorNameInput" type="text" class="sensorNameInputStyle"></span></td>
-                                </tr>
-                            </table>
-                        </div>
-                        <div class="sensor-define-button-style" id="sensor-define-button" style="display: block;" onclick="sensorDefine();"><center>Create</center></div>
-                        <div class="sensor-close-button-style" id="sensor-close-button" style="display: block;" onclick="sensorClose();"><center>Close</center></div>
-                    </td>
-                </tr>
-            </table>
-            </div>
-    
-    <div class="map-right-userlist-button" id="userlistbutton" >
-    <div class="map-right-userlist-button-inner">
-        <center>
-            <i data-feather="users" class="feather-normal" onClick="toggleUserList();"></i>
-        </center>
-    </div>
+    <div class="map-bottom-sensor-entries" id="sensorNotify" style="display: none;">
+    <table width=100% border=0>
+        <tr valign="top">
+            <td ><i data-feather="alert-triangle" id="sensorNotifyMessageIcon" class="feather-submitCallSignEntry"></i></td>
+            <td width=90%>
+                <div class="sensor-message-style" id="sensorMessage"></div>
+                
+                <div id="sensor-create-input-placeholder"></div>
+                <div id="sensor-create-input">
+                    <table border=0 width=80%>
+                        <tr>
+                            <td><span id="sensorLocationTooltip"></span></td>
+                            <td><span id="sensorLat"></span><span id="sensorLatLonComma"></span><span id="sensorLon"></span></td>
+                        </tr>
+                        <tr valign="top">
+                            <td valign="top"><span id="sensorNameEntryDesc">Desc:</span></td>
+                            <td valign="top"><span id="sensorNameEntryInput"><input type="text" id="sensorNameInput" type="text" class="sensorNameInputStyle"></span></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="sensor-define-button-style" id="sensor-define-button" style="display: block;" onclick="sensorDefine();"><center>Create</center></div>
+                <div class="sensor-close-button-style" id="sensor-close-button" style="display: block;" onclick="sensorClose();"><center>Close</center></div>
+            </td>
+        </tr>
+    </table>
     </div>
     
+    
+    
+    
+        <div class="map-bottom-manualLocation-entries" id="manualLocationNotify" style="display: none;">
+        <table width=100% border=0>
+            <tr valign="top">
+                <td ><i data-feather="target" id="manualLocation-Icon" class="feather-submitCallSignEntry"></i></td>
+                <td width=90%>
+                    <div class="manualLocation-message-style" id="manualLocation-Message"></div>
+                    
+                    <div id="manualLocation-create-input-placeholder"></div>
+                    <div id="manualLocation-create-input">
+                        <table border=0 width=80%>
+                            <tr>
+                                <td><span id="manualLocation-Tooltip"></span></td>
+                                <td><span id="manualLocation-Lat"></span><span id="manualLocation-LatLonComma"></span><span id="manualLocation-Lon"></span></td>
+                            </tr>
+                            
+                        </table>
+                    </div>
+                    <div class="manualLocation-define-button-style" id="manualLocation-define-button" style="display: block;" onclick="manualLocationErase();"><center>Unset</center></div>
+                    <div class="manualLocation-close-button-style" id="manualLocation-close-button" style="display: block;" onclick="manualLocationSet();"><center>Set</center></div>
+                </td>
+            </tr>
+        </table>
+        </div>
+
+    
+    
+    
+    
+    
+        
     <div class="map-right-meshtastic-button" id="meshtasticButton" style="display: none;">
     <div class="map-right-meshtastic-button-inner">
         <div id="radioNotifyDot" class="buttonNotifyDot"></div>
@@ -581,7 +613,7 @@
                 });
     var milSymHighrateMarker = milSymbolHighrate.asDOM();
     
-    // localGpsMarker (development) aku
+    // localGpsMarker (development)
     var localGpsMarker;
 	var localGpsMarkerCreated=false;
     var milSymbolLocalGps = new ms.Symbol("SFGPUCR-----", { size:20,
@@ -627,6 +659,9 @@
     var sensorToBeCreated=0;
     var keyEventListener=1;
     var unknownSensorCreateInProgress=0;
+    
+    // Manual location globals
+    var manualLocationCreateInProgress=0;
 
     // Create marker from messaging window
 	function createNewDragableMarker() {
@@ -677,15 +712,35 @@
         gpsSocketConnected = true;
     };    
     gpsSocket.onmessage = function(event) {
+            var displayString;
 			var incomingMessage = event.data;
 			var trimmedString = incomingMessage.substring(0, 80);
             const localGpsArray = trimmedString.split(",");
-            var displayString = "GPS: " + localGpsArray[0]; // + " " + localGpsArray[4] + "," + localGpsArray[5];
-            document.getElementById("gpsDisplay").innerHTML = displayString;            
+            if ( localGpsArray[0] == "n/a" ) 
+                displayString = "GPS: No fix";
+            if ( localGpsArray[0] == "None" ) 
+                displayString = "GPS: No fix";
+            if ( localGpsArray[0] == "2D" ) 
+                displayString = "GPS: 2D fix";
+            if ( localGpsArray[0] == "3D" ) 
+                displayString = "GPS: 3D fix";
+            if ( localGpsArray[0] == "Manual" ) 
+                displayString = "GPS: Manual";
+            document.getElementById("gpsDisplay").innerHTML = displayString;
+            /*  localGpsArray[0] : text 
+                localGpsArray[1] : enum
+                gpsreader.c:                
+                static char *mode_str[MODE_STR_NUM] = {
+                    "n/a",
+                    "None",
+                    "2D",
+                    "3D",
+                    "Manual"
+                }; */           
             if ( localGpsArray[1] == "0" || localGpsArray[1] == "1" ) {
                 localGpsFixStatus = 0;
             }            
-            if ( localGpsArray[1] == "2" || localGpsArray[1] == "3" ) {
+            if ( localGpsArray[1] == "2" || localGpsArray[1] == "3" || localGpsArray[1] == "4") {
                 localGpsFixStatus = 1;
                 // Update location only on valid fix
                 getElementItem('#lat_localgps').innerHTML =  localGpsArray[5];
@@ -1144,18 +1199,23 @@
 
     //
     // Periodic send my presence and if GPS is active and fix is valid, send location as well.
-    // NOTE: On meshtastich we use 120 s as interval
+    // 
+    // NOTE: On meshtastich we disable browser based location sending with sendMyGpsLocation(). 
+    //       All locations are now sourced from locally attached GPS (gpsd->gpsreader->meshpipe-dev.py)
+    //       We also disable 'joinMessage' sending when 'meshpipe.py' sends trackMarker message 
+    //       periodically. Sending presense and location from UI code makes sense if you have
+    //       shared web service for multiple users - but not on our case (user per edgemap node)
     // 
     window.setInterval(function () {
         if ( mapLoaded ) {
             checkPeerExpiry();
             checkRadioExpiry();
-            sendMessage ( callSign + `|joinMessage||periodic update` + '\n' );
+            // sendMessage ( callSign + `|joinMessage||periodic update` + '\n' );
             if ( gpsSocketConnected && localGpsFixStatus == 1 ) {
-                sendMyGpsLocation(); 
+                // sendMyGpsLocation(); 
             }
         }
-    }, 120000 );
+    }, 60000 );
     
     window.setInterval(function () {
         updateRadioListBlock();
@@ -1292,7 +1352,11 @@
       },
       trackUserLocation: true
     });
-    map.addControl(geolocate);
+    // This control is disabled because we use only locally connected GPS
+    // (or manually set) location. Browser location usage is TLS nightmare
+    // and activates lot of emissions towards IP network.
+    // map.addControl(geolocate);
+    // 
     
     // Callback functions for geolocation
     geolocate.on('trackuserlocationstart', function() {
@@ -1345,12 +1409,22 @@
                   document.getElementById('sensor-create-input-placeholder').style.display = "none";
                   document.getElementById('sensor-create-input').style.display = "block";
                 }
+                if ( manualLocationCreateInProgress == 1 ) {
+                  document.getElementById('manualLocation-Lat').innerHTML = uLat.substring(0,10);
+                  document.getElementById('manualLocation-LatLonComma').innerHTML = ",";
+                  document.getElementById('manualLocation-Tooltip').innerHTML = "Pos: ";
+                  document.getElementById('manualLocation-create-input-placeholder').style.display = "none";
+                  document.getElementById('manualLocation-create-input').style.display = "block";
+                }
           }
           if ( key == 'lng' ) {
               let uLon = value.toString();
               document.getElementById('lon').innerHTML = uLon.substring(0,10);
                 if ( unknownSensorCreateInProgress == 1 ) {
                     document.getElementById('sensorLon').innerHTML = uLon.substring(0,10);
+                }
+                if ( manualLocationCreateInProgress == 1 ) {
+                    document.getElementById('manualLocation-Lon').innerHTML = uLon.substring(0,10);
                 }
           }
         });	

@@ -7,4 +7,5 @@ wgcap_service.conf
 *.mbtiles
 test.db
 archive*
-
+to-be-removed
+.ssh

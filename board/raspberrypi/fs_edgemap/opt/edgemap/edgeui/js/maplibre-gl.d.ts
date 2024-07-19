@@ -3,7 +3,7 @@
 import Point from '@mapbox/point-geometry';
 import TinySDF from '@mapbox/tiny-sdf';
 import { VectorTileFeature, VectorTileLayer } from '@mapbox/vector-tile';
-import { Color, CompositeExpression, DiffCommand, DiffOperations, Feature, FeatureFilter, FeatureState, FilterSpecification, Formatted, FormattedSection, GeoJSONSourceSpecification, GlobalProperties, ICanonicalTileID, IMercatorCoordinate, ImageSourceSpecification, InterpolationType, LayerSpecification, LightSpecification, Padding, PromoteIdSpecification, PropertyValueSpecification, RasterDEMSourceSpecification, RasterSourceSpecification, ResolvedImage, SourceExpression, SourceSpecification, SpriteSpecification, StylePropertyExpression, StylePropertySpecification, StyleSpecification, TerrainSpecification, TransitionSpecification, VariableAnchorOffsetCollection, VectorSourceSpecification, VideoSourceSpecification } from '@maplibre/maplibre-gl-style-spec';
+import { Color, CompositeExpression, DiffCommand, DiffOperations, Feature, FeatureFilter, FeatureState, FilterSpecification, Formatted, FormattedSection, GeoJSONSourceSpecification, GlobalProperties, ICanonicalTileID, IMercatorCoordinate, ImageSourceSpecification, InterpolationType, LayerSpecification, LightSpecification, Padding, PromoteIdSpecification, PropertyValueSpecification, RasterDEMSourceSpecification, RasterSourceSpecification, ResolvedImage, SkySpecification, SourceExpression, SourceSpecification, SpriteSpecification, StylePropertyExpression, StylePropertySpecification, StyleSpecification, TerrainSpecification, TransitionSpecification, VariableAnchorOffsetCollection, VectorSourceSpecification, VideoSourceSpecification } from '@maplibre/maplibre-gl-style-spec';
 import { Options as GeoJSONVTOptions } from 'geojson-vt';
 import { mat2, mat4, vec4 } from 'gl-matrix';
 import KDBush from 'kdbush';
@@ -2453,7 +2453,7 @@ export type SourceClass = {
 /**
  * Adds a custom source type, making it available for use with {@link Map#addSource}.
  * @param name - The name of the source type; source definition objects use this name in the `{type: ...}` field.
- * @param sourceType - A {@link SourceClass} - which is a constructor for the `Source` interface.
+ * @param SourceType - A {@link SourceClass} - which is a constructor for the `Source` interface.
  * @returns a promise that is resolved when the source type is ready or rejected with an error.
  */
 export declare const addSourceType: (name: string, SourceType: SourceClass) => Promise<void>;
@@ -3171,6 +3171,96 @@ declare class ColorMode {
 	static unblended: Readonly<ColorMode>;
 	static alphaBlended: Readonly<ColorMode>;
 }
+export type PoolObject = {
+	id: number;
+	fbo: Framebuffer;
+	texture: Texture;
+	stamp: number;
+	inUse: boolean;
+};
+declare class RenderPool {
+	private readonly _context;
+	private readonly _size;
+	private readonly _tileSize;
+	private _objects;
+	/**
+	 * An index array of recently used pool objects.
+	 * Items that are used recently are last in the array
+	 */
+	private _recentlyUsed;
+	private _stamp;
+	constructor(_context: Context, _size: number, _tileSize: number);
+	destruct(): void;
+	private _createObject;
+	getObjectForId(id: number): PoolObject;
+	useObject(obj: PoolObject): void;
+	stampObject(obj: PoolObject): void;
+	getOrCreateFreeObject(): PoolObject;
+	freeObject(obj: PoolObject): void;
+	freeAllObjects(): void;
+	isFull(): boolean;
+}
+declare class RenderToTexture {
+	painter: Painter;
+	terrain: Terrain;
+	pool: RenderPool;
+	/**
+	 * coordsDescendingInv contains a list of all tiles which should be rendered for one render-to-texture tile
+	 * e.g. render 4 raster-tiles with size 256px to the 512px render-to-texture tile
+	 */
+	_coordsDescendingInv: {
+		[_: string]: {
+			[_: string]: Array<OverscaledTileID>;
+		};
+	};
+	/**
+	 * create a string representation of all to tiles rendered to render-to-texture tiles
+	 * this string representation is used to check if tile should be re-rendered.
+	 */
+	_coordsDescendingInvStr: {
+		[_: string]: {
+			[_: string]: string;
+		};
+	};
+	/**
+	 * store for render-stacks
+	 * a render stack is a set of layers which should be rendered into one texture
+	 * every stylesheet can have multiple stacks. A new stack is created if layers which should
+	 * not rendered to texture sit between layers which should rendered to texture. e.g. hillshading or symbols
+	 */
+	_stacks: Array<Array<string>>;
+	/**
+	 * remember the previous processed layer to check if a new stack is needed
+	 */
+	_prevType: string;
+	/**
+	 * a list of tiles that can potentially rendered
+	 */
+	_renderableTiles: Array<Tile>;
+	/**
+	 * a list of tiles that should be rendered to screen in the next render-call
+	 */
+	_rttTiles: Array<Tile>;
+	/**
+	 * a list of all layer-ids which should be rendered
+	 */
+	_renderableLayerIds: Array<string>;
+	constructor(painter: Painter, terrain: Terrain);
+	destruct(): void;
+	getTexture(tile: Tile): Texture;
+	prepareForRender(style: Style, zoom: number): void;
+	/**
+	 * due that switching textures is relatively slow, the render
+	 * layer-by-layer context is not practicable. To bypass this problem
+	 * this lines of code stack all layers and later render all at once.
+	 * Because of the stylesheet possibility to mixing render-to-texture layers
+	 * and 'live'-layers (f.e. symbols) it is necessary to create more stacks. For example
+	 * a symbol-layer is in between of fill-layers.
+	 * @param layer - the layer to render
+	 * @returns if true layer is rendered to texture, otherwise false
+	 */
+	renderLayer(layer: StyleLayer): boolean;
+}
 /**
  * A dash entry
  */
@@ -3267,96 +3357,6 @@ declare class GlyphManager {
 	}>;
 	_doesCharSupportLocalGlyph(id: number): boolean;
 	_tinySDF(entry: Entry, stack: string, id: number): StyleGlyph;
-}
-export type PoolObject = {
-	id: number;
-	fbo: Framebuffer;
-	texture: Texture;
-	stamp: number;
-	inUse: boolean;
-};
-declare class RenderPool {
-	private readonly _context;
-	private readonly _size;
-	private readonly _tileSize;
-	private _objects;
-	/**
-	 * An index array of recently used pool objects.
-	 * Items that are used recently are last in the array
-	 */
-	private _recentlyUsed;
-	private _stamp;
-	constructor(_context: Context, _size: number, _tileSize: number);
-	destruct(): void;
-	private _createObject;
-	getObjectForId(id: number): PoolObject;
-	useObject(obj: PoolObject): void;
-	stampObject(obj: PoolObject): void;
-	getOrCreateFreeObject(): PoolObject;
-	freeObject(obj: PoolObject): void;
-	freeAllObjects(): void;
-	isFull(): boolean;
-}
-declare class RenderToTexture {
-	painter: Painter;
-	terrain: Terrain;
-	pool: RenderPool;
-	/**
-	 * coordsDescendingInv contains a list of all tiles which should be rendered for one render-to-texture tile
-	 * e.g. render 4 raster-tiles with size 256px to the 512px render-to-texture tile
-	 */
-	_coordsDescendingInv: {
-		[_: string]: {
-			[_: string]: Array<OverscaledTileID>;
-		};
-	};
-	/**
-	 * create a string representation of all to tiles rendered to render-to-texture tiles
-	 * this string representation is used to check if tile should be re-rendered.
-	 */
-	_coordsDescendingInvStr: {
-		[_: string]: {
-			[_: string]: string;
-		};
-	};
-	/**
-	 * store for render-stacks
-	 * a render stack is a set of layers which should be rendered into one texture
-	 * every stylesheet can have multiple stacks. A new stack is created if layers which should
-	 * not rendered to texture sit between layers which should rendered to texture. e.g. hillshading or symbols
-	 */
-	_stacks: Array<Array<string>>;
-	/**
-	 * remember the previous processed layer to check if a new stack is needed
-	 */
-	_prevType: string;
-	/**
-	 * a list of tiles that can potentially rendered
-	 */
-	_renderableTiles: Array<Tile>;
-	/**
-	 * a list of tiles that should be rendered to screen in the next render-call
-	 */
-	_rttTiles: Array<Tile>;
-	/**
-	 * a list of all layer-ids which should be rendered
-	 */
-	_renderableLayerIds: Array<string>;
-	constructor(painter: Painter, terrain: Terrain);
-	destruct(): void;
-	getTexture(tile: Tile): Texture;
-	prepareForRender(style: Style, zoom: number): void;
-	/**
-	 * due that switching textures is relatively slow, the render
-	 * layer-by-layer context is not practicable. To bypass this problem
-	 * this lines of code stack all layers and later render all at once.
-	 * Because of the stylesheet possibility to mixing render-to-texture layers
-	 * and 'live'-layers (f.e. symbols) it is necessary to create more stacks. For example
-	 * a symbol-layer is in between of fill-layers.
-	 * @param layer - the layer to render
-	 * @returns if true layer is rendered to texture, otherwise false
-	 */
-	renderLayer(layer: StyleLayer): boolean;
 }
 export type RenderPass = "offscreen" | "opaque" | "translucent";
 export type PainterOptions = {
@@ -3549,6 +3549,13 @@ declare class TerrainSourceCache extends Evented {
 	 */
 	tilesAfterTime(time?: number): Array<Tile>;
 }
+declare class Mesh {
+	vertexBuffer: VertexBuffer;
+	indexBuffer: IndexBuffer;
+	segments: SegmentVector;
+	constructor(vertexBuffer: VertexBuffer, indexBuffer: IndexBuffer, segments: SegmentVector);
+	destroy(): void;
+}
 /**
  * @internal
  * A terrain GPU related object
@@ -3563,15 +3570,6 @@ export type TerrainData = {
 	texture: WebGLTexture;
 	depthTexture: WebGLTexture;
 	tile: Tile;
-};
-/**
- * @internal
- * A terrain mesh object
- */
-export type TerrainMesh = {
-	indexBuffer: IndexBuffer;
-	vertexBuffer: VertexBuffer;
-	segments: SegmentVector;
 };
 declare class Terrain {
 	/**
@@ -3611,7 +3609,7 @@ declare class Terrain {
 	 * GL Objects for the terrain-mesh
 	 * The mesh is a regular mesh, which has the advantage that it can be reused for all tiles.
 	 */
-	_mesh: TerrainMesh;
+	_mesh: Mesh;
 	/**
 	 * coords index contains a list of tileID.keys. This index is used to identify
 	 * the tile via the alpha-cannel in the coords-texture.
@@ -3707,7 +3705,7 @@ declare class Terrain {
 	 * create a regular mesh which will be used by all terrain-tiles
 	 * @returns the created regular mesh
 	 */
-	getTerrainMesh(): TerrainMesh;
+	getTerrainMesh(): Mesh;
 	/**
 	 * Calculates a height of the frame around the terrain-mesh to avoid stiching between
 	 * tile boundaries in different zoomlevels.
@@ -3759,6 +3757,7 @@ declare class Transform {
 	modelViewProjectionMatrix: mat4;
 	invModelViewProjectionMatrix: mat4;
 	alignedModelViewProjectionMatrix: mat4;
+	fogMatrix: mat4;
 	pixelMatrix: mat4;
 	pixelMatrix3D: mat4;
 	pixelMatrixInverse: mat4;
@@ -3783,6 +3782,9 @@ declare class Transform {
 		[_: string]: mat4;
 	};
 	_alignedPosMatrixCache: {
+		[_: string]: mat4;
+	};
+	_fogMatrixCache: {
 		[_: string]: mat4;
 	};
 	constructor(minZoom?: number, maxZoom?: number, minPitch?: number, maxPitch?: number, renderWorldCopies?: boolean);
@@ -3971,11 +3973,18 @@ declare class Transform {
 	 * @param bounds - A {@link LngLatBounds} object describing the new geographic boundaries of the map.
 	 */
 	setMaxBounds(bounds?: LngLatBounds | null): void;
+	calculateTileMatrix(unwrappedTileID: UnwrappedTileID): mat4;
 	/**
 	 * Calculate the posMatrix that, given a tile coordinate, would be used to display the tile on a map.
 	 * @param unwrappedTileID - the tile ID
 	 */
 	calculatePosMatrix(unwrappedTileID: UnwrappedTileID, aligned?: boolean): mat4;
+	/**
+	 * Calculate the fogMatrix that, given a tile coordinate, would be used to calculate fog on the map.
+	 * @param unwrappedTileID - the tile ID
+	 * @private
+	 */
+	calculateFogMatrix(unwrappedTileID: UnwrappedTileID): mat4;
 	customLayerMatrix(): mat4;
 	/**
 	 * Get center lngLat and zoom to ensure that
@@ -4796,6 +4805,51 @@ declare class CullFaceMode {
 	static disabled: Readonly<CullFaceMode>;
 	static backCCW: Readonly<CullFaceMode>;
 }
+export type SkyProps = {
+	"sky-color": DataConstantProperty<Color>;
+	"horizon-color": DataConstantProperty<Color>;
+	"fog-color": DataConstantProperty<Color>;
+	"fog-ground-blend": DataConstantProperty<number>;
+	"horizon-fog-blend": DataConstantProperty<number>;
+	"sky-horizon-blend": DataConstantProperty<number>;
+	"atmosphere-blend": DataConstantProperty<number>;
+};
+export type SkyPropsPossiblyEvaluated = {
+	"sky-color": Color;
+	"horizon-color": Color;
+	"fog-color": Color;
+	"fog-ground-blend": number;
+	"horizon-fog-blend": number;
+	"sky-horizon-blend": number;
+	"atmosphere-blend": number;
+};
+declare class Sky extends Evented {
+	properties: PossiblyEvaluated<SkyProps, SkyPropsPossiblyEvaluated>;
+	/**
+	 * This is used to cache the gl mesh for the sky, it should be initialized only once.
+	 */
+	mesh: Mesh | undefined;
+	_transitionable: Transitionable<SkyProps>;
+	_transitioning: Transitioning<SkyProps>;
+	constructor(sky?: SkySpecification);
+	setSky(sky?: SkySpecification, options?: StyleSetterOptions): void;
+	getSky(): SkySpecification;
+	updateTransitions(parameters: TransitionParameters): void;
+	hasTransition(): boolean;
+	recalculate(parameters: EvaluationParameters): void;
+	_validate(validate: Function, value: unknown, options?: StyleSetterOptions): boolean;
+	/**
+	 * Currently fog is a very simple implementation, and should only used
+	 * to create an atmosphere near the horizon.
+	 * But because the fog is drawn from the far-clipping-plane to
+	 * map-center, and because the fog does nothing know about the horizon,
+	 * this method does a fadeout in respect of pitch. So, when the horizon
+	 * gets out of view, which is at about pitch 70, this methods calculates
+	 * the corresponding opacity values. Below pitch 60 the fog is completely
+	 * invisible.
+	 */
+	calculateFogBlendOpacity(pitch: number): number;
+}
 export type TerrainPreludeUniformsType = {
 	"u_depth": Uniform1i;
 	"u_terrain": Uniform1i;
@@ -5079,22 +5133,22 @@ declare class LightPositionProperty implements Property<[
 	], LightPosition>, parameters: EvaluationParameters): LightPosition;
 	interpolate(a: LightPosition, b: LightPosition, t: number): LightPosition;
 }
-export type Props = {
+export type LightProps = {
 	"anchor": DataConstantProperty<"map" | "viewport">;
 	"position": LightPositionProperty;
 	"color": DataConstantProperty<Color>;
 	"intensity": DataConstantProperty<number>;
 };
-export type PropsPossiblyEvaluated = {
+export type LightPropsPossiblyEvaluated = {
 	"anchor": "map" | "viewport";
 	"position": LightPosition;
 	"color": Color;
 	"intensity": number;
 };
 declare class Light extends Evented {
-	_transitionable: Transitionable<Props>;
-	_transitioning: Transitioning<Props>;
-	properties: PossiblyEvaluated<Props, PropsPossiblyEvaluated>;
+	_transitionable: Transitionable<LightProps>;
+	_transitioning: Transitioning<LightProps>;
+	properties: PossiblyEvaluated<LightProps, LightPropsPossiblyEvaluated>;
 	constructor(lightOptions?: LightSpecification);
 	getLight(): LightSpecification;
 	setLight(light?: LightSpecification, options?: StyleSetterOptions): void;
@@ -5753,8 +5807,8 @@ export type StyleSetterOptions = {
  *      when a desired style is a certain combination of previous and incoming style
  *      when an incoming style requires modification based on external state
  *
- * @param previousStyle - The current style.
- * @param nextStyle - The next style.
+ * @param previous - The current style.
+ * @param next - The next style.
  * @returns resulting style that will to be applied to the map
  *
  * @example
@@ -5822,6 +5876,7 @@ export declare class Style extends Evented {
 	glyphManager: GlyphManager;
 	lineAtlas: LineAtlas;
 	light: Light;
+	sky: Sky;
 	_frameRequest: AbortController;
 	_loadStyleRequest: AbortController;
 	_spriteRequest: AbortController;
@@ -6004,7 +6059,7 @@ export declare class Style extends Evented {
 		duration: number;
 		delay: number;
 	} & import("@maplibre/maplibre-gl-style-spec").TransitionSpecification;
-	serialize(): StyleSpecification;
+	serialize(): StyleSpecification | undefined;
 	_updateLayer(layer: StyleLayer): void;
 	_flattenAndSortRenderedFeatures(sourceResults: Array<{
 		[key: string]: Array<{
@@ -6016,6 +6071,8 @@ export declare class Style extends Evented {
 	querySourceFeatures(sourceID: string, params?: QuerySourceFeatureOptions): any[];
 	getLight(): LightSpecification;
 	setLight(lightOptions: LightSpecification, options?: StyleSetterOptions): void;
+	getSky(): SkySpecification;
+	setSky(skyOptions?: SkySpecification, options?: StyleSetterOptions): void;
 	_validate(validate: Validator, key: string, value: any, props: any, options?: {
 		validate?: boolean;
 	}): boolean;
@@ -8859,7 +8916,7 @@ export type GestureOptions = boolean;
  *   cooperativeGestures: true
  * });
  * ```
- * @see [Example: cooperative gestures](https://maplibre.org/maplibre-gl-js-docs/example/cooperative-gestures/)
+ * @see [Example: cooperative gestures](https://maplibre.org/maplibre-gl-js/docs/examples/cooperative-gestures/)
  **/
 export declare class CooperativeGesturesHandler implements Handler {
 	_options: GestureOptions;
@@ -10859,6 +10916,23 @@ declare class Map$1 extends Camera {
 	 */
 	getLight(): LightSpecification;
 	/**
+	 * Loads sky and fog defined by {@link SkySpecification} onto the map.
+	 * Note: The fog only shows when using the terrain 3D feature.
+	 * @param sky - Sky properties to set. Must conform to the [MapLibre Style Specification](https://maplibre.org/maplibre-gl-js-docs/style-spec/#sky).
+	 * @returns `this`
+	 * @example
+	 * ```ts
+	 * map.setSky({ 'sky-color': '#00f' });
+	 * ```
+	 */
+	setSky(sky: SkySpecification): this;
+	/**
+	 * Returns the value of the sky object.
+	 *
+	 * @returns sky Sky properties of the style.
+	 */
+	getSky(): SkySpecification;
+	/**
 	 * Sets the `state` of a feature.
 	 * A feature's `state` is a set of user-defined key-value pairs that are assigned to a feature at runtime.
 	 * When using this method, the `state` object is merged with any existing key-value pairs in the feature's state.
@@ -12482,7 +12556,7 @@ export type SetClusterOptions = {
  * ```
  * @see [Draw GeoJSON points](https://maplibre.org/maplibre-gl-js/docs/examples/geojson-markers/)
  * @see [Add a GeoJSON line](https://maplibre.org/maplibre-gl-js/docs/examples/geojson-line/)
- * @see [Create a heatmap from points](https://maplibre.org/maplibre-gl-js/docs/examples/heatmap/)
+ * @see [Create a heatmap from points](https://maplibre.org/maplibre-gl-js/docs/examples/heatmap-layer/)
  * @see [Create and style clusters](https://maplibre.org/maplibre-gl-js/docs/examples/cluster/)
  */
 export declare class GeoJSONSource extends Evented implements Source {
@@ -12927,7 +13001,7 @@ export declare function removeProtocol(customProtocol: string): void;
  * Necessary for supporting the Arabic and Hebrew languages, which are written right-to-left.
  *
  * @param pluginURL - URL pointing to the Mapbox RTL text plugin source.
- * @param lazy - If set to `true`, mapboxgl will defer loading the plugin until rtl text is encountered,
+ * @param lazy - If set to `true`, maplibre will defer loading the plugin until rtl text is encountered,
  * rtl text will then be rendered only after the plugin finishes loading.
  * @example
  * ```ts
@@ -13066,6 +13140,7 @@ export {
 	RasterDEMSourceSpecification,
 	RasterSourceSpecification,
 	ResolvedImage,
+	SkySpecification,
 	SourceExpression,
 	SourceSpecification,
 	SpriteSpecification,

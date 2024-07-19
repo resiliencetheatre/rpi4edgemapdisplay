@@ -921,6 +921,18 @@ input:focus {
 }
 
 
+.map-top-local-gps-button {
+	background-color: #333;
+	color: #0f0;
+	position: absolute;
+	border-radius: 5px;
+	top: 10px;
+	width: 15px;
+    height: 15px;
+	right: 7px;
+	padding: 10px;
+	opacity: 1;
+}
 
 
 
@@ -1147,7 +1159,7 @@ input:focus {
 	position: absolute;
 	width: 35px;
 	border-radius: 5px;
-	top: 400px;
+	top: 360px;
 	right: 2px;
 	padding: 5px;
 	opacity: 1.0;
@@ -1169,7 +1181,7 @@ input:focus {
 	position: absolute;
 	width: 35px;
 	border-radius: 5px;
-	top: 440px;
+	top: 400px;
 	right: 2px;
 	padding: 5px;
 	opacity: 1.0;
@@ -1356,4 +1368,49 @@ input:focus {
 }
 
 
+
+
+
+.map-bottom-manualLocation-entries {
+    font: 12px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	background-color: #333;
+	color: #0f0;
+	position: absolute;
+	border-radius: 5px;
+    width: 290px;
+    height: 50px;
+	bottom: 220px;
+    left: 10px;
+	padding: 10px;
+	opacity: 0.6;
+}
+
+.manualLocation-close-button-style {
+	font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	position: absolute;
+	width: 40px;
+    color: #0f0;
+    border: 1px solid #00fF00;
+	border-radius: 5px;
+	top: 4px;
+	right: 4px;
+	padding: 2px;
+	opacity: 1.0;
+}
+.manualLocation-define-button-style {
+	font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	position: absolute;
+	width: 40px;
+    color: #0f0;
+    border: 1px solid #00fF00;
+	border-radius: 5px;
+	top: 34px;
+	right: 4px;
+	padding: 2px;
+	opacity: 1.0;
+}
+
+.manualLocation-message-style {
+
+}
 

@@ -1,6 +1,6 @@
 /**
  * MapLibre GL JS
- * @license 3-Clause BSD. Full text of license: https://github.com/maplibre/maplibre-gl-js/blob/v4.4.0/LICENSE.txt
+ * @license 3-Clause BSD. Full text of license: https://github.com/maplibre/maplibre-gl-js/blob/v4.5.0/LICENSE.txt
  */
 var maplibregl = (function () {
 'use strict';
@@ -11920,7 +11920,7 @@ function validateLight$1(options) {
     return errors;
 }
 
-function validateSky(options) {
+function validateSky$1(options) {
     const sky = options.value;
     const styleSpec = options.styleSpec;
     const skySpec = styleSpec.sky;
@@ -12146,7 +12146,7 @@ const VALIDATORS = {
     'object': validateObject,
     'source': validateSource$1,
     'light': validateLight$1,
-    'sky': validateSky,
+    'sky': validateSky$1,
     'terrain': validateTerrain$1,
     'projection': validateProjection,
     'string': validateString,
@@ -12252,7 +12252,7 @@ validateStyleMin.source = wrapCleanErrors(injectValidateSpec(validateSource$1));
 validateStyleMin.sprite = wrapCleanErrors(injectValidateSpec(validateSprite));
 validateStyleMin.glyphs = wrapCleanErrors(injectValidateSpec(validateGlyphsUrl));
 validateStyleMin.light = wrapCleanErrors(injectValidateSpec(validateLight$1));
-validateStyleMin.sky = wrapCleanErrors(injectValidateSpec(validateSky));
+validateStyleMin.sky = wrapCleanErrors(injectValidateSpec(validateSky$1));
 validateStyleMin.terrain = wrapCleanErrors(injectValidateSpec(validateTerrain$1));
 validateStyleMin.layer = wrapCleanErrors(injectValidateSpec(validateLayer));
 validateStyleMin.filter = wrapCleanErrors(injectValidateSpec(validateFilter$1));
@@ -12991,114 +12991,22 @@ function isArrayBuffer(value) {
     return value && typeof ArrayBuffer !== 'undefined' &&
         (value instanceof ArrayBuffer || (value.constructor && value.constructor.name === 'ArrayBuffer'));
 }
-/**
- * Serialize the given object for transfer to or from a web worker.
- *
- * For non-builtin types, recursively serialize each property (possibly
- * omitting certain properties - see register()), and package the result along
- * with the constructor's `name` so that the appropriate constructor can be
- * looked up in `deserialize()`.
- *
- * If a `transferables` array is provided, add any transferable objects (i.e.,
- * any ArrayBuffers or ArrayBuffer views) to the list. (If a copy is needed,
- * this should happen in the client code, before using serialize().)
- */
-function serialize(input, transferables) {
-    if (input === null ||
-        input === undefined ||
-        typeof input === 'boolean' ||
-        typeof input === 'number' ||
-        typeof input === 'string' ||
-        input instanceof Boolean ||
-        input instanceof Number ||
-        input instanceof String ||
-        input instanceof Date ||
-        input instanceof RegExp ||
-        input instanceof Blob ||
-        input instanceof Error) {
-        return input;
-    }
-    if (isArrayBuffer(input)) {
-        if (transferables) {
-            transferables.push(input);
-        }
-        return input;
-    }
-    if (isImageBitmap(input)) {
-        if (transferables) {
-            transferables.push(input);
-        }
-        return input;
-    }
-    if (ArrayBuffer.isView(input)) {
-        const view = input;
-        if (transferables) {
-            transferables.push(view.buffer);
-        }
-        return view;
-    }
-    if (input instanceof ImageData) {
-        if (transferables) {
-            transferables.push(input.data.buffer);
-        }
-        return input;
-    }
-    if (Array.isArray(input)) {
-        const serialized = [];
-        for (const item of input) {
-            serialized.push(serialize(item, transferables));
-        }
-        return serialized;
-    }
-    if (typeof input === 'object') {
-        const klass = input.constructor;
-        const name = klass._classRegistryKey;
-        if (!name) {
-            throw new Error(`can't serialize object of unregistered class ${klass.name}`);
-        }
-        if (!registry[name])
-            throw new Error(`${name} is not registered.`);
-        const properties = klass.serialize ?
-            // (Temporary workaround) allow a class to provide static
-            // `serialize()` and `deserialize()` methods to bypass the generic
-            // approach.
-            // This temporary workaround lets us use the generic serialization
-            // approach for objects whose members include instances of dynamic
-            // StructArray types. Once we refactor StructArray to be static,
-            // we can remove this complexity.
-            klass.serialize(input, transferables) : {};
-        if (!klass.serialize) {
-            for (const key in input) {
-                if (!input.hasOwnProperty(key))
-                    continue; // eslint-disable-line no-prototype-builtins
-                if (registry[name].omit.indexOf(key) >= 0)
-                    continue;
-                const property = input[key];
-                properties[key] = registry[name].shallow.indexOf(key) >= 0 ?
-                    property :
-                    serialize(property, transferables);
-            }
-            if (input instanceof Error) {
-                properties.message = input.message;
-            }
-        }
-        else {
-            if (transferables && properties === transferables[transferables.length - 1]) {
-                throw new Error('statically serialized object won\'t survive transfer of $name property');
-            }
-        }
-        if (properties.$name) {
-            throw new Error('$name property is reserved for worker serialization logic.');
-        }
-        if (name !== 'Object') {
-            properties.$name = name;
-        }
-        return properties;
-    }
-    throw new Error(`can't serialize object of type ${typeof input}`);
+function getClassRegistryKey(input) {
+    const klass = input.constructor;
+    return input.$name || klass._classRegistryKey;
 }
-function deserialize(input) {
-    if (input === null ||
+function isRegistered(input) {
+    if (input === null || typeof input !== 'object') {
+        return false;
+    }
+    const classRegistryKey = getClassRegistryKey(input);
+    if (classRegistryKey && classRegistryKey !== 'Object') {
+        return true;
+    }
+    return false;
+}
+function isSerializeHandledByBuiltin(input) {
+    return (!isRegistered(input) && (input === null ||
         input === undefined ||
         typeof input === 'boolean' ||
         typeof input === 'number' ||
@@ -13113,34 +13021,123 @@ function deserialize(input) {
         isArrayBuffer(input) ||
         isImageBitmap(input) ||
         ArrayBuffer.isView(input) ||
-        input instanceof ImageData) {
+        input instanceof ImageData));
+}
+/**
+ * Serialize the given object for transfer to or from a web worker.
+ *
+ * For non-builtin types, recursively serialize each property (possibly
+ * omitting certain properties - see register()), and package the result along
+ * with the constructor's `name` so that the appropriate constructor can be
+ * looked up in `deserialize()`.
+ *
+ * If a `transferables` array is provided, add any transferable objects (i.e.,
+ * any ArrayBuffers or ArrayBuffer views) to the list. (If a copy is needed,
+ * this should happen in the client code, before using serialize().)
+ */
+function serialize(input, transferables) {
+    if (isSerializeHandledByBuiltin(input)) {
+        if (isArrayBuffer(input) || isImageBitmap(input)) {
+            if (transferables) {
+                transferables.push(input);
+            }
+        }
+        if (ArrayBuffer.isView(input)) {
+            const view = input;
+            if (transferables) {
+                transferables.push(view.buffer);
+            }
+        }
+        if (input instanceof ImageData) {
+            if (transferables) {
+                transferables.push(input.data.buffer);
+            }
+        }
+        return input;
+    }
+    if (Array.isArray(input)) {
+        const serialized = [];
+        for (const item of input) {
+            serialized.push(serialize(item, transferables));
+        }
+        return serialized;
+    }
+    if (typeof input !== 'object') {
+        throw new Error(`can't serialize object of type ${typeof input}`);
+    }
+    const classRegistryKey = getClassRegistryKey(input);
+    if (!classRegistryKey) {
+        throw new Error(`can't serialize object of unregistered class ${input.constructor.name}`);
+    }
+    if (!registry[classRegistryKey])
+        throw new Error(`${classRegistryKey} is not registered.`);
+    const { klass } = registry[classRegistryKey];
+    const properties = klass.serialize ?
+        // (Temporary workaround) allow a class to provide static
+        // `serialize()` and `deserialize()` methods to bypass the generic
+        // approach.
+        // This temporary workaround lets us use the generic serialization
+        // approach for objects whose members include instances of dynamic
+        // StructArray types. Once we refactor StructArray to be static,
+        // we can remove this complexity.
+        klass.serialize(input, transferables) : {};
+    if (!klass.serialize) {
+        for (const key in input) {
+            if (!input.hasOwnProperty(key))
+                continue; // eslint-disable-line no-prototype-builtins
+            if (registry[classRegistryKey].omit.indexOf(key) >= 0)
+                continue;
+            const property = input[key];
+            properties[key] = registry[classRegistryKey].shallow.indexOf(key) >= 0 ?
+                property :
+                serialize(property, transferables);
+        }
+        if (input instanceof Error) {
+            properties.message = input.message;
+        }
+    }
+    else {
+        if (transferables && properties === transferables[transferables.length - 1]) {
+            throw new Error('statically serialized object won\'t survive transfer of $name property');
+        }
+    }
+    if (properties.$name) {
+        throw new Error('$name property is reserved for worker serialization logic.');
+    }
+    if (classRegistryKey !== 'Object') {
+        properties.$name = classRegistryKey;
+    }
+    return properties;
+}
+function deserialize(input) {
+    if (isSerializeHandledByBuiltin(input)) {
         return input;
     }
     if (Array.isArray(input)) {
         return input.map(deserialize);
     }
-    if (typeof input === 'object') {
-        const name = input.$name || 'Object';
-        if (!registry[name]) {
-            throw new Error(`can't deserialize unregistered class ${name}`);
-        }
-        const { klass } = registry[name];
-        if (!klass) {
-            throw new Error(`can't deserialize unregistered class ${name}`);
-        }
-        if (klass.deserialize) {
-            return klass.deserialize(input);
-        }
-        const result = Object.create(klass.prototype);
-        for (const key of Object.keys(input)) {
-            if (key === '$name')
-                continue;
-            const value = input[key];
-            result[key] = registry[name].shallow.indexOf(key) >= 0 ? value : deserialize(value);
-        }
-        return result;
+    if (typeof input !== 'object') {
+        throw new Error(`can't deserialize object of type ${typeof input}`);
     }
-    throw new Error(`can't deserialize object of type ${typeof input}`);
+    const classRegistryKey = getClassRegistryKey(input) || 'Object';
+    if (!registry[classRegistryKey]) {
+        throw new Error(`can't deserialize unregistered class ${classRegistryKey}`);
+    }
+    const { klass } = registry[classRegistryKey];
+    if (!klass) {
+        throw new Error(`can't deserialize unregistered class ${classRegistryKey}`);
+    }
+    if (klass.deserialize) {
+        return klass.deserialize(input);
+    }
+    const result = Object.create(klass.prototype);
+    for (const key of Object.keys(input)) {
+        if (key === '$name')
+            continue;
+        const value = input[key];
+        result[key] = registry[classRegistryKey].shallow.indexOf(key) >= 0 ? value : deserialize(value);
+    }
+    return result;
 }
 
 /**
@@ -13489,6 +13486,7 @@ class Evented {
 const validateStyle = validateStyleMin;
 const validateSource = validateStyle.source;
 const validateLight = validateStyle.light;
+const validateSky = validateStyle.sky;
 const validateTerrain = validateStyle.terrain;
 const validateFilter = validateStyle.filter;
 const validatePaintProperty = validateStyle.paintProperty;
@@ -15122,7 +15120,7 @@ function align$1(offset, size) {
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Int16[2]
+ * [0] - Int16[2]
  *
  */
 class StructArrayLayout2i4 extends StructArray {
@@ -15147,7 +15145,7 @@ register('StructArrayLayout2i4', StructArrayLayout2i4);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Int16[3]
+ * [0] - Int16[3]
  *
  */
 class StructArrayLayout3i6 extends StructArray {
@@ -15173,7 +15171,7 @@ register('StructArrayLayout3i6', StructArrayLayout3i6);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Int16[4]
+ * [0] - Int16[4]
  *
  */
 class StructArrayLayout4i8 extends StructArray {
@@ -15200,8 +15198,8 @@ register('StructArrayLayout4i8', StructArrayLayout4i8);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Int16[2]
- * [4]: Int16[4]
+ * [0] - Int16[2]
+ * [4] - Int16[4]
  *
  */
 class StructArrayLayout2i4i12 extends StructArray {
@@ -15230,8 +15228,8 @@ register('StructArrayLayout2i4i12', StructArrayLayout2i4i12);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Int16[2]
- * [4]: Uint8[4]
+ * [0] - Int16[2]
+ * [4] - Uint8[4]
  *
  */
 class StructArrayLayout2i4ub8 extends StructArray {
@@ -15261,7 +15259,7 @@ register('StructArrayLayout2i4ub8', StructArrayLayout2i4ub8);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Float32[2]
+ * [0] - Float32[2]
  *
  */
 class StructArrayLayout2f8 extends StructArray {
@@ -15286,7 +15284,7 @@ register('StructArrayLayout2f8', StructArrayLayout2f8);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Uint16[10]
+ * [0] - Uint16[10]
  *
  */
 class StructArrayLayout10ui20 extends StructArray {
@@ -15319,9 +15317,9 @@ register('StructArrayLayout10ui20', StructArrayLayout10ui20);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Int16[4]
- * [8]: Uint16[4]
- * [16]: Int16[4]
+ * [0] - Int16[4]
+ * [8] - Uint16[4]
+ * [16] - Int16[4]
  *
  */
 class StructArrayLayout4i4ui4i24 extends StructArray {
@@ -15357,7 +15355,7 @@ register('StructArrayLayout4i4ui4i24', StructArrayLayout4i4ui4i24);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Float32[3]
+ * [0] - Float32[3]
  *
  */
 class StructArrayLayout3f12 extends StructArray {
@@ -15383,7 +15381,7 @@ register('StructArrayLayout3f12', StructArrayLayout3f12);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Uint32[1]
+ * [0] - Uint32[1]
  *
  */
 class StructArrayLayout1ul4 extends StructArray {
@@ -15407,9 +15405,9 @@ register('StructArrayLayout1ul4', StructArrayLayout1ul4);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Int16[6]
- * [12]: Uint32[1]
- * [16]: Uint16[2]
+ * [0] - Int16[6]
+ * [12] - Uint32[1]
+ * [16] - Uint16[2]
  *
  */
 class StructArrayLayout6i1ul2ui20 extends StructArray {
@@ -15444,9 +15442,9 @@ register('StructArrayLayout6i1ul2ui20', StructArrayLayout6i1ul2ui20);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Int16[2]
- * [4]: Int16[2]
- * [8]: Int16[2]
+ * [0] - Int16[2]
+ * [4] - Int16[2]
+ * [8] - Int16[2]
  *
  */
 class StructArrayLayout2i2i2i12 extends StructArray {
@@ -15475,9 +15473,9 @@ register('StructArrayLayout2i2i2i12', StructArrayLayout2i2i2i12);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Float32[2]
- * [8]: Float32[1]
- * [12]: Int16[2]
+ * [0] - Float32[2]
+ * [8] - Float32[1]
+ * [12] - Int16[2]
  *
  */
 class StructArrayLayout2f1f2i16 extends StructArray {
@@ -15507,9 +15505,9 @@ register('StructArrayLayout2f1f2i16', StructArrayLayout2f1f2i16);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Uint8[2]
- * [4]: Float32[2]
- * [12]: Int16[2]
+ * [0] - Uint8[2]
+ * [4] - Float32[2]
+ * [12] - Int16[2]
  *
  */
 class StructArrayLayout2ub2f2i16 extends StructArray {
@@ -15541,7 +15539,7 @@ register('StructArrayLayout2ub2f2i16', StructArrayLayout2ub2f2i16);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Uint16[3]
+ * [0] - Uint16[3]
  *
  */
 class StructArrayLayout3ui6 extends StructArray {
@@ -15567,14 +15565,14 @@ register('StructArrayLayout3ui6', StructArrayLayout3ui6);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Int16[2]
- * [4]: Uint16[2]
- * [8]: Uint32[3]
- * [20]: Uint16[3]
- * [28]: Float32[2]
- * [36]: Uint8[3]
- * [40]: Uint32[1]
- * [44]: Int16[1]
+ * [0] - Int16[2]
+ * [4] - Uint16[2]
+ * [8] - Uint32[3]
+ * [20] - Uint16[3]
+ * [28] - Float32[2]
+ * [36] - Uint8[3]
+ * [40] - Uint32[1]
+ * [44] - Int16[1]
  *
  */
 class StructArrayLayout2i2ui3ul3ui2f3ub1ul1i48 extends StructArray {
@@ -15619,11 +15617,11 @@ register('StructArrayLayout2i2ui3ul3ui2f3ub1ul1i48', StructArrayLayout2i2ui3ul3u
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Int16[8]
- * [16]: Uint16[15]
- * [48]: Uint32[1]
- * [52]: Float32[2]
- * [60]: Uint16[2]
+ * [0] - Int16[8]
+ * [16] - Uint16[15]
+ * [48] - Uint32[1]
+ * [52] - Float32[2]
+ * [60] - Uint16[2]
  *
  */
 class StructArrayLayout8i15ui1ul2f2ui64 extends StructArray {
@@ -15678,7 +15676,7 @@ register('StructArrayLayout8i15ui1ul2f2ui64', StructArrayLayout8i15ui1ul2f2ui64)
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Float32[1]
+ * [0] - Float32[1]
  *
  */
 class StructArrayLayout1f4 extends StructArray {
@@ -15702,8 +15700,8 @@ register('StructArrayLayout1f4', StructArrayLayout1f4);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Uint16[1]
- * [4]: Float32[2]
+ * [0] - Uint16[1]
+ * [4] - Float32[2]
  *
  */
 class StructArrayLayout1ui2f12 extends StructArray {
@@ -15731,8 +15729,8 @@ register('StructArrayLayout1ui2f12', StructArrayLayout1ui2f12);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Uint32[1]
- * [4]: Uint16[2]
+ * [0] - Uint32[1]
+ * [4] - Uint16[2]
  *
  */
 class StructArrayLayout1ul2ui8 extends StructArray {
@@ -15760,7 +15758,7 @@ register('StructArrayLayout1ul2ui8', StructArrayLayout1ul2ui8);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Uint16[2]
+ * [0] - Uint16[2]
  *
  */
 class StructArrayLayout2ui4 extends StructArray {
@@ -15785,7 +15783,7 @@ register('StructArrayLayout2ui4', StructArrayLayout2ui4);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Uint16[1]
+ * [0] - Uint16[1]
  *
  */
 class StructArrayLayout1ui2 extends StructArray {
@@ -15809,7 +15807,7 @@ register('StructArrayLayout1ui2', StructArrayLayout1ui2);
 /**
  * @internal
  * Implementation of the StructArray layout:
- * [0]: Float32[4]
+ * [0] - Float32[4]
  *
  */
 class StructArrayLayout4f16 extends StructArray {
@@ -33917,7 +33915,7 @@ function sqDist(ax, ay, bx, by) {
     return dx * dx + dy * dy;
 }
 
-const defaultOptions = {
+const defaultOptions$1 = {
     minZoom: 0,   // min zoom to generate clusters on
     maxZoom: 16,  // max zoom level to cluster the points on
     minPoints: 2, // minimum points to form a cluster
@@ -33946,7 +33944,7 @@ const OFFSET_PROP = 6;
 
 class Supercluster {
     constructor(options) {
-        this.options = Object.assign(Object.create(defaultOptions), options);
+        this.options = Object.assign(Object.create(defaultOptions$1), options);
         this.trees = new Array(this.options.maxZoom + 1);
         this.stride = this.options.reduce ? 7 : 6;
         this.clusterProps = [];
@@ -34342,18 +34340,18 @@ function yLat(y) {
 // calculate simplification data using optimized Douglas-Peucker algorithm
 
 function simplify(coords, first, last, sqTolerance) {
-    var maxSqDist = sqTolerance;
-    var mid = (last - first) >> 1;
-    var minPosToMid = last - first;
-    var index;
+    let maxSqDist = sqTolerance;
+    const mid = first + ((last - first) >> 1);
+    let minPosToMid = last - first;
+    let index;
 
-    var ax = coords[first];
-    var ay = coords[first + 1];
-    var bx = coords[last];
-    var by = coords[last + 1];
+    const ax = coords[first];
+    const ay = coords[first + 1];
+    const bx = coords[last];
+    const by = coords[last + 1];
 
-    for (var i = first + 3; i < last; i += 3) {
-        var d = getSqSegDist(coords[i], coords[i + 1], ax, ay, bx, by);
+    for (let i = first + 3; i < last; i += 3) {
+        const d = getSqSegDist(coords[i], coords[i + 1], ax, ay, bx, by);
 
         if (d > maxSqDist) {
             index = i;
@@ -34363,7 +34361,7 @@ function simplify(coords, first, last, sqTolerance) {
             // a workaround to ensure we choose a pivot close to the middle of the list,
             // reducing recursion depth, for certain degenerate inputs
             // https://github.com/mapbox/geojson-vt/issues/104
-            var posToMid = Math.abs(i - mid);
+            const posToMid = Math.abs(i - mid);
             if (posToMid < minPosToMid) {
                 index = i;
                 minPosToMid = posToMid;
@@ -34381,12 +34379,12 @@ function simplify(coords, first, last, sqTolerance) {
 // square distance from a point to a segment
 function getSqSegDist(px, py, x, y, bx, by) {
 
-    var dx = bx - x;
-    var dy = by - y;
+    let dx = bx - x;
+    let dy = by - y;
 
     if (dx !== 0 || dy !== 0) {
 
-        var t = ((px - x) * dx + (py - y) * dy) / (dx * dx + dy * dy);
+        const t = ((px - x) * dx + (py - y) * dy) / (dx * dx + dy * dy);
 
         if (t > 1) {
             x = bx;
@@ -34405,43 +34403,41 @@ function getSqSegDist(px, py, x, y, bx, by) {
 }
 
 function createFeature(id, type, geom, tags) {
-    var feature = {
-        id: typeof id === 'undefined' ? null : id,
-        type: type,
+    const feature = {
+        id: id == null ? null : id,
+        type,
         geometry: geom,
-        tags: tags,
+        tags,
         minX: Infinity,
         minY: Infinity,
         maxX: -Infinity,
         maxY: -Infinity
     };
-    calcBBox(feature);
-    return feature;
-}
-
-function calcBBox(feature) {
-    var geom = feature.geometry;
-    var type = feature.type;
 
     if (type === 'Point' || type === 'MultiPoint' || type === 'LineString') {
         calcLineBBox(feature, geom);
 
-    } else if (type === 'Polygon' || type === 'MultiLineString') {
-        for (var i = 0; i < geom.length; i++) {
-            calcLineBBox(feature, geom[i]);
+    } else if (type === 'Polygon') {
+        // the outer ring (ie [0]) contains all inner rings
+        calcLineBBox(feature, geom[0]);
+
+    } else if (type === 'MultiLineString') {
+        for (const line of geom) {
+            calcLineBBox(feature, line);
         }
 
     } else if (type === 'MultiPolygon') {
-        for (i = 0; i < geom.length; i++) {
-            for (var j = 0; j < geom[i].length; j++) {
-                calcLineBBox(feature, geom[i][j]);
-            }
+        for (const polygon of geom) {
+            // the outer ring (ie [0]) contains all inner rings
+            calcLineBBox(feature, polygon[0]);
         }
     }
+
+    return feature;
 }
 
 function calcLineBBox(feature, geom) {
-    for (var i = 0; i < geom.length; i += 3) {
+    for (let i = 0; i < geom.length; i += 3) {
         feature.minX = Math.min(feature.minX, geom[i]);
         feature.minY = Math.min(feature.minY, geom[i + 1]);
         feature.maxX = Math.max(feature.maxX, geom[i]);
@@ -34452,9 +34448,9 @@ function calcLineBBox(feature, geom) {
 // converts GeoJSON feature into an intermediate projected JSON vector format with simplification data
 
 function convert(data, options) {
-    var features = [];
+    const features = [];
     if (data.type === 'FeatureCollection') {
-        for (var i = 0; i < data.features.length; i++) {
+        for (let i = 0; i < data.features.length; i++) {
             convertFeature(features, data.features[i], options, i);
         }
 
@@ -34472,11 +34468,13 @@ function convert(data, options) {
 function convertFeature(features, geojson, options, index) {
     if (!geojson.geometry) return;
 
-    var coords = geojson.geometry.coordinates;
-    var type = geojson.geometry.type;
-    var tolerance = Math.pow(options.tolerance / ((1 << options.maxZoom) * options.extent), 2);
-    var geometry = [];
-    var id = geojson.id;
+    const coords = geojson.geometry.coordinates;
+    if (coords && coords.length === 0) return;
+
+    const type = geojson.geometry.type;
+    const tolerance = Math.pow(options.tolerance / ((1 << options.maxZoom) * options.extent), 2);
+    let geometry = [];
+    let id = geojson.id;
     if (options.promoteId) {
         id = geojson.properties[options.promoteId];
     } else if (options.generateId) {
@@ -34486,8 +34484,8 @@ function convertFeature(features, geojson, options, index) {
         convertPoint(coords, geometry);
 
     } else if (type === 'MultiPoint') {
-        for (var i = 0; i < coords.length; i++) {
-            convertPoint(coords[i], geometry);
+        for (const p of coords) {
+            convertPoint(p, geometry);
         }
 
     } else if (type === 'LineString') {
@@ -34496,9 +34494,9 @@ function convertFeature(features, geojson, options, index) {
     } else if (type === 'MultiLineString') {
         if (options.lineMetrics) {
             // explode into linestrings to be able to track metrics
-            for (i = 0; i < coords.length; i++) {
+            for (const line of coords) {
                 geometry = [];
-                convertLine(coords[i], geometry, tolerance, false);
+                convertLine(line, geometry, tolerance, false);
                 features.push(createFeature(id, 'LineString', geometry, geojson.properties));
             }
             return;
@@ -34510,16 +34508,16 @@ function convertFeature(features, geojson, options, index) {
         convertLines(coords, geometry, tolerance, true);
 
     } else if (type === 'MultiPolygon') {
-        for (i = 0; i < coords.length; i++) {
-            var polygon = [];
-            convertLines(coords[i], polygon, tolerance, true);
-            geometry.push(polygon);
+        for (const polygon of coords) {
+            const newPolygon = [];
+            convertLines(polygon, newPolygon, tolerance, true);
+            geometry.push(newPolygon);
         }
     } else if (type === 'GeometryCollection') {
-        for (i = 0; i < geojson.geometry.geometries.length; i++) {
+        for (const singleGeometry of geojson.geometry.geometries) {
             convertFeature(features, {
-                id: id,
-                geometry: geojson.geometry.geometries[i],
+                id,
+                geometry: singleGeometry,
                 properties: geojson.properties
             }, options, index);
         }
@@ -34532,22 +34530,18 @@ function convertFeature(features, geojson, options, index) {
 }
 
 function convertPoint(coords, out) {
-    out.push(projectX(coords[0]));
-    out.push(projectY(coords[1]));
-    out.push(0);
+    out.push(projectX(coords[0]), projectY(coords[1]), 0);
 }
 
 function convertLine(ring, out, tolerance, isPolygon) {
-    var x0, y0;
-    var size = 0;
+    let x0, y0;
+    let size = 0;
 
-    for (var j = 0; j < ring.length; j++) {
-        var x = projectX(ring[j][0]);
-        var y = projectY(ring[j][1]);
+    for (let j = 0; j < ring.length; j++) {
+        const x = projectX(ring[j][0]);
+        const y = projectY(ring[j][1]);
 
-        out.push(x);
-        out.push(y);
-        out.push(0);
+        out.push(x, y, 0);
 
         if (j > 0) {
             if (isPolygon) {
@@ -34560,7 +34554,7 @@ function convertLine(ring, out, tolerance, isPolygon) {
         y0 = y;
     }
 
-    var last = out.length - 3;
+    const last = out.length - 3;
     out[2] = 1;
     simplify(out, 0, last, tolerance);
     out[last + 2] = 1;
@@ -34571,8 +34565,8 @@ function convertLine(ring, out, tolerance, isPolygon) {
 }
 
 function convertLines(rings, out, tolerance, isPolygon) {
-    for (var i = 0; i < rings.length; i++) {
-        var geom = [];
+    for (let i = 0; i < rings.length; i++) {
+        const geom = [];
         convertLine(rings[i], geom, tolerance, isPolygon);
         out.push(geom);
     }
@@ -34583,36 +34577,36 @@ function projectX(x) {
 }
 
 function projectY(y) {
-    var sin = Math.sin(y * Math.PI / 180);
-    var y2 = 0.5 - 0.25 * Math.log((1 + sin) / (1 - sin)) / Math.PI;
+    const sin = Math.sin(y * Math.PI / 180);
+    const y2 = 0.5 - 0.25 * Math.log((1 + sin) / (1 - sin)) / Math.PI;
     return y2 < 0 ? 0 : y2 > 1 ? 1 : y2;
 }
 
-/* clip features between two axis-parallel lines:
+/* clip features between two vertical or horizontal axis-parallel lines:
  *     |        |
  *  ___|___     |     /
  * /   |   \____|____/
  *     |        |
+ *
+ * k1 and k2 are the line coordinates
+ * axis: 0 for x, 1 for y
+ * minAll and maxAll: minimum and maximum coordinate value for all features
  */
-
 function clip(features, scale, k1, k2, axis, minAll, maxAll, options) {
-
     k1 /= scale;
     k2 /= scale;
 
     if (minAll >= k1 && maxAll < k2) return features; // trivial accept
     else if (maxAll < k1 || minAll >= k2) return null; // trivial reject
 
-    var clipped = [];
+    const clipped = [];
 
-    for (var i = 0; i < features.length; i++) {
+    for (const feature of features) {
+        const geometry = feature.geometry;
+        let type = feature.type;
 
-        var feature = features[i];
-        var geometry = feature.geometry;
-        var type = feature.type;
-
-        var min = axis === 0 ? feature.minX : feature.minY;
-        var max = axis === 0 ? feature.maxX : feature.maxY;
+        const min = axis === 0 ? feature.minX : feature.minY;
+        const max = axis === 0 ? feature.maxX : feature.maxY;
 
         if (min >= k1 && max < k2) { // trivial accept
             clipped.push(feature);
@@ -34621,7 +34615,7 @@ function clip(features, scale, k1, k2, axis, minAll, maxAll, options) {
             continue;
         }
 
-        var newGeometry = [];
+        let newGeometry = [];
 
         if (type === 'Point' || type === 'MultiPoint') {
             clipPoints(geometry, newGeometry, k1, k2, axis);
@@ -34636,19 +34630,19 @@ function clip(features, scale, k1, k2, axis, minAll, maxAll, options) {
             clipLines(geometry, newGeometry, k1, k2, axis, true);
 
         } else if (type === 'MultiPolygon') {
-            for (var j = 0; j < geometry.length; j++) {
-                var polygon = [];
-                clipLines(geometry[j], polygon, k1, k2, axis, true);
-                if (polygon.length) {
-                    newGeometry.push(polygon);
+            for (const polygon of geometry) {
+                const newPolygon = [];
+                clipLines(polygon, newPolygon, k1, k2, axis, true);
+                if (newPolygon.length) {
+                    newGeometry.push(newPolygon);
                 }
             }
         }
 
         if (newGeometry.length) {
             if (options.lineMetrics && type === 'LineString') {
-                for (j = 0; j < newGeometry.length; j++) {
-                    clipped.push(createFeature(feature.id, type, newGeometry[j], feature.tags));
+                for (const line of newGeometry) {
+                    clipped.push(createFeature(feature.id, type, line, feature.tags));
                 }
                 continue;
             }
@@ -34673,33 +34667,31 @@ function clip(features, scale, k1, k2, axis, minAll, maxAll, options) {
 }
 
 function clipPoints(geom, newGeom, k1, k2, axis) {
-    for (var i = 0; i < geom.length; i += 3) {
-        var a = geom[i + axis];
+    for (let i = 0; i < geom.length; i += 3) {
+        const a = geom[i + axis];
 
         if (a >= k1 && a <= k2) {
-            newGeom.push(geom[i]);
-            newGeom.push(geom[i + 1]);
-            newGeom.push(geom[i + 2]);
+            addPoint(newGeom, geom[i], geom[i + 1], geom[i + 2]);
         }
     }
 }
 
 function clipLine(geom, newGeom, k1, k2, axis, isPolygon, trackMetrics) {
 
-    var slice = newSlice(geom);
-    var intersect = axis === 0 ? intersectX : intersectY;
-    var len = geom.start;
-    var segLen, t;
+    let slice = newSlice(geom);
+    const intersect = axis === 0 ? intersectX : intersectY;
+    let len = geom.start;
+    let segLen, t;
 
-    for (var i = 0; i < geom.length - 3; i += 3) {
-        var ax = geom[i];
-        var ay = geom[i + 1];
-        var az = geom[i + 2];
-        var bx = geom[i + 3];
-        var by = geom[i + 4];
-        var a = axis === 0 ? ax : ay;
-        var b = axis === 0 ? bx : by;
-        var exited = false;
+    for (let i = 0; i < geom.length - 3; i += 3) {
+        const ax = geom[i];
+        const ay = geom[i + 1];
+        const az = geom[i + 2];
+        const bx = geom[i + 3];
+        const by = geom[i + 4];
+        const a = axis === 0 ? ax : ay;
+        const b = axis === 0 ? bx : by;
+        let exited = false;
 
         if (trackMetrics) segLen = Math.sqrt(Math.pow(ax - bx, 2) + Math.pow(ay - by, 2));
 
@@ -34739,11 +34731,11 @@ function clipLine(geom, newGeom, k1, k2, axis, isPolygon, trackMetrics) {
     }
 
     // add the last point
-    var last = geom.length - 3;
-    ax = geom[last];
-    ay = geom[last + 1];
-    az = geom[last + 2];
-    a = axis === 0 ? ax : ay;
+    let last = geom.length - 3;
+    const ax = geom[last];
+    const ay = geom[last + 1];
+    const az = geom[last + 2];
+    const a = axis === 0 ? ax : ay;
     if (a >= k1 && a <= k2) addPoint(slice, ax, ay, az);
 
     // close the polygon if its endpoints are not the same after clipping
@@ -34759,7 +34751,7 @@ function clipLine(geom, newGeom, k1, k2, axis, isPolygon, trackMetrics) {
 }
 
 function newSlice(line) {
-    var slice = [];
+    const slice = [];
     slice.size = line.size;
     slice.start = line.start;
     slice.end = line.end;
@@ -34767,38 +34759,32 @@ function newSlice(line) {
 }
 
 function clipLines(geom, newGeom, k1, k2, axis, isPolygon) {
-    for (var i = 0; i < geom.length; i++) {
-        clipLine(geom[i], newGeom, k1, k2, axis, isPolygon, false);
+    for (const line of geom) {
+        clipLine(line, newGeom, k1, k2, axis, isPolygon, false);
     }
 }
 
 function addPoint(out, x, y, z) {
-    out.push(x);
-    out.push(y);
-    out.push(z);
+    out.push(x, y, z);
 }
 
 function intersectX(out, ax, ay, bx, by, x) {
-    var t = (x - ax) / (bx - ax);
-    out.push(x);
-    out.push(ay + (by - ay) * t);
-    out.push(1);
+    const t = (x - ax) / (bx - ax);
+    addPoint(out, x, ay + (by - ay) * t, 1);
     return t;
 }
 
 function intersectY(out, ax, ay, bx, by, y) {
-    var t = (y - ay) / (by - ay);
-    out.push(ax + (bx - ax) * t);
-    out.push(y);
-    out.push(1);
+    const t = (y - ay) / (by - ay);
+    addPoint(out, ax + (bx - ax) * t, y, 1);
     return t;
 }
 
 function wrap(features, options) {
-    var buffer = options.buffer / options.extent;
-    var merged = features;
-    var left  = clip(features, 1, -1 - buffer, buffer,     0, -1, 2, options); // left world copy
-    var right = clip(features, 1,  1 - buffer, 2 + buffer, 0, -1, 2, options); // right world copy
+    const buffer = options.buffer / options.extent;
+    let merged = features;
+    const left  = clip(features, 1, -1 - buffer, buffer,     0, -1, 2, options); // left world copy
+    const right = clip(features, 1,  1 - buffer, 2 + buffer, 0, -1, 2, options); // right world copy
 
     if (left || right) {
         merged = clip(features, 1, -buffer, 1 + buffer, 0, -1, 2, options) || []; // center world copy
@@ -34811,28 +34797,28 @@ function wrap(features, options) {
 }
 
 function shiftFeatureCoords(features, offset) {
-    var newFeatures = [];
+    const newFeatures = [];
 
-    for (var i = 0; i < features.length; i++) {
-        var feature = features[i],
-            type = feature.type;
+    for (let i = 0; i < features.length; i++) {
+        const feature = features[i];
+        const type = feature.type;
 
-        var newGeometry;
+        let newGeometry;
 
         if (type === 'Point' || type === 'MultiPoint' || type === 'LineString') {
             newGeometry = shiftCoords(feature.geometry, offset);
 
         } else if (type === 'MultiLineString' || type === 'Polygon') {
             newGeometry = [];
-            for (var j = 0; j < feature.geometry.length; j++) {
-                newGeometry.push(shiftCoords(feature.geometry[j], offset));
+            for (const line of feature.geometry) {
+                newGeometry.push(shiftCoords(line, offset));
             }
         } else if (type === 'MultiPolygon') {
             newGeometry = [];
-            for (j = 0; j < feature.geometry.length; j++) {
-                var newPolygon = [];
-                for (var k = 0; k < feature.geometry[j].length; k++) {
-                    newPolygon.push(shiftCoords(feature.geometry[j][k], offset));
+            for (const polygon of feature.geometry) {
+                const newPolygon = [];
+                for (const line of polygon) {
+                    newPolygon.push(shiftCoords(line, offset));
                 }
                 newGeometry.push(newPolygon);
             }
@@ -34845,7 +34831,7 @@ function shiftFeatureCoords(features, offset) {
 }
 
 function shiftCoords(points, offset) {
-    var newPoints = [];
+    const newPoints = [];
     newPoints.size = points.size;
 
     if (points.start !== undefined) {
@@ -34853,7 +34839,7 @@ function shiftCoords(points, offset) {
         newPoints.end = points.end;
     }
 
-    for (var i = 0; i < points.length; i += 3) {
+    for (let i = 0; i < points.length; i += 3) {
         newPoints.push(points[i] + offset, points[i + 1], points[i + 2]);
     }
     return newPoints;
@@ -34864,26 +34850,24 @@ function shiftCoords(points, offset) {
 function transformTile(tile, extent) {
     if (tile.transformed) return tile;
 
-    var z2 = 1 << tile.z,
-        tx = tile.x,
-        ty = tile.y,
-        i, j, k;
+    const z2 = 1 << tile.z;
+    const tx = tile.x;
+    const ty = tile.y;
 
-    for (i = 0; i < tile.features.length; i++) {
-        var feature = tile.features[i],
-            geom = feature.geometry,
-            type = feature.type;
+    for (const feature of tile.features) {
+        const geom = feature.geometry;
+        const type = feature.type;
 
         feature.geometry = [];
 
         if (type === 1) {
-            for (j = 0; j < geom.length; j += 2) {
+            for (let j = 0; j < geom.length; j += 2) {
                 feature.geometry.push(transformPoint(geom[j], geom[j + 1], extent, z2, tx, ty));
             }
         } else {
-            for (j = 0; j < geom.length; j++) {
-                var ring = [];
-                for (k = 0; k < geom[j].length; k += 2) {
+            for (let j = 0; j < geom.length; j++) {
+                const ring = [];
+                for (let k = 0; k < geom[j].length; k += 2) {
                     ring.push(transformPoint(geom[j][k], geom[j][k + 1], extent, z2, tx, ty));
                 }
                 feature.geometry.push(ring);
@@ -34903,49 +34887,41 @@ function transformPoint(x, y, extent, z2, tx, ty) {
 }
 
 function createTile(features, z, tx, ty, options) {
-    var tolerance = z === options.maxZoom ? 0 : options.tolerance / ((1 << z) * options.extent);
-    var tile = {
+    const tolerance = z === options.maxZoom ? 0 : options.tolerance / ((1 << z) * options.extent);
+    const tile = {
         features: [],
         numPoints: 0,
         numSimplified: 0,
-        numFeatures: 0,
+        numFeatures: features.length,
         source: null,
         x: tx,
         y: ty,
-        z: z,
+        z,
         transformed: false,
         minX: 2,
         minY: 1,
         maxX: -1,
         maxY: 0
     };
-    for (var i = 0; i < features.length; i++) {
-        tile.numFeatures++;
-        addFeature(tile, features[i], tolerance, options);
-
-        var minX = features[i].minX;
-        var minY = features[i].minY;
-        var maxX = features[i].maxX;
-        var maxY = features[i].maxY;
-
-        if (minX < tile.minX) tile.minX = minX;
-        if (minY < tile.minY) tile.minY = minY;
-        if (maxX > tile.maxX) tile.maxX = maxX;
-        if (maxY > tile.maxY) tile.maxY = maxY;
+    for (const feature of features) {
+        addFeature(tile, feature, tolerance, options);
     }
     return tile;
 }
 
 function addFeature(tile, feature, tolerance, options) {
+    const geom = feature.geometry;
+    const type = feature.type;
+    const simplified = [];
 
-    var geom = feature.geometry,
-        type = feature.type,
-        simplified = [];
+    tile.minX = Math.min(tile.minX, feature.minX);
+    tile.minY = Math.min(tile.minY, feature.minY);
+    tile.maxX = Math.max(tile.maxX, feature.maxX);
+    tile.maxY = Math.max(tile.maxY, feature.maxY);
 
     if (type === 'Point' || type === 'MultiPoint') {
-        for (var i = 0; i < geom.length; i += 3) {
-            simplified.push(geom[i]);
-            simplified.push(geom[i + 1]);
+        for (let i = 0; i < geom.length; i += 3) {
+            simplified.push(geom[i], geom[i + 1]);
             tile.numPoints++;
             tile.numSimplified++;
         }
@@ -34954,33 +34930,35 @@ function addFeature(tile, feature, tolerance, options) {
         addLine(simplified, geom, tile, tolerance, false, false);
 
     } else if (type === 'MultiLineString' || type === 'Polygon') {
-        for (i = 0; i < geom.length; i++) {
+        for (let i = 0; i < geom.length; i++) {
             addLine(simplified, geom[i], tile, tolerance, type === 'Polygon', i === 0);
         }
 
     } else if (type === 'MultiPolygon') {
 
-        for (var k = 0; k < geom.length; k++) {
-            var polygon = geom[k];
-            for (i = 0; i < polygon.length; i++) {
+        for (let k = 0; k < geom.length; k++) {
+            const polygon = geom[k];
+            for (let i = 0; i < polygon.length; i++) {
                 addLine(simplified, polygon[i], tile, tolerance, true, i === 0);
             }
         }
     }
 
     if (simplified.length) {
-        var tags = feature.tags || null;
+        let tags = feature.tags || null;
+
         if (type === 'LineString' && options.lineMetrics) {
             tags = {};
-            for (var key in feature.tags) tags[key] = feature.tags[key];
+            for (const key in feature.tags) tags[key] = feature.tags[key];
             tags['mapbox_clip_start'] = geom.start / geom.size;
             tags['mapbox_clip_end'] = geom.end / geom.size;
         }
-        var tileFeature = {
+
+        const tileFeature = {
             geometry: simplified,
             type: type === 'Polygon' || type === 'MultiPolygon' ? 3 :
-                type === 'LineString' || type === 'MultiLineString' ? 2 : 1,
-            tags: tags
+            (type === 'LineString' || type === 'MultiLineString' ? 2 : 1),
+            tags
         };
         if (feature.id !== null) {
             tileFeature.id = feature.id;
@@ -34990,20 +34968,19 @@ function addFeature(tile, feature, tolerance, options) {
 }
 
 function addLine(result, geom, tile, tolerance, isPolygon, isOuter) {
-    var sqTolerance = tolerance * tolerance;
+    const sqTolerance = tolerance * tolerance;
 
     if (tolerance > 0 && (geom.size < (isPolygon ? sqTolerance : tolerance))) {
         tile.numPoints += geom.length / 3;
         return;
     }
 
-    var ring = [];
+    const ring = [];
 
-    for (var i = 0; i < geom.length; i += 3) {
+    for (let i = 0; i < geom.length; i += 3) {
         if (tolerance === 0 || geom[i + 2] > sqTolerance) {
             tile.numSimplified++;
-            ring.push(geom[i]);
-            ring.push(geom[i + 1]);
+            ring.push(geom[i], geom[i + 1]);
         }
         tile.numPoints++;
     }
@@ -35014,14 +34991,14 @@ function addLine(result, geom, tile, tolerance, isPolygon, isOuter) {
 }
 
 function rewind(ring, clockwise) {
-    var area = 0;
-    for (var i = 0, len = ring.length, j = len - 2; i < len; j = i, i += 2) {
+    let area = 0;
+    for (let i = 0, len = ring.length, j = len - 2; i < len; j = i, i += 2) {
         area += (ring[i] - ring[j]) * (ring[i + 1] + ring[j + 1]);
     }
     if (area > 0 === clockwise) {
-        for (i = 0, len = ring.length; i < len / 2; i += 2) {
-            var x = ring[i];
-            var y = ring[i + 1];
+        for (let i = 0, len = ring.length; i < len / 2; i += 2) {
+            const x = ring[i];
+            const y = ring[i + 1];
             ring[i] = ring[len - 2 - i];
             ring[i + 1] = ring[len - 1 - i];
             ring[len - 2 - i] = x;
@@ -35030,46 +35007,7 @@ function rewind(ring, clockwise) {
     }
 }
 
-function geojsonvt(data, options) {
-    return new GeoJSONVT(data, options);
-}
-
-function GeoJSONVT(data, options) {
-    options = this.options = extend(Object.create(this.options), options);
-
-    var debug = options.debug;
-
-    if (debug) console.time('preprocess data');
-
-    if (options.maxZoom < 0 || options.maxZoom > 24) throw new Error('maxZoom should be in the 0-24 range');
-    if (options.promoteId && options.generateId) throw new Error('promoteId and generateId cannot be used together.');
-
-    var features = convert(data, options);
-
-    this.tiles = {};
-    this.tileCoords = [];
-
-    if (debug) {
-        console.timeEnd('preprocess data');
-        console.log('index: maxZoom: %d, maxPoints: %d', options.indexMaxZoom, options.indexMaxPoints);
-        console.time('generate tiles');
-        this.stats = {};
-        this.total = 0;
-    }
-
-    features = wrap(features, options);
-
-    // start slicing from the top tile down
-    if (features.length) this.splitTile(features, 0, 0, 0);
-
-    if (debug) {
-        if (features.length) console.log('features: %d, points: %d', this.tiles[0].numFeatures, this.tiles[0].numPoints);
-        console.timeEnd('generate tiles');
-        console.log('tiles generated:', this.total, JSON.stringify(this.stats));
-    }
-}
-
-GeoJSONVT.prototype.options = {
+const defaultOptions = {
     maxZoom: 14,            // max zoom to preserve detail on
     indexMaxZoom: 5,        // max zoom in the tile index
     indexMaxPoints: 100000, // max number of points per tile in the tile index
@@ -35082,146 +35020,201 @@ GeoJSONVT.prototype.options = {
     debug: 0                // logging level (0, 1 or 2)
 };
 
-GeoJSONVT.prototype.splitTile = function (features, z, x, y, cz, cx, cy) {
+class GeoJSONVT {
+    constructor(data, options) {
+        options = this.options = extend(Object.create(defaultOptions), options);
 
-    var stack = [features, z, x, y],
-        options = this.options,
-        debug = options.debug;
+        const debug = options.debug;
 
-    // avoid recursion by using a processing queue
-    while (stack.length) {
-        y = stack.pop();
-        x = stack.pop();
-        z = stack.pop();
-        features = stack.pop();
+        if (debug) console.time('preprocess data');
 
-        var z2 = 1 << z,
-            id = toID(z, x, y),
-            tile = this.tiles[id];
+        if (options.maxZoom < 0 || options.maxZoom > 24) throw new Error('maxZoom should be in the 0-24 range');
+        if (options.promoteId && options.generateId) throw new Error('promoteId and generateId cannot be used together.');
 
-        if (!tile) {
-            if (debug > 1) console.time('creation');
+        // projects and adds simplification info
+        let features = convert(data, options);
 
-            tile = this.tiles[id] = createTile(features, z, x, y, options);
-            this.tileCoords.push({z: z, x: x, y: y});
+        // tiles and tileCoords are part of the public API
+        this.tiles = {};
+        this.tileCoords = [];
 
-            if (debug) {
-                if (debug > 1) {
-                    console.log('tile z%d-%d-%d (features: %d, points: %d, simplified: %d)',
-                        z, x, y, tile.numFeatures, tile.numPoints, tile.numSimplified);
-                    console.timeEnd('creation');
+        if (debug) {
+            console.timeEnd('preprocess data');
+            console.log('index: maxZoom: %d, maxPoints: %d', options.indexMaxZoom, options.indexMaxPoints);
+            console.time('generate tiles');
+            this.stats = {};
+            this.total = 0;
+        }
+
+        // wraps features (ie extreme west and extreme east)
+        features = wrap(features, options);
+
+        // start slicing from the top tile down
+        if (features.length) this.splitTile(features, 0, 0, 0);
+
+        if (debug) {
+            if (features.length) console.log('features: %d, points: %d', this.tiles[0].numFeatures, this.tiles[0].numPoints);
+            console.timeEnd('generate tiles');
+            console.log('tiles generated:', this.total, JSON.stringify(this.stats));
+        }
+    }
+
+    // splits features from a parent tile to sub-tiles.
+    // z, x, and y are the coordinates of the parent tile
+    // cz, cx, and cy are the coordinates of the target tile
+    //
+    // If no target tile is specified, splitting stops when we reach the maximum
+    // zoom or the number of points is low as specified in the options.
+    splitTile(features, z, x, y, cz, cx, cy) {
+
+        const stack = [features, z, x, y];
+        const options = this.options;
+        const debug = options.debug;
+
+        // avoid recursion by using a processing queue
+        while (stack.length) {
+            y = stack.pop();
+            x = stack.pop();
+            z = stack.pop();
+            features = stack.pop();
+
+            const z2 = 1 << z;
+            const id = toID(z, x, y);
+            let tile = this.tiles[id];
+
+            if (!tile) {
+                if (debug > 1) console.time('creation');
+
+                tile = this.tiles[id] = createTile(features, z, x, y, options);
+                this.tileCoords.push({z, x, y});
+
+                if (debug) {
+                    if (debug > 1) {
+                        console.log('tile z%d-%d-%d (features: %d, points: %d, simplified: %d)',
+                            z, x, y, tile.numFeatures, tile.numPoints, tile.numSimplified);
+                        console.timeEnd('creation');
+                    }
+                    const key = `z${  z}`;
+                    this.stats[key] = (this.stats[key] || 0) + 1;
+                    this.total++;
                 }
-                var key = 'z' + z;
-                this.stats[key] = (this.stats[key] || 0) + 1;
-                this.total++;
             }
+
+            // save reference to original geometry in tile so that we can drill down later if we stop now
+            tile.source = features;
+
+            // if it's the first-pass tiling
+            if (cz == null) {
+                // stop tiling if we reached max zoom, or if the tile is too simple
+                if (z === options.indexMaxZoom || tile.numPoints <= options.indexMaxPoints) continue;
+            // if a drilldown to a specific tile
+            } else if (z === options.maxZoom || z === cz) {
+                // stop tiling if we reached base zoom or our target tile zoom
+                continue;
+            } else if (cz != null) {
+                // stop tiling if it's not an ancestor of the target tile
+                const zoomSteps = cz - z;
+                if (x !== cx >> zoomSteps || y !== cy >> zoomSteps) continue;
+            }
+
+            // if we slice further down, no need to keep source geometry
+            tile.source = null;
+
+            if (features.length === 0) continue;
+
+            if (debug > 1) console.time('clipping');
+
+            // values we'll use for clipping
+            const k1 = 0.5 * options.buffer / options.extent;
+            const k2 = 0.5 - k1;
+            const k3 = 0.5 + k1;
+            const k4 = 1 + k1;
+
+            let tl = null;
+            let bl = null;
+            let tr = null;
+            let br = null;
+
+            let left  = clip(features, z2, x - k1, x + k3, 0, tile.minX, tile.maxX, options);
+            let right = clip(features, z2, x + k2, x + k4, 0, tile.minX, tile.maxX, options);
+            features = null;
+
+            if (left) {
+                tl = clip(left, z2, y - k1, y + k3, 1, tile.minY, tile.maxY, options);
+                bl = clip(left, z2, y + k2, y + k4, 1, tile.minY, tile.maxY, options);
+                left = null;
+            }
+
+            if (right) {
+                tr = clip(right, z2, y - k1, y + k3, 1, tile.minY, tile.maxY, options);
+                br = clip(right, z2, y + k2, y + k4, 1, tile.minY, tile.maxY, options);
+                right = null;
+            }
+
+            if (debug > 1) console.timeEnd('clipping');
+
+            stack.push(tl || [], z + 1, x * 2,     y * 2);
+            stack.push(bl || [], z + 1, x * 2,     y * 2 + 1);
+            stack.push(tr || [], z + 1, x * 2 + 1, y * 2);
+            stack.push(br || [], z + 1, x * 2 + 1, y * 2 + 1);
         }
-
-        // save reference to original geometry in tile so that we can drill down later if we stop now
-        tile.source = features;
-
-        // if it's the first-pass tiling
-        if (!cz) {
-            // stop tiling if we reached max zoom, or if the tile is too simple
-            if (z === options.indexMaxZoom || tile.numPoints <= options.indexMaxPoints) continue;
-
-        // if a drilldown to a specific tile
-        } else {
-            // stop tiling if we reached base zoom or our target tile zoom
-            if (z === options.maxZoom || z === cz) continue;
-
-            // stop tiling if it's not an ancestor of the target tile
-            var m = 1 << (cz - z);
-            if (x !== Math.floor(cx / m) || y !== Math.floor(cy / m)) continue;
-        }
-
-        // if we slice further down, no need to keep source geometry
-        tile.source = null;
-
-        if (features.length === 0) continue;
-
-        if (debug > 1) console.time('clipping');
-
-        // values we'll use for clipping
-        var k1 = 0.5 * options.buffer / options.extent,
-            k2 = 0.5 - k1,
-            k3 = 0.5 + k1,
-            k4 = 1 + k1,
-            tl, bl, tr, br, left, right;
-
-        tl = bl = tr = br = null;
-
-        left  = clip(features, z2, x - k1, x + k3, 0, tile.minX, tile.maxX, options);
-        right = clip(features, z2, x + k2, x + k4, 0, tile.minX, tile.maxX, options);
-        features = null;
-
-        if (left) {
-            tl = clip(left, z2, y - k1, y + k3, 1, tile.minY, tile.maxY, options);
-            bl = clip(left, z2, y + k2, y + k4, 1, tile.minY, tile.maxY, options);
-            left = null;
-        }
-
-        if (right) {
-            tr = clip(right, z2, y - k1, y + k3, 1, tile.minY, tile.maxY, options);
-            br = clip(right, z2, y + k2, y + k4, 1, tile.minY, tile.maxY, options);
-            right = null;
-        }
-
-        if (debug > 1) console.timeEnd('clipping');
-
-        stack.push(tl || [], z + 1, x * 2,     y * 2);
-        stack.push(bl || [], z + 1, x * 2,     y * 2 + 1);
-        stack.push(tr || [], z + 1, x * 2 + 1, y * 2);
-        stack.push(br || [], z + 1, x * 2 + 1, y * 2 + 1);
-    }
-};
-
-GeoJSONVT.prototype.getTile = function (z, x, y) {
-    var options = this.options,
-        extent = options.extent,
-        debug = options.debug;
-
-    if (z < 0 || z > 24) return null;
-
-    var z2 = 1 << z;
-    x = ((x % z2) + z2) % z2; // wrap tile x coordinate
-
-    var id = toID(z, x, y);
-    if (this.tiles[id]) return transformTile(this.tiles[id], extent);
-
-    if (debug > 1) console.log('drilling down to z%d-%d-%d', z, x, y);
-
-    var z0 = z,
-        x0 = x,
-        y0 = y,
-        parent;
-
-    while (!parent && z0 > 0) {
-        z0--;
-        x0 = Math.floor(x0 / 2);
-        y0 = Math.floor(y0 / 2);
-        parent = this.tiles[toID(z0, x0, y0)];
     }
 
-    if (!parent || !parent.source) return null;
+    getTile(z, x, y) {
+        z = +z;
+        x = +x;
+        y = +y;
 
-    // if we found a parent tile containing the original geometry, we can drill down from it
-    if (debug > 1) console.log('found parent tile z%d-%d-%d', z0, x0, y0);
+        const options = this.options;
+        const {extent, debug} = options;
 
-    if (debug > 1) console.time('drilling down');
-    this.splitTile(parent.source, z0, x0, y0, z, x, y);
-    if (debug > 1) console.timeEnd('drilling down');
+        if (z < 0 || z > 24) return null;
 
-    return this.tiles[id] ? transformTile(this.tiles[id], extent) : null;
-};
+        const z2 = 1 << z;
+        x = (x + z2) & (z2 - 1); // wrap tile x coordinate
+
+        const id = toID(z, x, y);
+        if (this.tiles[id]) return transformTile(this.tiles[id], extent);
+
+        if (debug > 1) console.log('drilling down to z%d-%d-%d', z, x, y);
+
+        let z0 = z;
+        let x0 = x;
+        let y0 = y;
+        let parent;
+
+        while (!parent && z0 > 0) {
+            z0--;
+            x0 = x0 >> 1;
+            y0 = y0 >> 1;
+            parent = this.tiles[toID(z0, x0, y0)];
+        }
+
+        if (!parent || !parent.source) return null;
+
+        // if we found a parent tile containing the original geometry, we can drill down from it
+        if (debug > 1) {
+            console.log('found parent tile z%d-%d-%d', z0, x0, y0);
+            console.time('drilling down');
+        }
+        this.splitTile(parent.source, z0, x0, y0, z, x, y);
+        if (debug > 1) console.timeEnd('drilling down');
+
+        return this.tiles[id] ? transformTile(this.tiles[id], extent) : null;
+    }
+}
 
 function toID(z, x, y) {
     return (((1 << z) * y + x) * 32) + z;
 }
 
 function extend(dest, src) {
-    for (var i in src) dest[i] = src[i];
+    for (const i in src) dest[i] = src[i];
     return dest;
+}
+
+function geojsonvt(data, options) {
+    return new GeoJSONVT(data, options);
 }
 
 function getFeatureId(feature, promoteId) {
