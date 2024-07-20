@@ -554,12 +554,12 @@
       style: "styles/style.json"
     });
     
-    const edgemapUiVersion = "v0.7";
+    const edgemapUiVersion = "v0.71";
     var intialZoomLevel=1;
 	var symbolSize = 30;
     
     // geojson url
-    var geojsonUrl = 'geojson.php?linkline=1';
+    var geojsonUrl = 'meshtastic_geojson.php?linkline=1';
     var geoJsonLayerActive = false;
 	
 	// One user created pin marker for a demo
@@ -749,9 +749,11 @@
                 getElementItem('#mode_localgps').innerHTML =  localGpsArray[0];
             }
             // Create marker when we have first valid fix from GPS
+            // TODO: calculate offset: [30, 0] from .getanchor
 			if ( localGpsMarkerCreated == false && localGpsFixStatus == 1 ) {
                 localGpsMarker = new maplibregl.Marker({
-                    element: milSymbolLocalGpsMarker
+                    element: milSymbolLocalGpsMarker,
+                    offset: [30, 0]
 				});
 				requestAnimationFrame(animateLocalGpsMarker);
                 localGpsMarkerCreated = true;
@@ -897,7 +899,6 @@
     msgSocket.onmessage = function(event) {
         var incomingMessage = event.data;
         var trimmedString = incomingMessage.substring(0, 200);
-        console.log("Incoming: ", trimmedString);
         const msgArray=trimmedString.split("|");
         const msgFrom =  msgArray[0];
         const msgType =  msgArray[1];
@@ -1233,8 +1234,10 @@
             //
             // Get geojson
             // NOTE: You need cotsim -> curlcot -> taky for this to work
-            //
-            request.open('GET', geojsonUrl, true);
+            // getElementItem('#myCallSign').value
+            var geojsonUrlwithCallSign = 'meshtastic_geojson.php?linkline=1&myCallSign=' + getElementItem('#myCallSign').value;
+            // request.open('GET', geojsonUrl, true);
+            request.open('GET', geojsonUrlwithCallSign, true);
             request.onload = function () {
                     if (this.status >= 200 && this.status < 400) {
                         // 

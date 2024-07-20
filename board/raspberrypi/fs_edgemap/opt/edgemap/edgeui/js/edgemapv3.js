@@ -496,9 +496,11 @@ function createTrackMarkerFromMessage(lon, lat, msgFrom, msgMessage) {
         // Get new position
         var ll = new maplibregl.LngLat(lon, lat);
         // Add marker to map
+        // TODO: Calculate offset based on getAnchor(), see: https://www.spatialillusions.com/milsymbol/documentation.html#getanchor
         trackMessageMarkers[msgFrom] = new maplibregl.Marker({
             element: trackMessageMarkerGraphDom,
-            draggable: false
+            draggable: false,
+            offset: [30, 0]
             })
             .setLngLat( ll )
             .addTo(map);
@@ -586,7 +588,7 @@ function parse_query_string(query) {
 
 // Local GPS marker animation
 function animateLocalGpsMarker(timestamp) {		
-    localGpsMarker.remove();
+    // localGpsMarker.remove();
     var lat = document.getElementById('lat_localgps').innerHTML;
     var lon = document.getElementById('lon_localgps').innerHTML; 
     var mode = document.getElementById('mode_localgps').innerHTML;
@@ -597,9 +599,9 @@ function animateLocalGpsMarker(timestamp) {
     milSymbolLocalGps.setOptions({ commonIdentifier: "" });
     milSymbolLocalGps.setOptions({ type: localGpsName });
     milSymbolLocalGpsMarker = milSymbolLocalGps.asDOM(); 
-    localGpsMarker = new maplibregl.Marker({
+    /*localGpsMarker = new maplibregl.Marker({
             element: milSymbolLocalGpsMarker
-        });
+        });*/
     localGpsMarker.setLngLat([lat,lon]);
     localGpsMarker.addTo(map);
     requestAnimationFrame(animateLocalGpsMarker);

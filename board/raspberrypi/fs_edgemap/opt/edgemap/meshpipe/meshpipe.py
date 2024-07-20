@@ -77,6 +77,7 @@ global DeviceAirUtilTx
 global DeviceRxSnr
 global DeviceHopLimit
 global DeviceRxRssi
+global myRadioHexId
 
 
 def ErrorHandler(ErrorMessage,TraceMessage,AdditionalInfo):
@@ -201,8 +202,8 @@ def onReceive(packet, interface):
             messageFields = Message.split('|')
             if ( messageFields[1] == "trackMarker" ):            
                 messagePositionFields = messageFields[2].split(',')
-                lat = messagePositionFields[0]
-                lon = messagePositionFields[1]
+                lon = messagePositionFields[0]
+                lat = messagePositionFields[1] # done
                 callsign = messageFields[0]
                 messageType = messageFields[1]
                 # print("Meshtastic data to DB: {: <10} {: <10} {: <10} {: <10} {: <10} {: <10}".format(callsign,lat,lon,hexFromValue,DeviceRxSnr,DeviceRxRssi))
@@ -312,6 +313,7 @@ def GetMyNodeInfo(interface):
 
     global DeviceName
     global DeviceBat
+    global myRadioHexId
     Distance   = 0
     DeviceName = ''
     BaseLat    = 0
@@ -343,6 +345,8 @@ def GetMyNodeInfo(interface):
     if 'id' in TheNode['user']:
       print('User ID:   ',TheNode['user']['id'])
       DeviceName = TheNode['user']['id']
+      myRadioHexId = DeviceName[1:].upper()
+      print('myRadioHexId   ',myRadioHexId)
 
     if 'batteryLevel' in TheNode['position']:
       print('Battery:   ',TheNode['position']['batteryLevel'])
@@ -410,7 +414,7 @@ def create_fifo_pipe(pipe_path):
         print(f"Error: {e}")
 
 def read_manual_gps():
-    
+    global myRadioHexId
     print("Starting read_manual_gps()")
     t2_start_time = time.time()
     t2_interval_rand = randrange(30, 120)
@@ -440,6 +444,10 @@ def read_manual_gps():
                     # Send
                     t2_track_marker_string= t2_callsign_from_file + "|trackMarker|" + t2_lkg_lon + "," + t2_lkg_lat + "|Manual position"
                     send_msg_from_fifo(interface, t2_track_marker_string)
+                    
+                    # Update own location to radio.db when fix is manual
+                    meshtasticDbUpdate(t2_callsign_from_file,t2_lkg_lat,t2_lkg_lon,"trackMarker",myRadioHexId,"0","0");
+                    
                     t2_start_time = time.time()
                     t2_interval_rand = randrange(30, 120)
                         
@@ -449,6 +457,7 @@ def read_manual_gps():
             
 # Live GPS
 def read_live_gps():
+    global myRadioHexId
     print('Starting read_live_gps()')
     FIFO = '/tmp/livegps'
     fifo_read=open(FIFO,'r')
@@ -486,6 +495,9 @@ def read_live_gps():
 
                     track_marker_string= callsign_from_file + "|trackMarker|"+gps_array[5]+","+gps_array[4]+"|GPS: " + gps_array[0] +" SV: " + gps_array[8]            
                     send_msg_from_fifo(interface, track_marker_string)
+                    # Update own location to radio.db when fix is 2D or 3D
+                    meshtasticDbUpdate(callsign_from_file,gps_array[4],gps_array[5],"trackMarker",myRadioHexId,"0","0");
+                    
                     start_time = time.time()
                     interval_rand = randrange(30, 120)
                     # print("track_marker_string: ", track_marker_string)
@@ -508,6 +520,10 @@ def read_live_gps():
                     if ( lkg_lat != "-" ):
                         track_marker_string= callsign_from_file + "|trackMarker|" + lkg_lat + "," + lkg_lon + "|No FIX: Last known good"
                         send_msg_from_fifo(interface, track_marker_string)
+                        
+                        # Update own location to radio.db when fix is LKG
+                        meshtasticDbUpdate(callsign_from_file,lkg_lat,lkg_lon,"trackMarker",myRadioHexId,"0","0");
+                        
                         start_time = time.time()
                         interval_rand = randrange(30, 120)
                         # print("LKG: track_marker_string: ", track_marker_string)
