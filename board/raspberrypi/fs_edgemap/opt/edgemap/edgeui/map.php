@@ -560,7 +560,7 @@
     
     // geojson url
     var geojsonUrl = 'meshtastic_geojson.php?linkline=1';
-    var geoJsonLayerActive = false;
+    var geoJsonLayerActive = true;
 	
 	// One user created pin marker for a demo
 	const mapPinMarker = [];

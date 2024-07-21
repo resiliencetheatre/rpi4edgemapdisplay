@@ -105,12 +105,17 @@ echo '
                         $LON_2 = $ITEM_LON[$to];
                         $LAT_2 = $ITEM_LAT[$to];
                         // $LINE_TEXT = $ITEM_NAME[$from] ."->".$ITEM_NAME[$to].": ".$ITEM_SNR[$to] ." (". $ITEM_RSSI[$to].")";
-                        // $LINE_TEXT = $ITEM_NAME[$from] ." to ".$ITEM_NAME[$to]." (".$ITEM_RSSI[$to]." dBm)";                     
-                        $LINE_TEXT = "".$ITEM_RSSI[$to]." dBm";
+                        // $LINE_TEXT = $ITEM_NAME[$from] ." (".$ITEM_RSSI[$from]." dBm)" ." to ".$ITEM_NAME[$to]." (".$ITEM_RSSI[$to]." dBm)";
+                        // $LINE_TEXT = "".$ITEM_RSSI[$to]." dBm";
                         
-    
-    
-                        if ( $ITEM_NAME[$from] == $MY_CALLSIGN ) {
+                        if ( $ITEM_RSSI[$from] == "0" ) {
+                            $LINE_TEXT = $ITEM_RSSI[$to]." dBm";
+                        }
+                        if ( $ITEM_RSSI[$to] == "0" ) {
+                            $LINE_TEXT = $ITEM_RSSI[$from]." dBm";
+                        }
+                        
+                        if ( $ITEM_NAME[$from] == $MY_CALLSIGN || $ITEM_NAME[$to] == $MY_CALLSIGN ) {
                             echo '{ "type": "Feature",
                                   "geometry": {"type": "LineString", "coordinates": [ ['.$LON .','.$LAT.'],['.$LON_2 .','.$LAT_2.'] ]},
                                   "properties": { "color": "#383", "width": 4, "opacity": 0.8, "title": "'.$LINE_TEXT.'", "text-color": "#000","text-size": 12,"text-halo-color": "#EEE","text-halo-width": 4,"text-halo-blur": 2 }

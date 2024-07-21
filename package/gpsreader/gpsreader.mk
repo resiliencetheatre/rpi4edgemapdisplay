@@ -1,4 +1,4 @@
-GPSREADER_VERSION = 5a1ed1ece317c04ad8c4fd9a76b51f204918467d
+GPSREADER_VERSION = 4ceb4767b6f0fca8f494b71138c1daa9fbfa174e
 GPSREADER_SITE = https://github.com/resiliencetheatre/gpsreader.git
 GPSREADER_SITE_METHOD = git
 GPSREADER_PREFIX = $(TARGET_DIR)/usr

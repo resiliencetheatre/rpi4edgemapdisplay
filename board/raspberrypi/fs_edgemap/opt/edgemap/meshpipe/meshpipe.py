@@ -269,7 +269,6 @@ def onConnectionEstablished(interface, topic=pub.AUTO_TOPIC):
 
 def onConnectionLost(interface, topic=pub.AUTO_TOPIC): 
   print('onConnectionLost \n')
-  sys.exit()
 
 def onNodeUpdated(interface, topic=pub.AUTO_TOPIC): 
   print('onNodeUpdated \n')
@@ -415,44 +414,50 @@ def create_fifo_pipe(pipe_path):
 
 def read_manual_gps():
     global myRadioHexId
+    min_interval_time=30
+    max_interval_time=60
     print("Starting read_manual_gps()")
     t2_start_time = time.time()
-    t2_interval_rand = randrange(30, 120)
+    t2_interval_rand = randrange(min_interval_time, max_interval_time)
     t2_callsign_from_file = "no-callsign"
     t2_lkg_lat = "-"
     t2_lkg_lon = "-"
     
     while True:
         
-        # Randomize sending interval (30 - 120 s)
-        t2_end_time = time.time()
-        t2_elapsed_time = t2_end_time - t2_start_time
-        if ( t2_elapsed_time > t2_interval_rand ):
-            if ( os.path.isfile("/opt/edgemap-persist/callsign.txt") ):
-                t2_callsign_file = open("/opt/edgemap-persist/callsign.txt", "r")
-                t2_callsign_from_file = t2_callsign_file.readline()
-                t2_callsign_file.close()
-                # Read location from file
-                if ( os.path.isfile("/opt/edgemap-persist/location.txt") ):
-                    t2_location_file = open("/opt/edgemap-persist/location.txt","r")
-                    t2_location_from_file = t2_location_file.readline()
-                    t2_location_file.close()
-                    t2_gps_array = t2_location_from_file.split(",")
-                    t2_lkg_lat = t2_gps_array[0].rstrip()
-                    t2_lkg_lon = t2_gps_array[1].rstrip()
-                    print("Manual GPS loop ",t2_callsign_from_file,t2_location_from_file)                
-                    # Send
-                    t2_track_marker_string= t2_callsign_from_file + "|trackMarker|" + t2_lkg_lon + "," + t2_lkg_lat + "|Manual position"
-                    send_msg_from_fifo(interface, t2_track_marker_string)
-                    
-                    # Update own location to radio.db when fix is manual
-                    meshtasticDbUpdate(t2_callsign_from_file,t2_lkg_lat,t2_lkg_lon,"trackMarker",myRadioHexId,"0","0");
-                    
-                    t2_start_time = time.time()
-                    t2_interval_rand = randrange(30, 120)
+        # Manual loop should only run when location.txt is present!
+        if ( os.path.isfile("/opt/edgemap-persist/location.txt") ):            
+            
+            # Randomize sending interval
+            t2_end_time = time.time()
+            t2_elapsed_time = t2_end_time - t2_start_time
+            if ( t2_elapsed_time > t2_interval_rand ):
+                print("Manual loop")
+                if ( os.path.isfile("/opt/edgemap-persist/callsign.txt") ):
+                    t2_callsign_file = open("/opt/edgemap-persist/callsign.txt", "r")
+                    t2_callsign_from_file = t2_callsign_file.readline()
+                    t2_callsign_file.close()
+                    # Read location from file
+                    if ( os.path.isfile("/opt/edgemap-persist/location.txt") ):
+                        t2_location_file = open("/opt/edgemap-persist/location.txt","r")
+                        t2_location_from_file = t2_location_file.readline()
+                        t2_location_file.close()
+                        t2_gps_array = t2_location_from_file.split(",")
+                        t2_lkg_lat = t2_gps_array[0].rstrip()
+                        t2_lkg_lon = t2_gps_array[1].rstrip()
+                        print("Manual GPS loop ",t2_callsign_from_file,t2_location_from_file)                
+                        # Send
+                        t2_track_marker_string= t2_callsign_from_file + "|trackMarker|" + t2_lkg_lon + "," + t2_lkg_lat + "|Manual position"
+                        send_msg_from_fifo(interface, t2_track_marker_string)
                         
-            else:
-                t2_callsign_from_file = "no-callsign"
+                        # Update own location to radio.db when fix is manual
+                        meshtasticDbUpdate(t2_callsign_from_file,t2_lkg_lat,t2_lkg_lon,"trackMarker",myRadioHexId,"0","0");
+                        
+                        t2_start_time = time.time()
+                        t2_interval_rand = randrange(min_interval_time, max_interval_time)
+                            
+                else:
+                    t2_callsign_from_file = "no-callsign"
 
             
 # Live GPS
@@ -471,7 +476,7 @@ def read_live_gps():
     while True:
       fifo_msg_in = fifo_read.readline()[:-1]
       if not fifo_msg_in == "":
-        # print('FIFO Message in read_live_gps(): ', fifo_msg_in)
+        print('FIFO Message in read_live_gps(): ', fifo_msg_in)
         # [mode],[mode_id],[timestamp],[lat],[lon],[speed],[track],[sat_used],[sat_visible]
         # TODO: Evaluate 'mode' => 3D, 2D or none
         gps_array=fifo_msg_in.split(",")
@@ -495,15 +500,34 @@ def read_live_gps():
 
                     track_marker_string= callsign_from_file + "|trackMarker|"+gps_array[5]+","+gps_array[4]+"|GPS: " + gps_array[0] +" SV: " + gps_array[8]            
                     send_msg_from_fifo(interface, track_marker_string)
+                    
                     # Update own location to radio.db when fix is 2D or 3D
-                    meshtasticDbUpdate(callsign_from_file,gps_array[4],gps_array[5],"trackMarker",myRadioHexId,"0","0");
+                    # meshtasticDbUpdate(callsign_from_file,gps_array[4],gps_array[5],"trackMarker",myRadioHexId,"0","0");
                     
                     start_time = time.time()
                     interval_rand = randrange(30, 120)
                     # print("track_marker_string: ", track_marker_string)
                     lkg_lat = gps_array[5]
                     lkg_lon = gps_array[4]
+                
+                
+                # If location.txt is NOT present
+                if ( not os.path.isfile("/opt/edgemap-persist/location.txt") ):
+                    # Update own location to radio.db when fix is 2D or 3D
+                    # Read callsign from /opt/edgemap-persist/callsign.txt
+                    if ( os.path.isfile("/opt/edgemap-persist/callsign.txt") ):
+                        callsign_file = open("/opt/edgemap-persist/callsign.txt", "r")
+                        callsign_from_file = callsign_file.readline()
+                        callsign_file.close()
+                    else:
+                        callsign_from_file = "no-callsign"
+                    
+                    print("DEBUG: ", callsign_from_file,gps_array[4],gps_array[5],"trackMarker",myRadioHexId,"0","0")
+                    meshtasticDbUpdate(callsign_from_file,gps_array[4],gps_array[5],"trackMarker",myRadioHexId,"0","0")
+                    time.sleep(1)
+                
                 pass
+                
             else:
                 # Send last known good location when there is no fix from GPS
                 # and we have stored last known good (lkg) position.
