@@ -45,7 +45,7 @@ import select
 import sqlite3
 import threading
 from random import randrange, uniform
-from meshtastic.mesh_pb2 import _HARDWAREMODEL
+# from meshtastic.mesh_pb2 import _HARDWAREMODEL
 from meshtastic.node import Node
 from pubsub import pub
 from signal import signal, SIGINT
@@ -463,12 +463,14 @@ def read_manual_gps():
 # Live GPS
 def read_live_gps():
     global myRadioHexId
+    min_interval_time=30
+    max_interval_time=60
     print('Starting read_live_gps()')
     FIFO = '/tmp/livegps'
     fifo_read=open(FIFO,'r')
     # Get initial state
     start_time = time.time()
-    interval_rand = randrange(30, 120)
+    interval_rand = randrange(min_interval_time, max_interval_time)
     callsign_from_file = "no-callsign"
     lkg_lat = "-"
     lkg_lon = "-"
@@ -486,7 +488,7 @@ def read_live_gps():
         if ( not os.path.isfile("/opt/edgemap-persist/location.txt") ):
             # Send only when we have a fix (2D, 3D)
             if ( gps_array[0] == "2D" or gps_array[0] == "3D" ):
-                # Randomize sending interval (30 - 120 s)
+                # Randomize sending interval (min_interval_time <-> max_interval_time)
                 end_time = time.time()
                 elapsed_time = end_time - start_time
                 if ( elapsed_time > interval_rand ):
@@ -505,7 +507,7 @@ def read_live_gps():
                     # meshtasticDbUpdate(callsign_from_file,gps_array[4],gps_array[5],"trackMarker",myRadioHexId,"0","0");
                     
                     start_time = time.time()
-                    interval_rand = randrange(30, 120)
+                    interval_rand = randrange(min_interval_time, max_interval_time)
                     # print("track_marker_string: ", track_marker_string)
                     lkg_lat = gps_array[5]
                     lkg_lon = gps_array[4]
@@ -549,12 +551,12 @@ def read_live_gps():
                         meshtasticDbUpdate(callsign_from_file,lkg_lat,lkg_lon,"trackMarker",myRadioHexId,"0","0");
                         
                         start_time = time.time()
-                        interval_rand = randrange(30, 120)
+                        interval_rand = randrange(min_interval_time, max_interval_time)
                         # print("LKG: track_marker_string: ", track_marker_string)
                     else:
                         # print("We don't have last known good position. Not sending anything. ")
                         start_time = time.time()
-                        interval_rand = randrange(30, 120)
+                        interval_rand = randrange(min_interval_time, max_interval_time)
                             
                 pass
         else:

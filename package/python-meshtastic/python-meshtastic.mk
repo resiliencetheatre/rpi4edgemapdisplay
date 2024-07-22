@@ -6,7 +6,7 @@
 # 2.3.11
 ################################################################################
 
-PYTHON_MESHTASTIC_VERSION = 2.3.11
+PYTHON_MESHTASTIC_VERSION = 2.3.14
 PYTHON_MESHTASTIC_SOURCE = meshtastic-$(PYTHON_MESHTASTIC_VERSION).tar.gz
 PYTHON_MESHTASTIC_SITE = https://pypi.python.org/packages/source/m/meshtastic
 PYTHON_MESHTASTIC_LICENSE = GNU General Public License v3 (GPLv3)

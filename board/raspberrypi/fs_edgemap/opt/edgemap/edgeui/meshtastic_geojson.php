@@ -118,7 +118,7 @@ echo '
                         if ( $ITEM_NAME[$from] == $MY_CALLSIGN || $ITEM_NAME[$to] == $MY_CALLSIGN ) {
                             echo '{ "type": "Feature",
                                   "geometry": {"type": "LineString", "coordinates": [ ['.$LON .','.$LAT.'],['.$LON_2 .','.$LAT_2.'] ]},
-                                  "properties": { "color": "#383", "width": 4, "opacity": 0.8, "title": "'.$LINE_TEXT.'", "text-color": "#000","text-size": 12,"text-halo-color": "#EEE","text-halo-width": 4,"text-halo-blur": 2 }
+                                  "properties": { "color": "#6F6", "width": 16, "opacity": 0.8, "title": "'.$LINE_TEXT.'", "text-color": "#000","text-size": 16,"text-halo-color": "#fff","text-halo-width": 3,"text-halo-blur": 2 }
                                   }';
                         } else {
                             echo '{ "type": "Feature",
