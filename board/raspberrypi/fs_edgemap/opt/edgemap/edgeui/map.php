@@ -622,7 +622,9 @@
                 additionalInformation: "1 Hz".toUpperCase(),
                 combatEffectiveness: "".toUpperCase(),
                 type: "",
-                padding: 5
+                padding: 5,
+                infoColor: "#000000",
+                infoBackground: "#CCFFCCD0"
                 });
     var milSymbolLocalGpsMarker = milSymbolLocalGps.asDOM();
     
@@ -651,7 +653,9 @@
                 additionalInformation: "".toUpperCase(),
                 combatEffectiveness: "".toUpperCase(),
                 type: "",
-                padding: 5
+                padding: 5,
+                infoColor: "#000000",
+                infoBackground: "#FFFFFFD0"
                 });
     var trackMessageMarkerGraphDom = trackMessageMarkerGraph.asDOM();
 
