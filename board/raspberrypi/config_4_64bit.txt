@@ -23,17 +23,33 @@ gpu_mem_512=100
 gpu_mem_1024=100
 
 # fixes rpi (3B, 3B+, 3A+, 4B and Zero W) ttyAMA0 serial console
-dtoverlay=miniuart-bt
+# dtoverlay=miniuart-bt
 
 # enable autoprobing of Bluetooth driver without need of hciattach/btattach
-dtoverlay=krnbt=on
+# dtoverlay=krnbt=on
+
+# Disable BT so we get serial console access
+dtoverlay=disable-bt
 
 # Hyperpixel display
-dtoverlay=vc4-kms-dpi-hyperpixel4
+# dtoverlay=vc4-kms-dpi-hyperpixel4
 
-dtoverlay=vc4-kms-v3d-pi4
-# dtoverlay=imx219
-# dtoverlay=ov5647
+# Disable internal audio (nohdmi1,nohdmi0)
+dtoverlay=vc4-kms-v3d-pi4,nohdmi1,nohdmi0
 
 # enable 64bits support
 arm_64bit=1
+
+#
+# Options for SecurePTT
+#
+
+# GPIO 10 (MOSI) pin 19 ptt switch
+dtoverlay=ptt_keys
+
+# PTT button on Codec Zero PCB
+# dtoverlay=ptt_codec_zero
+
+# Codec zero
+# dtoverlay=iqaudio-codec
+# dtoverlay=rpi-codeczero

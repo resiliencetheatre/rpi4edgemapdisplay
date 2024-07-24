@@ -23,13 +23,16 @@ gpu_mem_512=100
 gpu_mem_1024=100
 
 # fixes rpi (3B, 3B+, 3A+, 4B and Zero W) ttyAMA0 serial console
-dtoverlay=miniuart-bt
+# dtoverlay=miniuart-bt
 
 # enable autoprobing of Bluetooth driver without need of hciattach/btattach
-dtoverlay=krnbt=on
+# dtoverlay=krnbt=on
+
+# Disable BT so we get serial console access
+dtoverlay=disable-bt
 
 # Hyperpixel display
-dtoverlay=vc4-kms-dpi-hyperpixel4
+# dtoverlay=vc4-kms-dpi-hyperpixel4
 
 dtoverlay=vc4-kms-v3d-pi4
 dtoverlay=imx219

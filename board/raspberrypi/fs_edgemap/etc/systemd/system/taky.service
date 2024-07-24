@@ -1,0 +1,14 @@
+[Unit]
+Description=taky CoT server
+After=multi-user.target
+
+[Service]
+WorkingDirectory=/opt/edgemap
+KillMode=process
+ExecStart=taky
+Restart=always
+RestartSec=2
+TimeoutStartSec=5
+
+# [Install]
+# WantedBy=multi-user.target

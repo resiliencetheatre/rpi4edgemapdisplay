@@ -1,0 +1,4 @@
+config BR2_PACKAGE_DPINGER
+        bool "dpinger"
+        help 
+              Pinger engine for monitoring latency and loss 

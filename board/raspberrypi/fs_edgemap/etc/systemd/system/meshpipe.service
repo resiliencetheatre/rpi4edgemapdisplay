@@ -1,0 +1,17 @@
+[Unit]
+Description=meshtastic communication daemon
+After=multi-user.target wss-msgchannel.service wss-statusin.service
+
+[Service]
+User=root
+WorkingDirectory=/opt/edgemap/meshpipe
+KillMode=process
+EnvironmentFile=/opt/edgemap/meshpipe/meshtastic.env
+ExecStartPre=sh -c 'if [ -f /tmp/radio.db ]; then rm /tmp/radio.db; fi;'
+ExecStart=/bin/python3 meshpipe.py --port=${MESHTASTIC_PORT}
+Restart=always
+RestartSec=5
+TimeoutStartSec=5
+
+[Install]
+WantedBy=multi-user.target

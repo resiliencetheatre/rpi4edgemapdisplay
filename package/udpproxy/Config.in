@@ -1,0 +1,4 @@
+config BR2_PACKAGE_UDPPROXY
+        bool "udpproxy"
+        help 
+              udpproxy component

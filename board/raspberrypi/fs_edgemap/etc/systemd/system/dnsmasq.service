@@ -1,0 +1,14 @@
+[Unit]
+Description=dnsmasq - A lightweight DHCP and caching DNS server
+After=network.target hostapd.service sys-subsystem-net-devices-wlan0.device
+# Before=network-online.target nss-lookup.target
+# Wants=nss-lookup.target
+
+[Service]
+ExecStartPre=/usr/sbin/dnsmasq --test
+ExecStartPre=sleep 10
+ExecStart=/usr/sbin/dnsmasq -k
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target

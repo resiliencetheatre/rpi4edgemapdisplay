@@ -1,0 +1,10 @@
+SAMPLICATOR_VERSION = ceeb1d280188c155b71d819282490be86190f6f6
+SAMPLICATOR_SITE = $(call github,resiliencetheatre,samplicator,$(SAMPLICATOR_VERSION))
+SAMPLICATOR_PREFIX = $(TARGET_DIR)/usr
+SAMPLICATOR_INSTALL_STAGING = YES
+SAMPLICATOR_AUTORECONF = YES
+# SAMPLICATOR_CONF_OPTS = --disable-tools --disable-static
+
+$(eval $(autotools-package))
+
+

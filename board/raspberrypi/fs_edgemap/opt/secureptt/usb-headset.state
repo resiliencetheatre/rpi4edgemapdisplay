@@ -1,0 +1,97 @@
+state.J30 {
+	control.1 {
+		iface PCM
+		name 'Capture Channel Map'
+		value 0
+		comment {
+			access read
+			type INTEGER
+			count 1
+			range '0 - 36'
+		}
+	}
+	control.2 {
+		iface PCM
+		name 'Playback Channel Map'
+		value.0 3
+		value.1 4
+		comment {
+			access read
+			type INTEGER
+			count 2
+			range '0 - 36'
+		}
+	}
+	control.3 {
+		iface MIXER
+		name 'Microphone Capture Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.4 {
+		iface MIXER
+		name 'Microphone Capture Volume'
+		value 7
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 8'
+			dbmin -1000
+			dbmax 600
+			dbvalue.0 400
+		}
+	}
+	control.5 {
+		iface MIXER
+		name 'Sidetone Playback Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.6 {
+		iface MIXER
+		name 'Sidetone Playback Volume'
+		value 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 5'
+			dbmin -900
+			dbmax 600
+			dbvalue.0 -900
+		}
+	}
+	control.7 {
+		iface MIXER
+		name 'Speaker Playback Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.8 {
+		iface MIXER
+		name 'Speaker Playback Volume'
+		value 10
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 15'
+			dbmin -4800
+			dbmax 1200
+			dbvalue.0 -800
+		}
+	}
+}
