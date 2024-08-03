@@ -3754,6 +3754,7 @@ declare class Transform {
 	];
 	cameraToCenterDistance: number;
 	mercatorMatrix: mat4;
+	projectionMatrix: mat4;
 	modelViewProjectionMatrix: mat4;
 	invModelViewProjectionMatrix: mat4;
 	alignedModelViewProjectionMatrix: mat4;
@@ -3787,6 +3788,18 @@ declare class Transform {
 	_fogMatrixCache: {
 		[_: string]: mat4;
 	};
+	/**
+	 * This value represents the distance from the camera to the far clipping plane.
+	 * It is used in the calculation of the projection matrix to determine which objects are visible.
+	 * farz should be larger than nearZ.
+	 */
+	farZ: number;
+	/**
+	 * This value represents the distance from the camera to the near clipping plane.
+	 * It is used in the calculation of the projection matrix to determine which objects are visible.
+	 * nearZ should be smaller than farZ.
+	 */
+	nearZ: number;
 	constructor(minZoom?: number, maxZoom?: number, minPitch?: number, maxPitch?: number, renderWorldCopies?: boolean);
 	clone(): Transform;
 	apply(that: Transform): void;
@@ -5623,6 +5636,37 @@ declare class PauseablePlacement {
 	commit(now: number): Placement;
 }
 /**
+* Input arguments exposed by custom render function.
+*/
+export type CustomRenderMethodInput = {
+	/**
+	 * This value represents the distance from the camera to the far clipping plane.
+	 * It is used in the calculation of the projection matrix to determine which objects are visible.
+	 * farz should be larger than nearZ.
+	 */
+	farZ: number;
+	/**
+	 * This value represents the distance from the camera to the near clipping plane.
+	 * It is used in the calculation of the projection matrix to determine which objects are visible.
+	 * nearZ should be smaller than farZ.
+	 */
+	nearZ: number;
+	/** field of view of camera **/
+	fov: number;
+	/**
+	* model view projection matrix
+	* represents the matrix converting from world space to clip space
+	* https://learnopengl.com/Getting-started/Coordinate-Systems
+	* **/
+	modelViewProjectionMatrix: mat4;
+	/**
+	* projection matrix
+	* represents the matrix converting from view space to clip space
+	* https://learnopengl.com/Getting-started/Coordinate-Systems
+	*/
+	projectionMatrix: mat4;
+};
+/**
  * @param gl - The map's gl context.
  * @param matrix - The map's camera matrix. It projects spherical mercator
  * coordinates to gl clip space coordinates. The spherical mercator coordinate `[0, 0]` represents the
@@ -5630,8 +5674,9 @@ declare class PauseablePlacement {
  * the `renderingMode` is `"3d"`, the z coordinate is conformal. A box with identical x, y, and z
  * lengths in mercator units would be rendered as a cube. {@link MercatorCoordinate.fromLngLat}
  * can be used to project a `LngLat` to a mercator coordinate.
+ * @param options - Argument object with additional render inputs like camera properties.
  */
-export type CustomRenderMethod = (gl: WebGLRenderingContext | WebGL2RenderingContext, matrix: mat4) => void;
+export type CustomRenderMethod = (gl: WebGLRenderingContext | WebGL2RenderingContext, matrix: mat4, options: CustomRenderMethodInput) => void;
 /**
  * Interface for custom style layers. This is a specification for
  * implementers to model: it is not an exported method or class.
@@ -6674,6 +6719,7 @@ export declare class Hash {
 	_getCurrentHash: () => any;
 	_onHashChange: () => boolean;
 	_updateHashUnthrottled: () => void;
+	_removeHash: () => void;
 	/**
 	 * Mobile Safari doesn't allow updating the hash more than 100 times per 30 seconds.
 	 */
@@ -8937,6 +8983,7 @@ export declare class CooperativeGesturesHandler implements Handler {
 	isEnabled(): boolean;
 	touchmove(e: TouchEvent): void;
 	wheel(e: WheelEvent): void;
+	shouldPreventWheelEvent(e: WheelEvent): boolean;
 	_onCooperativeGesture(showNotification: boolean): void;
 }
 /**
@@ -11708,6 +11755,12 @@ export type MarkerOptions = {
 	 * @defaultValue 0.2
 	 */
 	opacityWhenCovered?: string;
+	/**
+	  * If `true`, rounding is disabled for placement of the marker, allowing for
+	  * subpixel positioning and smoother movement when the marker is translated.
+	  * @defaultValue false
+	  */
+	subpixelPositioning?: boolean;
 };
 /**
  * Creates a marker component
@@ -11766,6 +11819,7 @@ export declare class Marker extends Evented {
 	_opacity: string;
 	_opacityWhenCovered: string;
 	_opacityTimeout: ReturnType<typeof setTimeout>;
+	_subpixelPositioning: boolean;
 	/**
 	 * @param options - the options
 	 */
@@ -11841,6 +11895,18 @@ export declare class Marker extends Evented {
 	 * @see [Attach a popup to a marker instance](https://maplibre.org/maplibre-gl-js/docs/examples/set-popup/)
 	 */
 	setPopup(popup?: Popup | null): this;
+	/**
+	  * Set the option to allow subpixel positioning of the marker by passing a boolean
+	  *
+	  * @param value - when set to `true`, subpixel positioning is enabled for the marker.
+	  *
+	  * @example
+	  * ```ts
+	  * let marker = new Marker()
+	  * marker.setSubpixelPositioning(true);
+	  * ```
+	  */
+	setSubpixelPositioning(value: boolean): this;
 	_onKeyPress: (e: KeyboardEvent) => void;
 	_onMapClick: (e: MapMouseEvent) => void;
 	/**
@@ -12235,7 +12301,8 @@ export declare class GeolocateControl extends Evented implements IControl {
 	_onZoom: () => void;
 	_onError: (error: GeolocationPositionError) => void;
 	_finish: () => void;
-	_setupUI: (supported: boolean) => void;
+	_setupUI: () => void;
+	_finishSetupUI: (supported: boolean) => void;
 	/**
 	 * Programmatically request and move the map to the user's location.
 	 *

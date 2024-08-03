@@ -1,6 +1,6 @@
 /**
  * MapLibre GL JS
- * @license 3-Clause BSD. Full text of license: https://github.com/maplibre/maplibre-gl-js/blob/v4.5.0/LICENSE.txt
+ * @license 3-Clause BSD. Full text of license: https://github.com/maplibre/maplibre-gl-js/blob/v4.5.1/LICENSE.txt
  */
 (function (global, factory) {
 typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -10,7 +10,7 @@ typeof define === 'function' && define.amd ? define(['exports'], factory) :
 
 var name = "maplibre-gl";
 var description = "BSD licensed community fork of mapbox-gl, a WebGL interactive maps library";
-var version$2 = "4.5.0";
+var version$2 = "4.5.1";
 var main = "dist/maplibre-gl.js";
 var style = "dist/maplibre-gl.css";
 var license = "BSD-3-Clause";
@@ -36,27 +36,26 @@ var dependencies = {
 	"@maplibre/maplibre-gl-style-spec": "^20.3.0",
 	"@types/geojson": "^7946.0.14",
 	"@types/geojson-vt": "3.2.5",
-	"@types/junit-report-builder": "^3.0.2",
 	"@types/mapbox__point-geometry": "^0.1.4",
 	"@types/mapbox__vector-tile": "^1.3.4",
 	"@types/pbf": "^3.0.5",
 	"@types/supercluster": "^7.1.3",
-	earcut: "^2.2.4",
+	earcut: "^3.0.0",
 	"geojson-vt": "^4.0.2",
 	"gl-matrix": "^3.4.3",
 	"global-prefix": "^3.0.0",
 	kdbush: "^4.0.2",
 	"murmurhash-js": "^1.0.0",
-	pbf: "^3.2.1",
+	pbf: "^3.3.0",
 	potpack: "^2.0.0",
-	quickselect: "^2.0.0",
+	quickselect: "^3.0.0",
 	supercluster: "^8.0.1",
-	tinyqueue: "^2.0.3",
+	tinyqueue: "^3.0.0",
 	"vt-pbf": "^3.1.3"
 };
 var devDependencies = {
 	autoprefixer: "^10.4.19",
-	"@mapbox/mapbox-gl-rtl-text": "^0.2.3",
+	"@mapbox/mapbox-gl-rtl-text": "^0.3.0",
 	"@mapbox/mvt-fixtures": "^3.10.0",
 	"@rollup/plugin-commonjs": "^26.0.1",
 	"@rollup/plugin-json": "^6.1.0",
@@ -77,8 +76,8 @@ var devDependencies = {
 	"@types/jsdom": "^21.1.7",
 	"@types/minimist": "^1.2.5",
 	"@types/murmurhash-js": "^1.0.6",
-	"@types/nise": "^1.4.4",
-	"@types/node": "^20.14.9",
+	"@types/nise": "^1.4.5",
+	"@types/node": "^22.0.2",
 	"@types/offscreencanvas": "^2019.7.3",
 	"@types/pixelmatch": "^5.2.6",
 	"@types/pngjs": "^6.0.5",
@@ -87,15 +86,15 @@ var devDependencies = {
 	"@types/request": "^2.48.12",
 	"@types/shuffle-seed": "^1.1.3",
 	"@types/window-or-global": "^1.0.6",
-	"@typescript-eslint/eslint-plugin": "^7.14.1",
-	"@typescript-eslint/parser": "^7.14.1",
+	"@typescript-eslint/eslint-plugin": "^7.18.0",
+	"@typescript-eslint/parser": "^7.18.0",
 	address: "^2.0.3",
 	benchmark: "^2.1.4",
 	canvas: "^2.11.2",
-	cssnano: "^7.0.3",
+	cssnano: "^7.0.4",
 	d3: "^7.9.0",
 	"d3-queue": "^3.0.7",
-	"devtools-protocol": "^0.0.1319565",
+	"devtools-protocol": "^0.0.1335233",
 	diff: "^5.2.0",
 	"dts-bundle-generator": "^9.5.1",
 	eslint: "^8.57.0",
@@ -103,50 +102,50 @@ var devDependencies = {
 	"eslint-plugin-html": "^8.1.1",
 	"eslint-plugin-import": "^2.29.1",
 	"eslint-plugin-jest": "^28.6.0",
-	"eslint-plugin-react": "^7.34.3",
+	"eslint-plugin-react": "^7.35.0",
 	"eslint-plugin-tsdoc": "0.3.0",
 	expect: "^29.7.0",
-	glob: "^10.4.2",
+	glob: "^11.0.0",
 	"is-builtin-module": "^4.0.0",
 	jest: "^29.7.0",
 	"jest-environment-jsdom": "^29.7.0",
 	"jest-junit": "^16.0.0",
-	"jest-monocart-coverage": "^1.1.0",
+	"jest-monocart-coverage": "^1.1.1",
 	"jest-webgl-canvas-mock": "^2.5.3",
-	jsdom: "^24.1.0",
-	"junit-report-builder": "^3.2.1",
+	jsdom: "^24.1.1",
+	"junit-report-builder": "^4.0.1",
 	minimist: "^1.2.8",
 	"mock-geolocation": "^1.0.11",
-	"monocart-coverage-reports": "^2.8.5",
+	"monocart-coverage-reports": "^2.10.0",
 	nise: "^6.0.0",
 	"npm-font-open-sans": "^1.1.0",
 	"npm-run-all": "^4.1.5",
 	"pdf-merger-js": "^5.1.2",
-	pixelmatch: "^5.3.0",
+	pixelmatch: "^6.0.0",
 	pngjs: "^7.0.0",
-	postcss: "^8.4.38",
+	postcss: "^8.4.40",
 	"postcss-cli": "^11.0.0",
 	"postcss-inline-svg": "^6.0.0",
 	"pretty-bytes": "^6.1.1",
-	puppeteer: "^22.12.0",
+	puppeteer: "^22.15.0",
 	react: "^18.3.1",
 	"react-dom": "^18.3.1",
-	rollup: "^4.18.0",
+	rollup: "^4.19.1",
 	"rollup-plugin-sourcemaps": "^0.6.3",
 	rw: "^1.3.3",
-	semver: "^7.6.2",
+	semver: "^7.6.3",
 	"shuffle-seed": "^1.1.6",
 	"source-map-explorer": "^2.5.3",
 	st: "^3.0.0",
-	stylelint: "^16.6.1",
+	stylelint: "^16.8.1",
 	"stylelint-config-standard": "^36.0.1",
-	"ts-jest": "^29.1.5",
+	"ts-jest": "^29.2.3",
 	"ts-node": "^10.9.2",
 	tslib: "^2.6.3",
-	typedoc: "^0.26.2",
-	"typedoc-plugin-markdown": "^4.1.0",
+	typedoc: "^0.26.5",
+	"typedoc-plugin-markdown": "^4.2.3",
 	"typedoc-plugin-missing-exports": "^3.0.0",
-	typescript: "^5.5.2"
+	typescript: "^5.5.4"
 };
 var overrides = {
 	"postcss-inline-svg": {
@@ -9200,7 +9199,7 @@ function defaultCompare$1(a, b) {
 }
 
 function quickselect(arr, k, left, right, compare) {
-    quickselectStep(arr, k, left , right || (arr.length - 1), compare || defaultCompare$2);
+    quickselectStep(arr, k, left , right || (arr.length - 1), compare || defaultCompare);
 }
 
 function quickselectStep(arr, k, left, right, compare) {
@@ -9249,7 +9248,7 @@ function swap$2(arr, i, j) {
     arr[j] = tmp;
 }
 
-function defaultCompare$2(a, b) {
+function defaultCompare(a, b) {
     return a < b ? -1 : a > b ? 1 : 0;
 }
 
@@ -25817,38 +25816,29 @@ const layout$4 = createLayout([
 ], 4);
 const { members: members$3, size: size$3, alignment: alignment$3 } = layout$4;
 
-var earcut$2 = {exports: {}};
+function earcut(data, holeIndices, dim = 2) {
 
-var earcut_1 = earcut$2.exports;
-
-'use strict';
-
-earcut$2.exports = earcut;
-var _default = earcut$2.exports.default = earcut;
-
-function earcut(data, holeIndices, dim) {
-
-    dim = dim || 2;
-
-    var hasHoles = holeIndices && holeIndices.length,
-        outerLen = hasHoles ? holeIndices[0] * dim : data.length,
-        outerNode = linkedList(data, 0, outerLen, dim, true),
-        triangles = [];
+    const hasHoles = holeIndices && holeIndices.length;
+    const outerLen = hasHoles ? holeIndices[0] * dim : data.length;
+    let outerNode = linkedList(data, 0, outerLen, dim, true);
+    const triangles = [];
 
     if (!outerNode || outerNode.next === outerNode.prev) return triangles;
 
-    var minX, minY, maxX, maxY, x, y, invSize;
+    let minX, minY, invSize;
 
     if (hasHoles) outerNode = eliminateHoles(data, holeIndices, outerNode, dim);
 
     // if the shape is not too simple, we'll use z-order curve hash later; calculate polygon bbox
     if (data.length > 80 * dim) {
-        minX = maxX = data[0];
-        minY = maxY = data[1];
+        minX = Infinity;
+        minY = Infinity;
+        let maxX = -Infinity;
+        let maxY = -Infinity;
 
-        for (var i = dim; i < outerLen; i += dim) {
-            x = data[i];
-            y = data[i + 1];
+        for (let i = dim; i < outerLen; i += dim) {
+            const x = data[i];
+            const y = data[i + 1];
             if (x < minX) minX = x;
             if (y < minY) minY = y;
             if (x > maxX) maxX = x;
@@ -25867,12 +25857,12 @@ function earcut(data, holeIndices, dim) {
 
 // create a circular doubly linked list from polygon points in the specified winding order
 function linkedList(data, start, end, dim, clockwise) {
-    var i, last;
+    let last;
 
     if (clockwise === (signedArea$1(data, start, end, dim) > 0)) {
-        for (i = start; i < end; i += dim) last = insertNode(i, data[i], data[i + 1], last);
+        for (let i = start; i < end; i += dim) last = insertNode(i / dim | 0, data[i], data[i + 1], last);
     } else {
-        for (i = end - dim; i >= start; i -= dim) last = insertNode(i, data[i], data[i + 1], last);
+        for (let i = end - dim; i >= start; i -= dim) last = insertNode(i / dim | 0, data[i], data[i + 1], last);
     }
 
     if (last && equals(last, last.next)) {
@@ -25888,7 +25878,7 @@ function filterPoints(start, end) {
     if (!start) return start;
     if (!end) end = start;
 
-    var p = start,
+    let p = start,
         again;
     do {
         again = false;
@@ -25914,19 +25904,15 @@ function earcutLinked(ear, triangles, dim, minX, minY, invSize, pass) {
     // interlink polygon nodes in z-order
     if (!pass && invSize) indexCurve(ear, minX, minY, invSize);
 
-    var stop = ear,
-        prev, next;
+    let stop = ear;
 
     // iterate through ears, slicing them one by one
     while (ear.prev !== ear.next) {
-        prev = ear.prev;
-        next = ear.next;
+        const prev = ear.prev;
+        const next = ear.next;
 
         if (invSize ? isEarHashed(ear, minX, minY, invSize) : isEar(ear)) {
-            // cut off the triangle
-            triangles.push(prev.i / dim | 0);
-            triangles.push(ear.i / dim | 0);
-            triangles.push(next.i / dim | 0);
+            triangles.push(prev.i, ear.i, next.i); // cut off the triangle
 
             removeNode(ear);
 
@@ -25947,7 +25933,7 @@ function earcutLinked(ear, triangles, dim, minX, minY, invSize, pass) {
 
             // if this didn't work, try curing all small self-intersections locally
             } else if (pass === 1) {
-                ear = cureLocalIntersections(filterPoints(ear), triangles, dim);
+                ear = cureLocalIntersections(filterPoints(ear), triangles);
                 earcutLinked(ear, triangles, dim, minX, minY, invSize, 2);
 
             // as a last resort, try splitting the remaining polygon into two
@@ -25962,22 +25948,22 @@ function earcutLinked(ear, triangles, dim, minX, minY, invSize, pass) {
 
 // check whether a polygon node forms a valid ear with adjacent nodes
 function isEar(ear) {
-    var a = ear.prev,
+    const a = ear.prev,
         b = ear,
         c = ear.next;
 
     if (area(a, b, c) >= 0) return false; // reflex, can't be an ear
 
     // now make sure we don't have other points inside the potential ear
-    var ax = a.x, bx = b.x, cx = c.x, ay = a.y, by = b.y, cy = c.y;
+    const ax = a.x, bx = b.x, cx = c.x, ay = a.y, by = b.y, cy = c.y;
 
     // triangle bbox; min & max are calculated like this for speed
-    var x0 = ax < bx ? (ax < cx ? ax : cx) : (bx < cx ? bx : cx),
+    const x0 = ax < bx ? (ax < cx ? ax : cx) : (bx < cx ? bx : cx),
         y0 = ay < by ? (ay < cy ? ay : cy) : (by < cy ? by : cy),
         x1 = ax > bx ? (ax > cx ? ax : cx) : (bx > cx ? bx : cx),
         y1 = ay > by ? (ay > cy ? ay : cy) : (by > cy ? by : cy);
 
-    var p = c.next;
+    let p = c.next;
     while (p !== a) {
         if (p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1 &&
             pointInTriangle(ax, ay, bx, by, cx, cy, p.x, p.y) &&
@@ -25989,25 +25975,25 @@ function isEar(ear) {
 }
 
 function isEarHashed(ear, minX, minY, invSize) {
-    var a = ear.prev,
+    const a = ear.prev,
         b = ear,
         c = ear.next;
 
     if (area(a, b, c) >= 0) return false; // reflex, can't be an ear
 
-    var ax = a.x, bx = b.x, cx = c.x, ay = a.y, by = b.y, cy = c.y;
+    const ax = a.x, bx = b.x, cx = c.x, ay = a.y, by = b.y, cy = c.y;
 
     // triangle bbox; min & max are calculated like this for speed
-    var x0 = ax < bx ? (ax < cx ? ax : cx) : (bx < cx ? bx : cx),
+    const x0 = ax < bx ? (ax < cx ? ax : cx) : (bx < cx ? bx : cx),
         y0 = ay < by ? (ay < cy ? ay : cy) : (by < cy ? by : cy),
         x1 = ax > bx ? (ax > cx ? ax : cx) : (bx > cx ? bx : cx),
         y1 = ay > by ? (ay > cy ? ay : cy) : (by > cy ? by : cy);
 
     // z-order range for the current triangle bbox;
-    var minZ = zOrder(x0, y0, minX, minY, invSize),
+    const minZ = zOrder(x0, y0, minX, minY, invSize),
         maxZ = zOrder(x1, y1, minX, minY, invSize);
 
-    var p = ear.prevZ,
+    let p = ear.prevZ,
         n = ear.nextZ;
 
     // look for points inside the triangle in both directions
@@ -26039,17 +26025,15 @@ function isEarHashed(ear, minX, minY, invSize) {
 }
 
 // go through all polygon nodes and cure small local self-intersections
-function cureLocalIntersections(start, triangles, dim) {
-    var p = start;
+function cureLocalIntersections(start, triangles) {
+    let p = start;
     do {
-        var a = p.prev,
+        const a = p.prev,
             b = p.next.next;
 
         if (!equals(a, b) && intersects(a, p, p.next, b) && locallyInside(a, b) && locallyInside(b, a)) {
 
-            triangles.push(a.i / dim | 0);
-            triangles.push(p.i / dim | 0);
-            triangles.push(b.i / dim | 0);
+            triangles.push(a.i, p.i, b.i);
 
             // remove two nodes involved
             removeNode(p);
@@ -26066,13 +26050,13 @@ function cureLocalIntersections(start, triangles, dim) {
 // try splitting polygon into two and triangulate them independently
 function splitEarcut(start, triangles, dim, minX, minY, invSize) {
     // look for a valid diagonal that divides the polygon into two
-    var a = start;
+    let a = start;
     do {
-        var b = a.next.next;
+        let b = a.next.next;
         while (b !== a.prev) {
             if (a.i !== b.i && isValidDiagonal(a, b)) {
                 // split the polygon in two by the diagonal
-                var c = splitPolygon(a, b);
+                let c = splitPolygon(a, b);
 
                 // filter colinear points around the cuts
                 a = filterPoints(a, a.next);
@@ -26091,13 +26075,12 @@ function splitEarcut(start, triangles, dim, minX, minY, invSize) {
 
 // link every hole into the outer loop, producing a single-ring polygon without holes
 function eliminateHoles(data, holeIndices, outerNode, dim) {
-    var queue = [],
-        i, len, start, end, list;
+    const queue = [];
 
-    for (i = 0, len = holeIndices.length; i < len; i++) {
-        start = holeIndices[i] * dim;
-        end = i < len - 1 ? holeIndices[i + 1] * dim : data.length;
-        list = linkedList(data, start, end, dim, false);
+    for (let i = 0, len = holeIndices.length; i < len; i++) {
+        const start = holeIndices[i] * dim;
+        const end = i < len - 1 ? holeIndices[i + 1] * dim : data.length;
+        const list = linkedList(data, start, end, dim, false);
         if (list === list.next) list.steiner = true;
         queue.push(getLeftmost(list));
     }
@@ -26105,7 +26088,7 @@ function eliminateHoles(data, holeIndices, outerNode, dim) {
     queue.sort(compareX);
 
     // process holes from left to right
-    for (i = 0; i < queue.length; i++) {
+    for (let i = 0; i < queue.length; i++) {
         outerNode = eliminateHole(queue[i], outerNode);
     }
 
@@ -26118,12 +26101,12 @@ function compareX(a, b) {
 
 // find a bridge between vertices that connects hole with an outer ring and and link it
 function eliminateHole(hole, outerNode) {
-    var bridge = findHoleBridge(hole, outerNode);
+    const bridge = findHoleBridge(hole, outerNode);
     if (!bridge) {
         return outerNode;
     }
 
-    var bridgeReverse = splitPolygon(bridge, hole);
+    const bridgeReverse = splitPolygon(bridge, hole);
 
     // filter collinear points around the cuts
     filterPoints(bridgeReverse, bridgeReverse.next);
@@ -26132,17 +26115,17 @@ function eliminateHole(hole, outerNode) {
 
 // David Eberly's algorithm for finding a bridge between hole and outer polygon
 function findHoleBridge(hole, outerNode) {
-    var p = outerNode,
-        hx = hole.x,
-        hy = hole.y,
-        qx = -Infinity,
-        m;
+    let p = outerNode;
+    const hx = hole.x;
+    const hy = hole.y;
+    let qx = -Infinity;
+    let m;
 
     // find a segment intersected by a ray from the hole's leftmost point to the left;
     // segment's endpoint with lesser x will be potential connection point
     do {
         if (hy <= p.y && hy >= p.next.y && p.next.y !== p.y) {
-            var x = p.x + (hy - p.y) * (p.next.x - p.x) / (p.next.y - p.y);
+            const x = p.x + (hy - p.y) * (p.next.x - p.x) / (p.next.y - p.y);
             if (x <= hx && x > qx) {
                 qx = x;
                 m = p.x < p.next.x ? p : p.next;
@@ -26158,11 +26141,10 @@ function findHoleBridge(hole, outerNode) {
     // if there are no points found, we have a valid connection;
     // otherwise choose the point of the minimum angle with the ray as connection point
 
-    var stop = m,
-        mx = m.x,
-        my = m.y,
-        tanMin = Infinity,
-        tan;
+    const stop = m;
+    const mx = m.x;
+    const my = m.y;
+    let tanMin = Infinity;
 
     p = m;
 
@@ -26170,7 +26152,7 @@ function findHoleBridge(hole, outerNode) {
         if (hx >= p.x && p.x >= mx && hx !== p.x &&
                 pointInTriangle(hy < my ? hx : qx, hy, mx, my, hy < my ? qx : hx, hy, p.x, p.y)) {
 
-            tan = Math.abs(hy - p.y) / (hx - p.x); // tangential
+            const tan = Math.abs(hy - p.y) / (hx - p.x); // tangential
 
             if (locallyInside(p, hole) &&
                 (tan < tanMin || (tan === tanMin && (p.x > m.x || (p.x === m.x && sectorContainsSector(m, p)))))) {
@@ -26192,7 +26174,7 @@ function sectorContainsSector(m, p) {
 
 // interlink polygon nodes in z-order
 function indexCurve(start, minX, minY, invSize) {
-    var p = start;
+    let p = start;
     do {
         if (p.z === 0) p.z = zOrder(p.x, p.y, minX, minY, invSize);
         p.prevZ = p.prev;
@@ -26209,25 +26191,26 @@ function indexCurve(start, minX, minY, invSize) {
 // Simon Tatham's linked list merge sort algorithm
 // http://www.chiark.greenend.org.uk/~sgtatham/algorithms/listsort.html
 function sortLinked(list) {
-    var i, p, q, e, tail, numMerges, pSize, qSize,
-        inSize = 1;
+    let numMerges;
+    let inSize = 1;
 
     do {
-        p = list;
+        let p = list;
+        let e;
         list = null;
-        tail = null;
+        let tail = null;
         numMerges = 0;
 
         while (p) {
             numMerges++;
-            q = p;
-            pSize = 0;
-            for (i = 0; i < inSize; i++) {
+            let q = p;
+            let pSize = 0;
+            for (let i = 0; i < inSize; i++) {
                 pSize++;
                 q = q.nextZ;
                 if (!q) break;
             }
-            qSize = inSize;
+            let qSize = inSize;
 
             while (pSize > 0 || (qSize > 0 && q)) {
 
@@ -26280,7 +26263,7 @@ function zOrder(x, y, minX, minY, invSize) {
 
 // find the leftmost node of a polygon ring
 function getLeftmost(start) {
-    var p = start,
+    let p = start,
         leftmost = start;
     do {
         if (p.x < leftmost.x || (p.x === leftmost.x && p.y < leftmost.y)) leftmost = p;
@@ -26317,10 +26300,10 @@ function equals(p1, p2) {
 
 // check if two segments intersect
 function intersects(p1, q1, p2, q2) {
-    var o1 = sign(area(p1, q1, p2));
-    var o2 = sign(area(p1, q1, q2));
-    var o3 = sign(area(p2, q2, p1));
-    var o4 = sign(area(p2, q2, q1));
+    const o1 = sign(area(p1, q1, p2));
+    const o2 = sign(area(p1, q1, q2));
+    const o3 = sign(area(p2, q2, p1));
+    const o4 = sign(area(p2, q2, q1));
 
     if (o1 !== o2 && o3 !== o4) return true; // general case
 
@@ -26343,7 +26326,7 @@ function sign(num) {
 
 // check if a polygon diagonal intersects any polygon segments
 function intersectsPolygon(a, b) {
-    var p = a;
+    let p = a;
     do {
         if (p.i !== a.i && p.next.i !== a.i && p.i !== b.i && p.next.i !== b.i &&
                 intersects(p, p.next, a, b)) return true;
@@ -26362,10 +26345,10 @@ function locallyInside(a, b) {
 
 // check if the middle point of a polygon diagonal is inside the polygon
 function middleInside(a, b) {
-    var p = a,
-        inside = false,
-        px = (a.x + b.x) / 2,
-        py = (a.y + b.y) / 2;
+    let p = a;
+    let inside = false;
+    const px = (a.x + b.x) / 2;
+    const py = (a.y + b.y) / 2;
     do {
         if (((p.y > py) !== (p.next.y > py)) && p.next.y !== p.y &&
                 (px < (p.next.x - p.x) * (py - p.y) / (p.next.y - p.y) + p.x))
@@ -26379,8 +26362,8 @@ function middleInside(a, b) {
 // link two polygon vertices with a bridge; if the vertices belong to the same ring, it splits polygon into two;
 // if one belongs to the outer ring and another to a hole, it merges it into a single ring
 function splitPolygon(a, b) {
-    var a2 = new Node(a.i, a.x, a.y),
-        b2 = new Node(b.i, b.x, b.y),
+    const a2 = createNode(a.i, a.x, a.y),
+        b2 = createNode(b.i, b.x, b.y),
         an = a.next,
         bp = b.prev;
 
@@ -26401,7 +26384,7 @@ function splitPolygon(a, b) {
 
 // create a node and optionally link it with previous one (in a circular doubly linked list)
 function insertNode(i, x, y, last) {
-    var p = new Node(i, x, y);
+    const p = createNode(i, x, y);
 
     if (!last) {
         p.prev = p;
@@ -26424,49 +26407,39 @@ function removeNode(p) {
     if (p.nextZ) p.nextZ.prevZ = p.prevZ;
 }
 
-function Node(i, x, y) {
-    // vertex index in coordinates array
-    this.i = i;
-
-    // vertex coordinates
-    this.x = x;
-    this.y = y;
-
-    // previous and next vertex nodes in a polygon ring
-    this.prev = null;
-    this.next = null;
-
-    // z-order curve value
-    this.z = 0;
-
-    // previous and next nodes in z-order
-    this.prevZ = null;
-    this.nextZ = null;
-
-    // indicates whether this is a steiner point
-    this.steiner = false;
+function createNode(i, x, y) {
+    return {
+        i, // vertex index in coordinates array
+        x, y, // vertex coordinates
+        prev: null, // previous and next vertex nodes in a polygon ring
+        next: null,
+        z: 0, // z-order curve value
+        prevZ: null, // previous and next nodes in z-order
+        nextZ: null,
+        steiner: false // indicates whether this is a steiner point
+    };
 }
 
 // return a percentage difference between the polygon area and its triangulation area;
 // used to verify correctness of triangulation
-earcut.deviation = function (data, holeIndices, dim, triangles) {
-    var hasHoles = holeIndices && holeIndices.length;
-    var outerLen = hasHoles ? holeIndices[0] * dim : data.length;
+function deviation(data, holeIndices, dim, triangles) {
+    const hasHoles = holeIndices && holeIndices.length;
+    const outerLen = hasHoles ? holeIndices[0] * dim : data.length;
 
-    var polygonArea = Math.abs(signedArea$1(data, 0, outerLen, dim));
+    let polygonArea = Math.abs(signedArea$1(data, 0, outerLen, dim));
     if (hasHoles) {
-        for (var i = 0, len = holeIndices.length; i < len; i++) {
-            var start = holeIndices[i] * dim;
-            var end = i < len - 1 ? holeIndices[i + 1] * dim : data.length;
+        for (let i = 0, len = holeIndices.length; i < len; i++) {
+            const start = holeIndices[i] * dim;
+            const end = i < len - 1 ? holeIndices[i + 1] * dim : data.length;
             polygonArea -= Math.abs(signedArea$1(data, start, end, dim));
         }
     }
 
-    var trianglesArea = 0;
-    for (i = 0; i < triangles.length; i += 3) {
-        var a = triangles[i] * dim;
-        var b = triangles[i + 1] * dim;
-        var c = triangles[i + 2] * dim;
+    let trianglesArea = 0;
+    for (let i = 0; i < triangles.length; i += 3) {
+        const a = triangles[i] * dim;
+        const b = triangles[i + 1] * dim;
+        const c = triangles[i + 2] * dim;
         trianglesArea += Math.abs(
             (data[a] - data[c]) * (data[b + 1] - data[a + 1]) -
             (data[a] - data[b]) * (data[c + 1] - data[a + 1]));
@@ -26474,11 +26447,11 @@ earcut.deviation = function (data, holeIndices, dim, triangles) {
 
     return polygonArea === 0 && trianglesArea === 0 ? 0 :
         Math.abs((trianglesArea - polygonArea) / polygonArea);
-};
+}
 
 function signedArea$1(data, start, end, dim) {
-    var sum = 0;
-    for (var i = start, j = end - dim; i < end; i += dim) {
+    let sum = 0;
+    for (let i = start, j = end - dim; i < end; i += dim) {
         sum += (data[j] - data[i]) * (data[i + 1] + data[j + 1]);
         j = i;
     }
@@ -26486,25 +26459,25 @@ function signedArea$1(data, start, end, dim) {
 }
 
 // turn a polygon in a multi-dimensional array form (e.g. as in GeoJSON) into a form Earcut accepts
-earcut.flatten = function (data) {
-    var dim = data[0][0].length,
-        result = {vertices: [], holes: [], dimensions: dim},
-        holeIndex = 0;
+function flatten(data) {
+    const vertices = [];
+    const holes = [];
+    const dimensions = data[0][0].length;
+    let holeIndex = 0;
+    let prevLen = 0;
 
-    for (var i = 0; i < data.length; i++) {
-        for (var j = 0; j < data[i].length; j++) {
-            for (var d = 0; d < dim; d++) result.vertices.push(data[i][j][d]);
+    for (const ring of data) {
+        for (const p of ring) {
+            for (let d = 0; d < dimensions; d++) vertices.push(p[d]);
         }
-        if (i > 0) {
-            holeIndex += data[i - 1].length;
-            result.holes.push(holeIndex);
+        if (prevLen) {
+            holeIndex += prevLen;
+            holes.push(holeIndex);
         }
+        prevLen = ring.length;
     }
-    return result;
-};
-
-var earcutExports = earcut$2.exports;
-var earcut$1 = /*@__PURE__*/getDefaultExportFromCjs$1(earcutExports);
+    return {vertices, holes, dimensions};
+}
 
 function hasPattern(type, layers, options) {
     const patterns = options.patternDependencies;
@@ -26674,7 +26647,7 @@ class FillBucket {
                 lineSegment.vertexLength += ring.length;
                 lineSegment.primitiveLength += ring.length;
             }
-            const indices = earcut$1(flattened, holeIndices);
+            const indices = earcut(flattened, holeIndices);
             for (let i = 0; i < indices.length; i += 3) {
                 this.indexArray.emplaceBack(triangleIndex + indices[i], triangleIndex + indices[i + 1], triangleIndex + indices[i + 2]);
             }
@@ -27232,7 +27205,7 @@ class FillExtrusionBucket {
                     flattened.push(p.y);
                 }
             }
-            const indices = earcut$1(flattened, holeIndices);
+            const indices = earcut(flattened, holeIndices);
             for (let j = 0; j < indices.length; j += 3) {
                 // Counter-clockwise winding order.
                 this.indexArray.emplaceBack(triangleIndex + indices[j], triangleIndex + indices[j + 2], triangleIndex + indices[j + 1]);
@@ -28408,7 +28381,7 @@ var SHIFT_LEFT_32 = (1 << 16) * (1 << 16),
 // Threshold chosen based on both benchmarking and knowledge about browser string
 // data structures (which currently switch structure types at 12 bytes or more)
 var TEXT_DECODER_MIN_LENGTH = 12;
-var utf8TextDecoder = typeof TextDecoder === 'undefined' ? null : new TextDecoder('utf8');
+var utf8TextDecoder = typeof TextDecoder === 'undefined' ? null : new TextDecoder('utf-8');
 
 Pbf.prototype = {
 
@@ -32083,7 +32056,7 @@ class Actor {
     receive(message) {
         const data = message.data;
         const id = data.id;
-        if (data.origin !== 'file://' && location.origin !== 'file://' && data.origin !== location.origin) {
+        if (data.origin !== 'file://' && location.origin !== 'file://' && data.origin !== 'resource://android' && location.origin !== 'resource://android' && data.origin !== location.origin) {
             return;
         }
         if (data.targetMapId && this.mapId !== data.targetMapId) {
@@ -38762,7 +38735,7 @@ class CollisionFeature {
 }
 
 class TinyQueue {
-    constructor(data = [], compare = defaultCompare) {
+    constructor(data = [], compare = (a, b) => (a < b ? -1 : a > b ? 1 : 0)) {
         this.data = data;
         this.length = this.data.length;
         this.compare = compare;
@@ -38774,8 +38747,7 @@ class TinyQueue {
 
     push(item) {
         this.data.push(item);
-        this.length++;
-        this._up(this.length - 1);
+        this._up(this.length++);
     }
 
     pop() {
@@ -38783,9 +38755,8 @@ class TinyQueue {
 
         const top = this.data[0];
         const bottom = this.data.pop();
-        this.length--;
 
-        if (this.length > 0) {
+        if (--this.length > 0) {
             this.data[0] = bottom;
             this._down(0);
         }
@@ -38818,26 +38789,20 @@ class TinyQueue {
         const item = data[pos];
 
         while (pos < halfLength) {
-            let left = (pos << 1) + 1;
-            let best = data[left];
-            const right = left + 1;
+            let bestChild = (pos << 1) + 1; // initially it is the left child
+            const right = bestChild + 1;
 
-            if (right < this.length && compare(data[right], best) < 0) {
-                left = right;
-                best = data[right];
+            if (right < this.length && compare(data[right], data[bestChild]) < 0) {
+                bestChild = right;
             }
-            if (compare(best, item) >= 0) break;
+            if (compare(data[bestChild], item) >= 0) break;
 
-            data[pos] = best;
-            pos = left;
+            data[pos] = data[bestChild];
+            pos = bestChild;
         }
 
         data[pos] = item;
     }
-}
-
-function defaultCompare(a, b) {
-    return a < b ? -1 : a > b ? 1 : 0;
 }
 
 /**
@@ -41272,12 +41237,13 @@ class Style extends Evented {
             options.validate : true;
         const request = this.map._requestManager.transformRequest(url, "Style" /* ResourceType.Style */);
         this._loadStyleRequest = new AbortController();
+        const abortController = this._loadStyleRequest;
         getJSON(request, this._loadStyleRequest).then((response) => {
             this._loadStyleRequest = null;
             this._load(response.data, options, previousStyle);
         }).catch((error) => {
             this._loadStyleRequest = null;
-            if (error) {
+            if (error && !abortController.signal.aborted) { // ignore abort
                 this.fire(new ErrorEvent(error));
             }
         });
@@ -45934,7 +45900,7 @@ function drawCustom(painter, sourceCache, layer) {
             new DepthMode(painter.context.gl.LEQUAL, DepthMode.ReadWrite, painter.depthRangeFor3D) :
             painter.depthModeForSublayer(0, DepthMode.ReadOnly);
         context.setDepthMode(depthMode);
-        implementation.render(context.gl, painter.transform.customLayerMatrix());
+        implementation.render(context.gl, painter.transform.customLayerMatrix(), { farZ: painter.transform.farZ, nearZ: painter.transform.nearZ, fov: painter.transform._fov, modelViewProjectionMatrix: painter.transform.modelViewProjectionMatrix, projectionMatrix: painter.transform.projectionMatrix });
         context.setDirty();
         painter.setBaseState();
         context.bindFramebuffer.set(null);
@@ -46246,6 +46212,7 @@ class Painter {
         return this.currentLayer < this.opaquePassCutoff;
     }
     render(style, options) {
+        var _a;
         this.style = style;
         this.options = options;
         this.lineAtlas = style.lineAtlas;
@@ -46301,7 +46268,7 @@ class Painter {
         this.context.clear({ color: options.showOverdrawInspector ? Color.black : Color.transparent, depth: 1 });
         this.clearStencil();
         // draw sky first to not overwrite symbols
-        if (this.style.stylesheet.sky)
+        if ((_a = this.style.stylesheet) === null || _a === void 0 ? void 0 : _a.sky)
             drawSky(this, this.style.sky);
         this._showOverdrawInspector = options.showOverdrawInspector;
         this.depthRangeFor3D = [0, 1 - ((style._order.length + 2) * this.numSublayers * this.depthEpsilon)];
@@ -47432,7 +47399,7 @@ class Transform {
         // Calculate z distance of the farthest fragment that should be rendered.
         // Add a bit extra to avoid precision problems when a fragment's distance is exactly `furthestDistance`
         const topHalfMinDistance = Math.min(topHalfSurfaceDistance, topHalfSurfaceDistanceHorizon);
-        const farZ = (Math.cos(Math.PI / 2 - this._pitch) * topHalfMinDistance + lowestPlane) * 1.01;
+        this.farZ = (Math.cos(Math.PI / 2 - this._pitch) * topHalfMinDistance + lowestPlane) * 1.01;
         // The larger the value of nearZ is
         // - the more depth precision is available for features (good)
         // - clipping starts appearing sooner when the camera is close to 3d features (bad)
@@ -47440,13 +47407,14 @@ class Transform {
         // Other values work for mapbox-gl-js but deck.gl was encountering precision issues
         // when rendering custom layers. This value was experimentally chosen and
         // seems to solve z-fighting issues in deck.gl while not clipping buildings too close to the camera.
-        const nearZ = this.height / 50;
+        this.nearZ = this.height / 50;
         // matrix for conversion from location to clip space(-1 .. 1)
         m = new Float64Array(16);
-        perspective(m, this._fov, this.width / this.height, nearZ, farZ);
+        perspective(m, this._fov, this.width / this.height, this.nearZ, this.farZ);
         // Apply center of perspective offset
         m[8] = -offset.x * 2 / this.width;
         m[9] = offset.y * 2 / this.height;
+        this.projectionMatrix = clone$5(m);
         scale$5(m, m, [1, -1, 1]);
         translate$1(m, m, [0, 0, -this.cameraToCenterDistance]);
         rotateX$3(m, m, this._pitch);
@@ -47466,7 +47434,7 @@ class Transform {
         // create a fog matrix, same es proj-matrix but with near clipping-plane in mapcenter
         // needed to calculate a correct z-value for fog calculation, because projMatrix z value is not
         this.fogMatrix = new Float64Array(16);
-        perspective(this.fogMatrix, this._fov, this.width / this.height, cameraToSeaLevelDistance, farZ);
+        perspective(this.fogMatrix, this._fov, this.width / this.height, cameraToSeaLevelDistance, this.farZ);
         this.fogMatrix[8] = -offset.x * 2 / this.width;
         this.fogMatrix[9] = offset.y * 2 / this.height;
         scale$5(this.fogMatrix, this.fogMatrix, [1, -1, 1]);
@@ -47640,14 +47608,31 @@ class Hash {
         this._updateHashUnthrottled = () => {
             // Replace if already present, else append the updated hash string
             const location = window.location.href.replace(/(#.+)?$/, this.getHashString());
-            try {
-                window.history.replaceState(window.history.state, null, location);
+            window.history.replaceState(window.history.state, null, location);
+        };
+        this._removeHash = () => {
+            const currentHash = this._getCurrentHash();
+            if (currentHash.length === 0) {
+                return;
             }
-            catch (SecurityError) {
-                // IE11 does not allow this if the page is within an iframe created
-                // with iframe.contentWindow.document.write(...).
-                // https://github.com/mapbox/mapbox-gl-js/issues/7410
+            const baseHash = currentHash.join('/');
+            let targetHash = baseHash;
+            if (targetHash.split('&').length > 0) {
+                targetHash = targetHash.split('&')[0]; // #3/1/2&foo=bar -> #3/1/2
             }
+            if (this._hashName) {
+                targetHash = `${this._hashName}=${baseHash}`;
+            }
+            let replaceString = window.location.hash.replace(targetHash, '');
+            if (replaceString.startsWith('#&')) {
+                replaceString = replaceString.slice(0, 1) + replaceString.slice(2);
+            }
+            else if (replaceString === '#') {
+                replaceString = '';
+            }
+            let location = window.location.href.replace(/(#.+)?$/, replaceString);
+            location = location.replace('&&', '&');
+            window.history.replaceState(window.history.state, null, location);
         };
         /**
          * Mobile Safari doesn't allow updating the hash more than 100 times per 30 seconds.
@@ -47673,6 +47658,7 @@ class Hash {
         removeEventListener('hashchange', this._onHashChange, false);
         this._map.off('moveend', this._updateHash);
         clearTimeout(this._updateHash());
+        this._removeHash();
         delete this._map;
         return this;
     }
@@ -49230,7 +49216,7 @@ class ScrollZoomHandler {
     wheel(e) {
         if (!this.isEnabled())
             return;
-        if (this._map.cooperativeGestures.isEnabled() && !e[this._map.cooperativeGestures._bypassKey]) {
+        if (this._map.cooperativeGestures.shouldPreventWheelEvent(e)) {
             return;
         }
         let value = e.deltaMode === WheelEvent.DOM_DELTA_LINE ? e.deltaY * 40 : e.deltaY;
@@ -49340,8 +49326,9 @@ class ScrollZoomHandler {
         const easing = this._easing;
         let finished = false;
         let zoom;
-        if (this._type === 'wheel' && startZoom && easing) {
-            const t = Math.min((browser.now() - this._lastWheelEventTime) / 200, 1);
+        const lastWheelEventTimeDiff = browser.now() - this._lastWheelEventTime;
+        if (this._type === 'wheel' && startZoom && easing && lastWheelEventTimeDiff) {
+            const t = Math.min(lastWheelEventTimeDiff / 200, 1);
             const k = easing(t);
             zoom = interpolate.number(startZoom, targetZoom, k);
             if (t < 1) {
@@ -49883,7 +49870,16 @@ class CooperativeGesturesHandler {
         if (!this._map.scrollZoom.isEnabled()) {
             return;
         }
-        this._onCooperativeGesture(!e[this._bypassKey]);
+        const isPrevented = this.shouldPreventWheelEvent(e);
+        this._onCooperativeGesture(isPrevented);
+    }
+    shouldPreventWheelEvent(e) {
+        if (!this.isEnabled()) {
+            return false;
+        }
+        const isTrackpadPinch = e.ctrlKey;
+        const isBypassed = e[this._bypassKey] || isTrackpadPinch;
+        return !isBypassed;
     }
     _onCooperativeGesture(showNotification) {
         if (!this._enabled || !showNotification)
@@ -50276,7 +50272,9 @@ class HandlerManager {
         if (finishedMoving && this._terrainMovement) {
             this._map._elevationFreeze = false;
             this._terrainMovement = false;
-            this._map.transform.recalculateZoom(this._map.terrain);
+            const tr = this._map._getTransformForUpdate();
+            tr.recalculateZoom(this._map.terrain);
+            this._map._applyUpdatedTransform(tr);
         }
         if (allowEndAnimation && finishedMoving) {
             this._updatingCamera = true;
@@ -55342,7 +55340,7 @@ class Marker extends Evented {
             // because rounding the coordinates at every `move` event causes stuttered zooming
             // we only round them when _update is called with `moveend` or when its called with
             // no arguments (when the Marker is initialized or Marker#setLngLat is invoked).
-            if (!e || e.type === 'moveend') {
+            if (!this._subpixelPositioning && (!e || e.type === 'moveend')) {
                 this._pos = this._pos.round();
             }
             DOM.setTransform(this._element, `${anchorTranslate[this._anchor]} translate(${this._pos.x}px, ${this._pos.y}px) ${pitch} ${rotation}`);
@@ -55408,6 +55406,7 @@ class Marker extends Evented {
         this._scale = options && options.scale || 1;
         this._draggable = options && options.draggable || false;
         this._clickTolerance = options && options.clickTolerance || 0;
+        this._subpixelPositioning = options && options.subpixelPositioning || false;
         this._isDragging = false;
         this._state = 'inactive';
         this._rotation = options && options.rotation || 0;
@@ -55672,6 +55671,21 @@ class Marker extends Evented {
             }
             this._element.addEventListener('keypress', this._onKeyPress);
         }
+        return this;
+    }
+    /**
+      * Set the option to allow subpixel positioning of the marker by passing a boolean
+      *
+      * @param value - when set to `true`, subpixel positioning is enabled for the marker.
+      *
+      * @example
+      * ```ts
+      * let marker = new Marker()
+      * marker.setSubpixelPositioning(true);
+      * ```
+      */
+    setSubpixelPositioning(value) {
+        this._subpixelPositioning = value;
         return this;
     }
     /**
@@ -56260,8 +56274,7 @@ class GeolocateControl extends Evented {
             }
             this._timeoutId = undefined;
         };
-        this._setupUI = (supported) => {
-            // this method is called asynchronously during onAdd
+        this._setupUI = () => {
             // the control could have been removed before reaching here
             if (!this._map) {
                 return;
@@ -56270,6 +56283,14 @@ class GeolocateControl extends Evented {
             this._geolocateButton = DOM.create('button', 'maplibregl-ctrl-geolocate', this._container);
             DOM.create('span', 'maplibregl-ctrl-icon', this._geolocateButton).setAttribute('aria-hidden', 'true');
             this._geolocateButton.type = 'button';
+            this._geolocateButton.disabled = true;
+        };
+        this._finishSetupUI = (supported) => {
+            // this method is called asynchronously during onAdd
+            if (!this._map) {
+                // control has since been removed
+                return;
+            }
             if (supported === false) {
                 warnOnce('Geolocation support is not available so the GeolocateControl will be disabled.');
                 const title = this._map._getUIString('GeolocateControl.LocationNotAvailable');
@@ -56279,6 +56300,7 @@ class GeolocateControl extends Evented {
             }
             else {
                 const title = this._map._getUIString('GeolocateControl.FindMyLocation');
+                this._geolocateButton.disabled = false;
                 this._geolocateButton.title = title;
                 this._geolocateButton.setAttribute('aria-label', title);
             }
@@ -56319,7 +56341,8 @@ class GeolocateControl extends Evented {
     onAdd(map) {
         this._map = map;
         this._container = DOM.create('div', 'maplibregl-ctrl maplibregl-ctrl-group');
-        checkGeolocationSupport().then((supported) => this._setupUI(supported));
+        this._setupUI();
+        checkGeolocationSupport().then((supported) => this._finishSetupUI(supported));
         return this._container;
     }
     /** {@inheritDoc IControl.onRemove} */
