@@ -371,7 +371,7 @@ def DisplayNodes(interface):
         print("NAME:      {}".format(node['user']['longName']))  
         print("NODE:      {}".format(node['num']))  
         print("ID:        {}".format(node['user']['id']))  
-        print("MAC:       {}".format(node['user']['macaddr']))
+        #print("MAC:       {}".format(node['user']['macaddr']))
         if 'position' in node.keys():
           #used to calculate XY for tile servers
           if 'latitude' in node['position'] and 'longitude' in node['position']:
@@ -432,7 +432,7 @@ def read_manual_gps():
             t2_end_time = time.time()
             t2_elapsed_time = t2_end_time - t2_start_time
             if ( t2_elapsed_time > t2_interval_rand ):
-                print("Manual loop")
+                print("Manual loop",t2_elapsed_time,t2_interval_rand)
                 if ( os.path.isfile("/opt/edgemap-persist/callsign.txt") ):
                     t2_callsign_file = open("/opt/edgemap-persist/callsign.txt", "r")
                     t2_callsign_from_file = t2_callsign_file.readline()
@@ -458,7 +458,8 @@ def read_manual_gps():
                             
                 else:
                     t2_callsign_from_file = "no-callsign"
-
+                t2_start_time = time.time()
+                t2_interval_rand = randrange(min_interval_time, max_interval_time)
             
 # Live GPS
 def read_live_gps():

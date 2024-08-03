@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PYTHON_PRINT_COLOR
+	bool "python-printcolor"
+	help
+	
+	  https://pypi.org/project/print-color
