@@ -8,6 +8,12 @@
 
 // TODO: More sanity check of invalid or empty data !
 $db_file="/tmp/radio.db";
+// Check if sqlite3 DB is available
+if ( file_exists($db_file) && is_readable($db_file) ) {
+} else {
+    exit;
+}
+
 $db = new SQLite3($db_file);
 // linkline between nodes (0/1)
 $LINK_LINE = $_GET['linkline'];
