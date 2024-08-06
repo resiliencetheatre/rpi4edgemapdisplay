@@ -166,12 +166,12 @@ def onReceive(packet, interface):
     fromIdent = fromIdentString[1:]
     
     if(fromIdent):
-        print('** Packet from: {}'.format(fromIdent))
-        print('** battery: {}'.format(DeviceBat))
-        print('** air util: {}'.format( DeviceAirUtilTx ))
-        print('** RxSnr: {}'.format(DeviceRxSnr))
-        print('** HopLimit: {}'.format(DeviceHopLimit))
-        print('** rxRssi: {}'.format(DeviceRxRssi))
+        # print('** Packet from: {}'.format(fromIdent))
+        # print('** battery: {}'.format(DeviceBat))
+        # print('** air util: {}'.format( DeviceAirUtilTx ))
+        # print('** RxSnr: {}'.format(DeviceRxSnr))
+        # print('** HopLimit: {}'.format(DeviceHopLimit))
+        # print('** rxRssi: {}'.format(DeviceRxRssi))
         
         # Update UI
         if DeviceBat is None: 
@@ -191,9 +191,8 @@ def onReceive(packet, interface):
         fifo_write.flush()
 
     if(Message):
-        print('Incoming message:')
         hexFromValue = "{0:0>8X}".format(From)
-        print("{: <20} {: <20}".format(hexFromValue,Message))
+        print("Incoming: {: <20} {: <20}".format(hexFromValue,Message))
         fifo_write = open('/tmp/msgchannel', 'w')
         fifo_write.write(Message)
         fifo_write.flush()
@@ -239,10 +238,10 @@ def meshtasticDbUpdate(callsign,lat,lon,event,radio_id,snr,rssi):
     cursor.execute("SELECT * FROM meshradio WHERE callsign = ?", (callsign,) )
     rows = len( cursor.fetchall() )
     if ( rows == 0 ):
-        print("Inserting new callsign")
+        print("Inserting new callsign: ", callsign)
         cursor.execute("INSERT INTO meshradio (callsign, lat, lon,event,radio_id,snr,rssi) VALUES (?,?,?,?,?,?,?)", (callsign, lat, lon,event,radio_id,snr,rssi))
     else:
-        print("Updating existing callsign")
+        print("Updating existing callsign: ",callsign)
         cursor.execute("UPDATE meshradio SET lat=?, lon=?,event=?,radio_id=?,snr=?,rssi=? WHERE callsign = ?", (lat, lon,event,radio_id,snr,rssi,callsign))
     connection.commit()
     connection.close()
@@ -255,7 +254,7 @@ def onConnectionEstablished(interface, topic=pub.AUTO_TOPIC):
     Message = "{}|meshpipe|-|{}".format(current_time,DeviceName[1:])
 
     try:
-      print("onConnectionEstablished packet disabled")
+      print("Connected to meshtastic radio.")
       # interface.sendText(Message, wantAck=False)
       # print("== Connection up packet sent ==")
       # print("To:      {}".format(To))
@@ -285,28 +284,28 @@ def SIGINT_handler(signal_received, frame):
 def send_msg(interface, Message):
     interface.sendText(Message, wantAck=True)
     print("== Packet SENT ==")
-    print("To:      All:")
-    print("From:    BaseStation")
-    print('Message: {}'.format(Message))
-    print('')
+    # print("To:      All:")
+    # print("From:    BaseStation")
+    # print('Message: {}'.format(Message))
+    # print('')
 
 def send_msg_from_fifo(interface, Message):
     outMsg = Message + '\n'
     interface.sendText(outMsg, wantAck=False)
-    print("== FIFO Packet SENT ==")
-    print("To:      All:")
-    print("From:    BaseStation")
-    print('Message: {}'.format(Message))
-    print('')
+    print("Sending broadcast message")
+    # print("To:      All:")
+    # print("From:    BaseStation")
+    # print('Message: {}'.format(Message))
+    # print('')
 
 def send_msg_from_fifo_to_one_node(interface, Message, nodeId):
     outMsg = Message + '\n'
     interface.sendText(outMsg, wantAck=True,destinationId=nodeId)
-    print("== FIFO Packet to one node SENT ==")
-    print("To:      {}".format(nodeId))
-    print("From:    BaseStation")
-    print('Message: {}'.format(Message))
-    print('')
+    print("Sending p2p message to: {}".format(nodeId) )
+    # print("To:      {}".format(nodeId))
+    # print("From:    BaseStation")
+    # print('Message: {}'.format(Message))
+    # print('')
 
 def GetMyNodeInfo(interface):
 
@@ -432,7 +431,7 @@ def read_manual_gps():
             t2_end_time = time.time()
             t2_elapsed_time = t2_end_time - t2_start_time
             if ( t2_elapsed_time > t2_interval_rand ):
-                print("Manual loop",t2_elapsed_time,t2_interval_rand)
+                # print("Manual loop",t2_elapsed_time,t2_interval_rand)
                 if ( os.path.isfile("/opt/edgemap-persist/callsign.txt") ):
                     t2_callsign_file = open("/opt/edgemap-persist/callsign.txt", "r")
                     t2_callsign_from_file = t2_callsign_file.readline()
@@ -445,19 +444,18 @@ def read_manual_gps():
                         t2_gps_array = t2_location_from_file.split(",")
                         t2_lkg_lat = t2_gps_array[0].rstrip()
                         t2_lkg_lon = t2_gps_array[1].rstrip()
-                        print("Manual GPS loop ",t2_callsign_from_file,t2_location_from_file)                
+                        print("Manual GPS: ",t2_callsign_from_file,t2_location_from_file)                
                         # Send
                         t2_track_marker_string= t2_callsign_from_file + "|trackMarker|" + t2_lkg_lon + "," + t2_lkg_lat + "|Manual position"
                         send_msg_from_fifo(interface, t2_track_marker_string)
-                        
                         # Update own location to radio.db when fix is manual
                         meshtasticDbUpdate(t2_callsign_from_file,t2_lkg_lat,t2_lkg_lon,"trackMarker",myRadioHexId,"0","0");
-                        
                         t2_start_time = time.time()
                         t2_interval_rand = randrange(min_interval_time, max_interval_time)
                             
                 else:
                     t2_callsign_from_file = "no-callsign"
+                
                 t2_start_time = time.time()
                 t2_interval_rand = randrange(min_interval_time, max_interval_time)
             
@@ -479,7 +477,7 @@ def read_live_gps():
     while True:
       fifo_msg_in = fifo_read.readline()[:-1]
       if not fifo_msg_in == "":
-        print('FIFO Message in read_live_gps(): ', fifo_msg_in)
+        # print('FIFO Message in read_live_gps(): ', fifo_msg_in)
         # [mode],[mode_id],[timestamp],[lat],[lon],[speed],[track],[sat_used],[sat_visible]
         # TODO: Evaluate 'mode' => 3D, 2D or none
         gps_array=fifo_msg_in.split(",")
@@ -525,7 +523,7 @@ def read_live_gps():
                     else:
                         callsign_from_file = "no-callsign"
                     
-                    print("DEBUG: ", callsign_from_file,gps_array[4],gps_array[5],"trackMarker",myRadioHexId,"0","0")
+                    # print("DEBUG: ", callsign_from_file,gps_array[4],gps_array[5],"trackMarker",myRadioHexId,"0","0")
                     meshtasticDbUpdate(callsign_from_file,gps_array[4],gps_array[5],"trackMarker",myRadioHexId,"0","0")
                     time.sleep(1)
                 
@@ -577,10 +575,10 @@ def read_incoming_fifo():
     fifo_read=open(FIFO,'r')
     while True:
       time.sleep(2)
-      print('While loop')
+      # print('While loop')
       fifo_msg_in = fifo_read.readline()[:-1]
       if not fifo_msg_in == "":
-        print('FIFO Message in: ', fifo_msg_in)
+        # print('FIFO Message in: ', fifo_msg_in)
         # Send to single NODE:  [CALLSIGN]|[MESSAGE]|[TO_NODE_ID]
         # Send to broadcast:    [CALLSIGN]|[MESSAGE]
         answer_array=fifo_msg_in.split("|")
