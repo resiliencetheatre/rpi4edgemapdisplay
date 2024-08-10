@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PYTHON_LXMF
+	bool "python-lxmf"
+	help
+	
+	  Lightweight Extensible Message Format

@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PYTHON_RNS
+	bool "python-rns"
+	help
+	
+	  Reticulum Network Stack β 

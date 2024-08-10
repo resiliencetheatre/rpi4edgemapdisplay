@@ -39,4 +39,7 @@ source "$BR2_EXTERNAL_edgemap_PATH/package/pttcomm/Config.in"
 source "$BR2_EXTERNAL_edgemap_PATH/package/samplicator/Config.in"
 source "$BR2_EXTERNAL_edgemap_PATH/package/udpproxy/Config.in"
 source "$BR2_EXTERNAL_edgemap_PATH/package/dpinger/Config.in"
-source "$BR2_EXTERNAL_edgemap_PATH/package/python-print-color/Config.in
+source "$BR2_EXTERNAL_edgemap_PATH/package/python-print-color/Config.in"
+source "$BR2_EXTERNAL_edgemap_PATH/package/python-rns/Config.in"
+source "$BR2_EXTERNAL_edgemap_PATH/package/python-lxmf/Config.in"
+source "$BR2_EXTERNAL_edgemap_PATH/package/python-nomadnet/Config.in"

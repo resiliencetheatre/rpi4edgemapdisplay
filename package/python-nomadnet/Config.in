@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PYTHON_NOMADNET
+	bool "python-nomadnet"
+	help
+	
+	  Nomad Network - Communicate Freely
