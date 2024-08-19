@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PYTHON_CXFREEZE
+	bool "python-cxfreeze"
+	help
+	
+	  Create standalone executables from Python scripts

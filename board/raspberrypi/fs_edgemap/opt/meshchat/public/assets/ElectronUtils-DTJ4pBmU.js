@@ -1,0 +1,1 @@
+class n{static isElectron(){return window.electron!=null}static relaunch(){window.electron&&window.electron.relaunch()}static showPathInFolder(t){window.electron&&window.electron.showPathInFolder(t)}}const o=n;export{o as E};

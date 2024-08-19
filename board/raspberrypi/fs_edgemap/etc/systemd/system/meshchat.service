@@ -1,0 +1,14 @@
+[Unit]
+Description=meshchat
+After=rnsd.service multi-user.target
+
+[Service]
+WorkingDirectory=/opt/meshchat
+KillMode=process
+ExecStart=/bin/python3 /opt/meshchat/meshchat.py --host 0.0.0.0 --port 8000 --headless --reticulum-config-dir /opt/meshchat
+Restart=always
+RestartSec=10
+TimeoutStartSec=10
+
+# [Install]
+# WantedBy=multi-user.target

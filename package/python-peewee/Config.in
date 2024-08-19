@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PYTHON_PEEWEE
+	bool "python-peewee"
+	help
+	
+	  a little orm

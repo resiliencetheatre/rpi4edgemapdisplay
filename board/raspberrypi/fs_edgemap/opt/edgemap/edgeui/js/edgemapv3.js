@@ -240,17 +240,12 @@ function updatePeerListBlock() {
     document.getElementById("peerlist").innerHTML = peerListContent;
 }
 
-
-
-
-
-
-// Remove peers if unheard over 30 s
+// Remove peers if unheard over 30 s -> 600 s (10 min)
 function checkPeerExpiry() {
     let currentTime = Math.round(+new Date()/1000);
     for ( peerLoop = 0; peerLoop < peersOnMap.getSize(); peerLoop++) {
         var peerAge = parseInt ( currentTime ) - parseInt( peersOnMap.timestamps[peerLoop] );
-        if ( peerAge > 30 ) {
+        if ( peerAge > 600 ) {
             peersOnMap.remove( peersOnMap.members[peerLoop] );
             updatePeerListBlock(); 
         }

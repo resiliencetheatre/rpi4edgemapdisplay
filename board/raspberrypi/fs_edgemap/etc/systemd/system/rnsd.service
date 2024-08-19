@@ -1,0 +1,14 @@
+[Unit]
+Description=rnsd
+After=multi-user.target
+
+[Service]
+WorkingDirectory=/opt/meshchat
+KillMode=process
+ExecStart=rnsd --config /opt/meshchat
+Restart=always
+RestartSec=10
+TimeoutStartSec=10
+
+# [Install]
+# WantedBy=multi-user.target

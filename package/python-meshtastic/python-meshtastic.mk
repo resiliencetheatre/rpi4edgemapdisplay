@@ -3,8 +3,8 @@
 # python-meshtastic
 #
 ################################################################################
-
-PYTHON_MESHTASTIC_VERSION = a8d86dee2db53c60e701b17b37f0943dfb0e19c3
+# a8d86dee2db53c60e701b17b37f0943dfb0e19c3
+PYTHON_MESHTASTIC_VERSION = 2.3.12
 PYTHON_MESHTASTIC_SITE = https://github.com/meshtastic/python.git
 PYTHON_MESHTASTIC_SITE_METHOD = git
 PYTHON_MESHTASTIC_LICENSE = GNU General Public License v3 (GPLv3)

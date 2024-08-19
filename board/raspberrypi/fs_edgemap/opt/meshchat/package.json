@@ -1,0 +1,105 @@
+{
+  "name": "reticulum-meshchat",
+  "version": "1.10.0",
+  "description": "",
+  "main": "electron/main.js",
+  "scripts": {
+    "build-frontend": "vite build",
+    "build-backend": "python setup.py build",
+    "build": "npm run build-frontend && npm run build-backend",
+    "electron-postinstall": "electron-builder install-app-deps",
+    "electron": "npm run electron-postinstall && npm run build && electron .",
+    "dist": "npm run electron-postinstall && npm run build && electron-builder --publish=never"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "electron": "^30.0.8",
+    "electron-builder": "^24.6.3"
+  },
+  "build": {
+    "appId": "com.liamcottle.reticulummeshchat",
+    "productName": "Reticulum MeshChat",
+    "asar": false,
+    "files": [
+      "electron/**/*"
+    ],
+    "directories": {
+      "buildResources": "electron/build"
+    },
+    "mac": {
+      "target": "dmg",
+      "identity": null,
+      "artifactName": "ReticulumMeshChat-v${version}-${os}.${ext}",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "Microphone access is only needed for Audio Calls",
+        "com.apple.security.device.audio-input": true
+      },
+      "extraFiles": [
+        {
+          "from": "build/exe",
+          "to": "Resources/app/electron/build/exe",
+          "filter": [
+            "**/*"
+          ]
+        }
+      ]
+    },
+    "win": {
+      "artifactName": "ReticulumMeshChat-v${version}-${os}.${ext}",
+      "target": [
+        {
+          "target": "portable"
+        },
+        {
+          "target": "nsis"
+        }
+      ],
+      "extraFiles": [
+        {
+          "from": "build/exe",
+          "to": "Resources/app/electron/build/exe",
+          "filter": [
+            "**/*"
+          ]
+        }
+      ]
+    },
+    "linux": {
+      "artifactName": "ReticulumMeshChat-v${version}-${os}.${ext}",
+      "target": "AppImage",
+      "extraFiles": [
+        {
+          "from": "build/exe",
+          "to": "resources/app/electron/build/exe",
+          "filter": [
+            "**/*"
+          ]
+        }
+      ]
+    },
+    "dmg": {
+      "writeUpdateInfo": false
+    },
+    "portable": {
+      "artifactName": "ReticulumMeshChat-v${version}-${os}-portable.${ext}"
+    },
+    "nsis": {
+      "artifactName": "ReticulumMeshChat-v${version}-${os}-installer.${ext}",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "dependencies": {
+    "@vitejs/plugin-vue": "^5.1.2",
+    "click-outside-vue3": "^4.0.1",
+    "electron-prompt": "^1.7.0",
+    "mitt": "^3.0.1",
+    "vis-data": "^7.1.9",
+    "vis-network": "^9.1.9",
+    "vite": "^5.4.0",
+    "vue-router": "^4.4.2"
+  }
+}
