@@ -143,19 +143,21 @@ If you choose to use browser based geolocation, configure installation to use TL
 ## Building
 
 To build edgemap firmware, you need to install Buildroot environment and clone this repository 
-as 'external tree' to buildroot and checkout 'secureptt' branch. Make sure you check buildroot manual for required packages for your host, before building.
+as 'external tree' to buildroot. Make sure you check buildroot manual for required packages for your host, before building.
 
 ```
-mkdir ~/build-directory
-cd ~/build-directory
+mkdir build-directory
+cd build-directory/
 git clone https://git.buildroot.net/buildroot
-git clone https://github.com/resiliencetheatre/rpi4edgemapdisplay
-cd rpi4edgemapdisplay
-git checkout secureptt
-cd ~/build-directory
+cd buildroot/
+nano package/rpi-firmware/rpi-firmware.mk 
+rm package/rpi-firmware/rpi-firmware.hash 
+export BR2_EXTERNAL=~/build-directory/rpi4edgemapdisplay
+make rpi4_secureptt_6.6_defconfig
+make
 ```
 
-Current build uses master branch of buildroot (a4d38ef61cb1846871d15f49bdffd70a5ca05a2c).
+Current build uses master branch of buildroot (106a098b7bd5520385981366abf5ef423deb7517).
 
 Modify `rpi-firmware` package file and change firmware version tag to
 match kernel version (6.1.92) we're using. 
@@ -184,7 +186,7 @@ Make defconfig and start building:
 
 ```
 cd ~/build-directory/buildroot
-make rpi4_secureptt_defconfig
+make rpi4_secureptt_6.6_defconfig
 make
 ```
 
@@ -208,6 +210,12 @@ Use 'dd' to copy this image to your MicroSD card.
 
 You can optionally patch iqaudio-codec.c driver to remove really anoying 
 delay on audio opening. Download [this patch](https://gist.github.com/resiliencetheatre/9b9323e37b81a49a5724f68c04ac7dff) and place it under buildroot/linux/ before build.
+
+## codec2 binaries
+
+If you wish to have codec2 binaries on your edgemap device, use provided buildroot-extras/libcodec2.mk file
+to have them copied to target on build. Replace original libcodec2.mk file in ~/build-directory/buildroot/package/libcodec2/ 
+with provided ~/build-directory/rpi4edgemapdisplay/buildroot-extras/libcodec2.mk file.
 
 # Configuration
 
