@@ -157,14 +157,14 @@ make rpi4_secureptt_6.6_defconfig
 make
 ```
 
-Current build uses master branch of buildroot (106a098b7bd5520385981366abf5ef423deb7517).
+Current build tested with master branch of buildroot `0196ec4198771e5fe83d6df02c7cd3b13c0ce05f`.
 
 Modify `rpi-firmware` package file and change firmware version tag to
-match kernel version (6.1.92) we're using. 
+match kernel version (6.6.47) we're using. 
 
 ```
 # package/rpi-firmware/rpi-firmware.mk
-RPI_FIRMWARE_VERSION = 83dafbc92c0e63f76ca2ecdd42462d56489d1c77
+RPI_FIRMWARE_VERSION = 6c7d1719966f459ab0349c8af32f0c774c696234
 ```
 
 Disable hash check by deleting hash file:
