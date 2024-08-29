@@ -88,7 +88,7 @@ def ErrorHandler(ErrorMessage,TraceMessage,AdditionalInfo):
   print(TraceMessage)
   if (AdditionalInfo != ""):
     print("Additonal info:",AdditionalInfo)
-  sys.exit()
+  os._exit(0)  # Forcefully exits the entire Python process
 
 #
 # meshtastic
@@ -157,56 +157,61 @@ def onReceive(packet, interface):
     
     PacketsReceived = PacketsReceived + 1
     Decoded  = packet.get('decoded')
-    Message  = Decoded.get('text')
     To       = packet.get('to')
     From     = packet.get('from')
     
     DecodePacket('MainPacket',packet)
-    fromIdentString= packet.get('fromId')
-    fromIdent = fromIdentString[1:]
+    if packet is not None:
+        fromIdentString = packet.get('fromId')
+        if fromIdentString is not None:
+            fromIdent = fromIdentString[1:]
     
-    if(fromIdent):
-        # print('** Packet from: {}'.format(fromIdent))
-        # print('** battery: {}'.format(DeviceBat))
-        # print('** air util: {}'.format( DeviceAirUtilTx ))
-        # print('** RxSnr: {}'.format(DeviceRxSnr))
-        # print('** HopLimit: {}'.format(DeviceHopLimit))
-        # print('** rxRssi: {}'.format(DeviceRxRssi))
-        
-        # Update UI
-        if DeviceBat is None: 
-            DeviceBat='-'
-        if DeviceAirUtilTx is None: 
-            DeviceAirUtilTx='-'
-        if DeviceRxSnr is None: 
-            DeviceRxSnr='-'
-        if DeviceHopLimit is None: 
-            DeviceHopLimit='-'
-        if DeviceRxRssi is None: 
-            DeviceRxRssi='-'
-        
-        meshtasticmessage = "peernode," + fromIdent + "," + str(DeviceBat) + "," + str(DeviceAirUtilTx) + "," + str(DeviceRxSnr) + "," + str(DeviceHopLimit) + "," + str(DeviceRxRssi)
-        fifo_write = open('/tmp/statusin', 'w')
-        fifo_write.write(meshtasticmessage)
-        fifo_write.flush()
+            if(fromIdent):
+                # print('** Packet from: {}'.format(fromIdent))
+                # print('** battery: {}'.format(DeviceBat))
+                # print('** air util: {}'.format( DeviceAirUtilTx ))
+                # print('** RxSnr: {}'.format(DeviceRxSnr))
+                # print('** HopLimit: {}'.format(DeviceHopLimit))
+                # print('** rxRssi: {}'.format(DeviceRxRssi))
+                
+                # Update UI
+                if DeviceBat is None: 
+                    DeviceBat='-'
+                if DeviceAirUtilTx is None: 
+                    DeviceAirUtilTx='-'
+                if DeviceRxSnr is None: 
+                    DeviceRxSnr='-'
+                if DeviceHopLimit is None: 
+                    DeviceHopLimit='-'
+                if DeviceRxRssi is None: 
+                    DeviceRxRssi='-'
+                
+                meshtasticmessage = "peernode," + fromIdent + "," + str(DeviceBat) + "," + str(DeviceAirUtilTx) + "," + str(DeviceRxSnr) + "," + str(DeviceHopLimit) + "," + str(DeviceRxRssi)
+                fifo_write = open('/tmp/statusin', 'w')
+                fifo_write.write(meshtasticmessage)
+                fifo_write.flush()
 
-    if(Message):
-        hexFromValue = "{0:0>8X}".format(From)
-        print("Incoming: {: <20} {: <20}".format(hexFromValue,Message))
-        fifo_write = open('/tmp/msgchannel', 'w')
-        fifo_write.write(Message)
-        fifo_write.flush()
-        if( fromIdent.upper() == hexFromValue ):
-            # edgex|trackMarker|23.6406054,50.7603593|GPS-snapshot
-            messageFields = Message.split('|')
-            if ( messageFields[1] == "trackMarker" ):            
-                messagePositionFields = messageFields[2].split(',')
-                lon = messagePositionFields[0]
-                lat = messagePositionFields[1] # done
-                callsign = messageFields[0]
-                messageType = messageFields[1]
-                # print("Meshtastic data to DB: {: <10} {: <10} {: <10} {: <10} {: <10} {: <10}".format(callsign,lat,lon,hexFromValue,DeviceRxSnr,DeviceRxRssi))
-                meshtasticDbUpdate(callsign,lat,lon,"trackMarker",hexFromValue,DeviceRxSnr,DeviceRxRssi)
+    if Decoded is not None:
+        Message  = Decoded.get('text')
+        if(Message):
+            hexFromValue = "{0:0>8X}".format(From)
+            print("Incoming: {: <20} {: <20}".format(hexFromValue,Message[:-1]))
+            fifo_write = open('/tmp/msgchannel', 'w')
+            fifo_write.write(Message)
+            fifo_write.flush()
+            if( fromIdent.upper() == hexFromValue ):
+                # edgex|trackMarker|23.6406054,50.7603593|GPS-snapshot
+                messageFields = Message.split('|')
+                # print("messageFields count: ", len(messageFields) )
+                if len(messageFields) > 1:
+                    if ( messageFields[1] == "trackMarker" ):
+                        messagePositionFields = messageFields[2].split(',')
+                        lon = messagePositionFields[0]
+                        lat = messagePositionFields[1] # done
+                        callsign = messageFields[0]
+                        messageType = messageFields[1]
+                        # print("Meshtastic data to DB: {: <10} {: <10} {: <10} {: <10} {: <10} {: <10}".format(callsign,lat,lon,hexFromValue,DeviceRxSnr,DeviceRxRssi))
+                        meshtasticDbUpdate(callsign,lat,lon,"trackMarker",hexFromValue,DeviceRxSnr,DeviceRxRssi)
 
 def meshtasticDbCreate():
     connection = sqlite3.connect("/tmp/radio.db")
@@ -238,10 +243,10 @@ def meshtasticDbUpdate(callsign,lat,lon,event,radio_id,snr,rssi):
     cursor.execute("SELECT * FROM meshradio WHERE callsign = ?", (callsign,) )
     rows = len( cursor.fetchall() )
     if ( rows == 0 ):
-        print("Inserting new callsign: ", callsign)
+        # print("Inserting new callsign: ", callsign)
         cursor.execute("INSERT INTO meshradio (callsign, lat, lon,event,radio_id,snr,rssi) VALUES (?,?,?,?,?,?,?)", (callsign, lat, lon,event,radio_id,snr,rssi))
     else:
-        print("Updating existing callsign: ",callsign)
+        # print("Updating existing callsign: ",callsign)
         cursor.execute("UPDATE meshradio SET lat=?, lon=?,event=?,radio_id=?,snr=?,rssi=? WHERE callsign = ?", (lat, lon,event,radio_id,snr,rssi,callsign))
     connection.commit()
     connection.close()
@@ -254,7 +259,7 @@ def onConnectionEstablished(interface, topic=pub.AUTO_TOPIC):
     Message = "{}|meshpipe|-|{}".format(current_time,DeviceName[1:])
 
     try:
-      print("Connected to meshtastic radio.")
+      print("Connected to meshtastic radio: {}".format(myRadioHexId) )
       # interface.sendText(Message, wantAck=False)
       # print("== Connection up packet sent ==")
       # print("To:      {}".format(To))
@@ -267,15 +272,16 @@ def onConnectionEstablished(interface, topic=pub.AUTO_TOPIC):
 
 
 def onConnectionLost(interface, topic=pub.AUTO_TOPIC): 
-  print('onConnectionLost \n')
+    print('onConnectionLost, exiting. \n')
+    os._exit(0)  # Forcefully exits the entire Python process
 
 def onNodeUpdated(interface, topic=pub.AUTO_TOPIC): 
-  print('onNodeUpdated \n')
+    print('onNodeUpdated \n')
    
 
 def SIGINT_handler(signal_received, frame):
-  print('SIGINT detected. \n')
-  sys.exit()
+    print('SIGINT detected. \n')
+    os._exit(0)  # Forcefully exits the entire Python process
 
 
 #
@@ -292,11 +298,7 @@ def send_msg(interface, Message):
 def send_msg_from_fifo(interface, Message):
     outMsg = Message + '\n'
     interface.sendText(outMsg, wantAck=False)
-    print("Sending broadcast message")
-    # print("To:      All:")
-    # print("From:    BaseStation")
-    # print('Message: {}'.format(Message))
-    # print('')
+    print('  Sending broadcast message: {}'.format(Message))
 
 def send_msg_from_fifo_to_one_node(interface, Message, nodeId):
     outMsg = Message + '\n'
@@ -411,6 +413,7 @@ def create_fifo_pipe(pipe_path):
     except OSError as e:
         print(f"Error: {e}")
 
+# Thread T2
 def read_manual_gps():
     global myRadioHexId
     min_interval_time=30
@@ -422,48 +425,51 @@ def read_manual_gps():
     t2_lkg_lat = "-"
     t2_lkg_lon = "-"
     
-    while True:
-        
-        # Manual loop should only run when location.txt is present!
-        if ( os.path.isfile("/opt/edgemap-persist/location.txt") ):            
-            
-            # Randomize sending interval
-            t2_end_time = time.time()
-            t2_elapsed_time = t2_end_time - t2_start_time
-            if ( t2_elapsed_time > t2_interval_rand ):
-                # print("Manual loop",t2_elapsed_time,t2_interval_rand)
-                if ( os.path.isfile("/opt/edgemap-persist/callsign.txt") ):
-                    t2_callsign_file = open("/opt/edgemap-persist/callsign.txt", "r")
-                    t2_callsign_from_file = t2_callsign_file.readline()
-                    t2_callsign_file.close()
-                    # Read location from file
-                    if ( os.path.isfile("/opt/edgemap-persist/location.txt") ):
-                        t2_location_file = open("/opt/edgemap-persist/location.txt","r")
-                        t2_location_from_file = t2_location_file.readline()
-                        t2_location_file.close()
-                        t2_gps_array = t2_location_from_file.split(",")
-                        t2_lkg_lat = t2_gps_array[0].rstrip()
-                        t2_lkg_lon = t2_gps_array[1].rstrip()
-                        print("Manual GPS: ",t2_callsign_from_file,t2_location_from_file)                
-                        # Send
-                        t2_track_marker_string= t2_callsign_from_file + "|trackMarker|" + t2_lkg_lon + "," + t2_lkg_lat + "|Manual position"
-                        send_msg_from_fifo(interface, t2_track_marker_string)
-                        # Update own location to radio.db when fix is manual
-                        meshtasticDbUpdate(t2_callsign_from_file,t2_lkg_lat,t2_lkg_lon,"trackMarker",myRadioHexId,"0","0");
-                        t2_start_time = time.time()
-                        t2_interval_rand = randrange(min_interval_time, max_interval_time)
-                            
-                else:
-                    t2_callsign_from_file = "no-callsign"
+    try:
+        while True:
+            # Manual loop should only run when location.txt is present!
+            if ( os.path.isfile("/opt/edgemap-persist/location.txt") ):            
                 
-                t2_start_time = time.time()
-                t2_interval_rand = randrange(min_interval_time, max_interval_time)
-            
-# Live GPS
+                # Randomize sending interval
+                t2_end_time = time.time()
+                t2_elapsed_time = t2_end_time - t2_start_time
+                if ( t2_elapsed_time > t2_interval_rand ):
+                    # print("Manual loop",t2_elapsed_time,t2_interval_rand)
+                    if ( os.path.isfile("/opt/edgemap-persist/callsign.txt") ):
+                        t2_callsign_file = open("/opt/edgemap-persist/callsign.txt", "r")
+                        t2_callsign_from_file = t2_callsign_file.readline()
+                        t2_callsign_file.close()
+                        # Read location from file
+                        if ( os.path.isfile("/opt/edgemap-persist/location.txt") ):
+                            t2_location_file = open("/opt/edgemap-persist/location.txt","r")
+                            t2_location_from_file = t2_location_file.readline()
+                            t2_location_file.close()
+                            t2_gps_array = t2_location_from_file.split(",")
+                            t2_lkg_lat = t2_gps_array[0].rstrip()
+                            t2_lkg_lon = t2_gps_array[1].rstrip()
+                            # print("Manual GPS: ",t2_callsign_from_file,t2_location_from_file)                
+                            # Send
+                            t2_track_marker_string= t2_callsign_from_file + "|trackMarker|" + t2_lkg_lon + "," + t2_lkg_lat + "|Manual position"
+                            send_msg_from_fifo(interface, t2_track_marker_string)
+                            # Update own location to radio.db when fix is manual
+                            meshtasticDbUpdate(t2_callsign_from_file,t2_lkg_lat,t2_lkg_lon,"trackMarker",myRadioHexId,"0","0");
+                            t2_start_time = time.time()
+                            t2_interval_rand = randrange(min_interval_time, max_interval_time)
+                                
+                    else:
+                        t2_callsign_from_file = "no-callsign"
+                    
+                    t2_start_time = time.time()
+                    t2_interval_rand = randrange(min_interval_time, max_interval_time)
+    except Exception as e:
+        print(f"Exception caught in thread: {e}")
+        os._exit(0)  # Forcefully exits the entire Python process
+                
+# Live GPS thread T1
 def read_live_gps():
     global myRadioHexId
-    min_interval_time=30
-    max_interval_time=60
+    min_interval_time=60
+    max_interval_time=90
     print('Starting read_live_gps()')
     FIFO = '/tmp/livegps'
     fifo_read=open(FIFO,'r')
@@ -474,131 +480,141 @@ def read_live_gps():
     lkg_lat = "-"
     lkg_lon = "-"
 
-    while True:
-      fifo_msg_in = fifo_read.readline()[:-1]
-      if not fifo_msg_in == "":
-        # print('FIFO Message in read_live_gps(): ', fifo_msg_in)
-        # [mode],[mode_id],[timestamp],[lat],[lon],[speed],[track],[sat_used],[sat_visible]
-        # TODO: Evaluate 'mode' => 3D, 2D or none
-        gps_array=fifo_msg_in.split(",")
-        
-        # Manually provided location always override GPS
-        # So if we have location.txt file, don't send GPS position.
-        if ( not os.path.isfile("/opt/edgemap-persist/location.txt") ):
-            # Send only when we have a fix (2D, 3D)
-            if ( gps_array[0] == "2D" or gps_array[0] == "3D" ):
-                # Randomize sending interval (min_interval_time <-> max_interval_time)
-                end_time = time.time()
-                elapsed_time = end_time - start_time
-                if ( elapsed_time > interval_rand ):
-                    # Read callsign from /opt/edgemap-persist/callsign.txt
-                    if ( os.path.isfile("/opt/edgemap-persist/callsign.txt") ):
-                        callsign_file = open("/opt/edgemap-persist/callsign.txt", "r")
-                        callsign_from_file = callsign_file.readline()
-                        callsign_file.close()
-                    else:
-                        callsign_from_file = "no-callsign"
+    try:
 
-                    track_marker_string= callsign_from_file + "|trackMarker|"+gps_array[5]+","+gps_array[4]+"|GPS: " + gps_array[0] +" SV: " + gps_array[8]            
-                    send_msg_from_fifo(interface, track_marker_string)
-                    
-                    # Update own location to radio.db when fix is 2D or 3D
-                    # meshtasticDbUpdate(callsign_from_file,gps_array[4],gps_array[5],"trackMarker",myRadioHexId,"0","0");
-                    
-                    start_time = time.time()
-                    interval_rand = randrange(min_interval_time, max_interval_time)
-                    # print("track_marker_string: ", track_marker_string)
-                    lkg_lat = gps_array[5]
-                    lkg_lon = gps_array[4]
-                
-                
-                # If location.txt is NOT present
-                if ( not os.path.isfile("/opt/edgemap-persist/location.txt") ):
-                    # Update own location to radio.db when fix is 2D or 3D
-                    # Read callsign from /opt/edgemap-persist/callsign.txt
-                    if ( os.path.isfile("/opt/edgemap-persist/callsign.txt") ):
-                        callsign_file = open("/opt/edgemap-persist/callsign.txt", "r")
-                        callsign_from_file = callsign_file.readline()
-                        callsign_file.close()
-                    else:
-                        callsign_from_file = "no-callsign"
-                    
-                    # print("DEBUG: ", callsign_from_file,gps_array[4],gps_array[5],"trackMarker",myRadioHexId,"0","0")
-                    meshtasticDbUpdate(callsign_from_file,gps_array[4],gps_array[5],"trackMarker",myRadioHexId,"0","0")
-                    time.sleep(1)
-                
-                pass
-                
-            else:
-                # Send last known good location when there is no fix from GPS
-                # and we have stored last known good (lkg) position.
-                end_time = time.time()
-                elapsed_time = end_time - start_time
-                if ( elapsed_time > interval_rand ):
-                    if ( os.path.isfile("/opt/edgemap-persist/callsign.txt") ):
-                        callsign_file = open("/opt/edgemap-persist/callsign.txt", "r")
-                        callsign_from_file = callsign_file.readline()
-                        callsign_file.close()
-                    else:
-                        callsign_from_file = "no-callsign"
-                    
-                    if ( lkg_lat != "-" ):
-                        track_marker_string= callsign_from_file + "|trackMarker|" + lkg_lat + "," + lkg_lon + "|No FIX: Last known good"
+        while True:
+          fifo_msg_in = fifo_read.readline()[:-1]
+          if not fifo_msg_in == "":
+            # print('FIFO Message in read_live_gps(): ', fifo_msg_in)
+            # [mode],[mode_id],[timestamp],[lat],[lon],[speed],[track],[sat_used],[sat_visible]
+            # TODO: Evaluate 'mode' => 3D, 2D or none
+            gps_array=fifo_msg_in.split(",")
+            
+            # Manually provided location always override GPS
+            # So if we have location.txt file, don't send GPS position.
+            if ( not os.path.isfile("/opt/edgemap-persist/location.txt") ):
+                # Send only when we have a fix (2D, 3D)
+                if ( gps_array[0] == "2D" or gps_array[0] == "3D" ):
+                    # Randomize sending interval (min_interval_time <-> max_interval_time)
+                    end_time = time.time()
+                    elapsed_time = end_time - start_time
+                    if ( elapsed_time > interval_rand ):
+                        # Read callsign from /opt/edgemap-persist/callsign.txt
+                        if ( os.path.isfile("/opt/edgemap-persist/callsign.txt") ):
+                            callsign_file = open("/opt/edgemap-persist/callsign.txt", "r")
+                            callsign_from_file = callsign_file.readline()
+                            callsign_file.close()
+                        else:
+                            callsign_from_file = "no-callsign"
+
+                        track_marker_string= callsign_from_file + "|trackMarker|"+gps_array[5]+","+gps_array[4]+"|GPS: " + gps_array[0] +" SV: " + gps_array[8]            
                         send_msg_from_fifo(interface, track_marker_string)
                         
-                        # Update own location to radio.db when fix is LKG
-                        meshtasticDbUpdate(callsign_from_file,lkg_lat,lkg_lon,"trackMarker",myRadioHexId,"0","0");
+                        # Update own location to radio.db when fix is 2D or 3D
+                        # meshtasticDbUpdate(callsign_from_file,gps_array[4],gps_array[5],"trackMarker",myRadioHexId,"0","0");
                         
                         start_time = time.time()
                         interval_rand = randrange(min_interval_time, max_interval_time)
-                        # print("LKG: track_marker_string: ", track_marker_string)
-                    else:
-                        # print("We don't have last known good position. Not sending anything. ")
-                        start_time = time.time()
-                        interval_rand = randrange(min_interval_time, max_interval_time)
+                        # print("track_marker_string: ", track_marker_string)
+                        lkg_lat = gps_array[5]
+                        lkg_lon = gps_array[4]
+                    
+                    
+                    # If location.txt is NOT present
+                    if ( not os.path.isfile("/opt/edgemap-persist/location.txt") ):
+                        # Update own location to radio.db when fix is 2D or 3D
+                        # Read callsign from /opt/edgemap-persist/callsign.txt
+                        if ( os.path.isfile("/opt/edgemap-persist/callsign.txt") ):
+                            callsign_file = open("/opt/edgemap-persist/callsign.txt", "r")
+                            callsign_from_file = callsign_file.readline()
+                            callsign_file.close()
+                        else:
+                            callsign_from_file = "no-callsign"
+                        
+                        # print("DEBUG: ", callsign_from_file,gps_array[4],gps_array[5],"trackMarker",myRadioHexId,"0","0")
+                        meshtasticDbUpdate(callsign_from_file,gps_array[4],gps_array[5],"trackMarker",myRadioHexId,"0","0")
+                        time.sleep(1)
+                    
+                    pass
+                    
+                else:
+                    # Send last known good location when there is no fix from GPS
+                    # and we have stored last known good (lkg) position.
+                    end_time = time.time()
+                    elapsed_time = end_time - start_time
+                    if ( elapsed_time > interval_rand ):
+                        if ( os.path.isfile("/opt/edgemap-persist/callsign.txt") ):
+                            callsign_file = open("/opt/edgemap-persist/callsign.txt", "r")
+                            callsign_from_file = callsign_file.readline()
+                            callsign_file.close()
+                        else:
+                            callsign_from_file = "no-callsign"
+                        
+                        if ( lkg_lat != "-" ):
+                            track_marker_string= callsign_from_file + "|trackMarker|" + lkg_lat + "," + lkg_lon + "|No FIX: Last known good"
+                            send_msg_from_fifo(interface, track_marker_string)
                             
+                            # Update own location to radio.db when fix is LKG
+                            meshtasticDbUpdate(callsign_from_file,lkg_lat,lkg_lon,"trackMarker",myRadioHexId,"0","0");
+                            
+                            start_time = time.time()
+                            interval_rand = randrange(min_interval_time, max_interval_time)
+                            # print("LKG: track_marker_string: ", track_marker_string)
+                        else:
+                            # print("We don't have last known good position. Not sending anything. ")
+                            start_time = time.time()
+                            interval_rand = randrange(min_interval_time, max_interval_time)
+                                
+                    pass
+            else:
+                # print("GPS location send is overridden by manually provided location!")
                 pass
-        else:
-            # print("GPS location send is overridden by manually provided location!")
+          
+          else:
+            # No fifo data
             pass
-      
-      else:
-        # No fifo data
-        pass
+    
+    except Exception as e:
+        print(f"Exception caught in thread: {e}")
+        os._exit(0)  # Forcefully exits the entire Python process
 
-
-# Read incoming FIFO
+# Read incoming FIFO thread T3
 def read_incoming_fifo():
     print("Started read_incoming_fifo()")
     # Open FIFO for reading
     FIFO = '/tmp/msgincoming'
     fifo_read=open(FIFO,'r')
-    while True:
-      time.sleep(2)
-      # print('While loop')
-      fifo_msg_in = fifo_read.readline()[:-1]
-      if not fifo_msg_in == "":
-        # print('FIFO Message in: ', fifo_msg_in)
-        # Send to single NODE:  [CALLSIGN]|[MESSAGE]|[TO_NODE_ID]
-        # Send to broadcast:    [CALLSIGN]|[MESSAGE]
-        answer_array=fifo_msg_in.split("|")
-        # Evaluate array len
-        array_len = len(answer_array)
-        # Send as broadcast by default on Edgemap UI
-        if array_len == 2 or array_len == 4:
-            print("Sending to broadcast")
-            send_msg_from_fifo(interface, fifo_msg_in)
-        # Send as individual recipient
-        if array_len == 3:
-            print("Sending to single recipient")
-            answer_recipient = '!'+answer_array[2]
-            answer_payload = answer_array[0]+"|"+answer_array[1]
-            send_msg_from_fifo_to_one_node(interface, answer_payload, answer_recipient)
-      else:
-        # No fifo data
-        print('While loop: no fifo data')
-        pass
-
+    
+    try:
+        while True:
+          time.sleep(2)
+          # print('While loop')
+          fifo_msg_in = fifo_read.readline()[:-1]
+          if not fifo_msg_in == "":
+            # print('FIFO Message in: ', fifo_msg_in)
+            # Send to single NODE:  [CALLSIGN]|[MESSAGE]|[TO_NODE_ID]
+            # Send to broadcast:    [CALLSIGN]|[MESSAGE]
+            answer_array=fifo_msg_in.split("|")
+            # Evaluate array len
+            array_len = len(answer_array)
+            # Send as broadcast by default on Edgemap UI
+            if array_len == 2 or array_len == 4:
+                print("Sending to broadcast")
+                send_msg_from_fifo(interface, fifo_msg_in)
+            # Send as individual recipient
+            if array_len == 3:
+                print("Sending to single recipient")
+                answer_recipient = '!'+answer_array[2]
+                answer_payload = answer_array[0]+"|"+answer_array[1]
+                send_msg_from_fifo_to_one_node(interface, answer_payload, answer_recipient)
+          else:
+            # No fifo data
+            # print('While loop: no fifo data')
+            pass
+            
+    except Exception as e:
+        print(f"Exception caught in thread: {e}")
+        os._exit(0)  # Forcefully exits the entire Python process
 #
 # main 
 #
@@ -636,24 +652,36 @@ def main():
 
     # Check fifo files
     fifo_file='/tmp/msgchannel'
+    if not os.path.isfile(fifo_file):
+        print('Creating fifo file: ',fifo_file)
+        create_fifo_pipe(fifo_file)
     if not stat.S_ISFIFO(os.stat(fifo_file).st_mode):
-        print('Missing fifo file: ',fifo_file)
+        print('re-creating fifo file: ',fifo_file)
         os.remove(fifo_file)
         create_fifo_pipe(fifo_file)
     
     fifo_file='/tmp/msgincoming'
+    if not os.path.isfile(fifo_file):
+        print('Creating fifo file: ',fifo_file)
+        create_fifo_pipe(fifo_file)
     if not stat.S_ISFIFO(os.stat(fifo_file).st_mode):
         print('Missing fifo file: ',fifo_file)
         os.remove(fifo_file)
         create_fifo_pipe(fifo_file)
 
     fifo_file='/tmp/statusin'
+    if not os.path.isfile(fifo_file):
+        print('Creating fifo file: ',fifo_file)
+        create_fifo_pipe(fifo_file)
     if not stat.S_ISFIFO(os.stat(fifo_file).st_mode):
         print('Missing fifo file: ',fifo_file)
         os.remove(fifo_file)
         create_fifo_pipe(fifo_file)
 
     fifo_file='/tmp/livegps'
+    if not os.path.isfile(fifo_file):
+        print('Creating fifo file: ',fifo_file)
+        create_fifo_pipe(fifo_file)
     if not stat.S_ISFIFO(os.stat(fifo_file).st_mode):
         print('Missing fifo file: ',fifo_file)
         os.remove(fifo_file)

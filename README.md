@@ -148,11 +148,13 @@ as 'external tree' to buildroot. Make sure you check buildroot manual for requir
 ```
 mkdir build-directory
 cd build-directory/
+git clone https://github.com/resiliencetheatre/rpi4edgemapdisplay.git
 git clone https://git.buildroot.net/buildroot
 cd buildroot/
 nano package/rpi-firmware/rpi-firmware.mk 
 rm package/rpi-firmware/rpi-firmware.hash 
 export BR2_EXTERNAL=~/build-directory/rpi4edgemapdisplay
+cd ~/build-directory
 make rpi4_secureptt_6.6_defconfig
 make
 ```
