@@ -1,0 +1,31 @@
+body {
+	font-family: Arial, sans-serif;
+	font-size: 13px;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+}
+
+h1 {
+	font-size: 24px;
+	font-weight: normal;
+	color: white;
+}
+
+button {
+	font-size: 16px;
+}
+
+div.info {
+	margin: 15px 0;
+}
+
+div.info * {
+	color: white;
+	text-shadow: 1px 1px 0 #000000D0;
+}
+
+#icons {
+	display: none;
+}

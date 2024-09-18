@@ -1,6 +1,6 @@
 /**
  * MapLibre GL JS
- * @license 3-Clause BSD. Full text of license: https://github.com/maplibre/maplibre-gl-js/blob/v4.5.1/LICENSE.txt
+ * @license 3-Clause BSD. Full text of license: https://github.com/maplibre/maplibre-gl-js/blob/v4.7.0/LICENSE.txt
  */
 var maplibregl = (function () {
 'use strict';
@@ -19,7 +19,7 @@ LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
-/* global Reflect, Promise, SuppressedError, Symbol */
+/* global Reflect, Promise, SuppressedError, Symbol, Iterator */
 
 var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf ||
@@ -130,8 +130,8 @@ function __awaiter(thisArg, _arguments, P, generator) {
 }
 
 function __generator(thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -235,7 +235,7 @@ function __await(v) {
 function __asyncGenerator(thisArg, _arguments, generator) {
     if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
     var g = generator.apply(thisArg, _arguments || []), i, q = [];
-    return i = {}, verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function () { return this; }, i;
+    return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function () { return this; }, i;
     function awaitReturn(f) { return function (v) { return Promise.resolve(v).then(f, reject); }; }
     function verb(n, f) { if (g[n]) { i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; if (f) i[n] = f(i[n]); } }
     function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
@@ -334,17 +334,22 @@ function __disposeResources(env) {
         env.error = env.hasError ? new _SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
         env.hasError = true;
     }
+    var r, s = 0;
     function next() {
-        while (env.stack.length) {
-            var rec = env.stack.pop();
+        while (r = env.stack.pop()) {
             try {
-                var result = rec.dispose && rec.dispose.call(rec.value);
-                if (rec.async) return Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
+                if (r.dispose) {
+                    var result = r.dispose.call(r.value);
+                    if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                }
+                else s |= 1;
             }
             catch (e) {
                 fail(e);
             }
         }
+        if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
         if (env.hasError) throw env.error;
     }
     return next();
@@ -1445,6 +1450,16 @@ function subscribe(target, message, listener, options) {
 function degreesToRadians(degrees) {
     return degrees * Math.PI / 180;
 }
+/**
+ * The maximum world tile zoom (Z).
+ * In other words, the upper bound supported for tile zoom.
+ */
+const MAX_TILE_ZOOM = 25;
+/**
+ * The minimum world tile zoom (Z).
+ * In other words, the lower bound supported for tile zoom.
+ */
+const MIN_TILE_ZOOM = 0;
 
 /*
 This file was copied from https://github.com/mapbox/grid-index and was
@@ -6739,14 +6754,26 @@ class IndexOf {
         if (!isValidNativeType(needle, ['boolean', 'string', 'number', 'null'])) {
             throw new RuntimeError(`Expected first argument to be of type boolean, string, number or null, but found ${toString$1(typeOf(needle))} instead.`);
         }
-        if (!isValidNativeType(haystack, ['string', 'array'])) {
-            throw new RuntimeError(`Expected second argument to be of type array or string, but found ${toString$1(typeOf(haystack))} instead.`);
-        }
+        let fromIndex;
         if (this.fromIndex) {
-            const fromIndex = this.fromIndex.evaluate(ctx);
+            fromIndex = this.fromIndex.evaluate(ctx);
+        }
+        if (isValidNativeType(haystack, ['string'])) {
+            const rawIndex = haystack.indexOf(needle, fromIndex);
+            if (rawIndex === -1) {
+                return -1;
+            }
+            else {
+                // The index may be affected by surrogate pairs, so get the length of the preceding substring.
+                return [...haystack.slice(0, rawIndex)].length;
+            }
+        }
+        else if (isValidNativeType(haystack, ['array'])) {
             return haystack.indexOf(needle, fromIndex);
         }
-        return haystack.indexOf(needle);
+        else {
+            throw new RuntimeError(`Expected second argument to be of type array or string, but found ${toString$1(typeOf(haystack))} instead.`);
+        }
     }
     eachChild(fn) {
         fn(this.needle);
@@ -6928,14 +6955,20 @@ class Slice {
     evaluate(ctx) {
         const input = this.input.evaluate(ctx);
         const beginIndex = this.beginIndex.evaluate(ctx);
-        if (!isValidNativeType(input, ['string', 'array'])) {
-            throw new RuntimeError(`Expected first argument to be of type array or string, but found ${toString$1(typeOf(input))} instead.`);
-        }
+        let endIndex;
         if (this.endIndex) {
-            const endIndex = this.endIndex.evaluate(ctx);
+            endIndex = this.endIndex.evaluate(ctx);
+        }
+        if (isValidNativeType(input, ['string'])) {
+            // Indices may be affected by surrogate pairs.
+            return [...input].slice(beginIndex, endIndex).join('');
+        }
+        else if (isValidNativeType(input, ['array'])) {
             return input.slice(beginIndex, endIndex);
         }
-        return input.slice(beginIndex);
+        else {
+            throw new RuntimeError(`Expected first argument to be of type array or string, but found ${toString$1(typeOf(input))} instead.`);
+        }
     }
     eachChild(fn) {
         fn(this.input);
@@ -7896,7 +7929,8 @@ class Length {
     evaluate(ctx) {
         const input = this.input.evaluate(ctx);
         if (typeof input === 'string') {
-            return input.length;
+            // The length may be affected by surrogate pairs.
+            return [...input].length;
         }
         else if (Array.isArray(input)) {
             return input.length;
@@ -8237,7 +8271,7 @@ class Within {
 }
 
 let TinyQueue$1 = class TinyQueue {
-    constructor(data = [], compare = defaultCompare$1) {
+    constructor(data = [], compare = (a, b) => (a < b ? -1 : a > b ? 1 : 0)) {
         this.data = data;
         this.length = this.data.length;
         this.compare = compare;
@@ -8249,8 +8283,7 @@ let TinyQueue$1 = class TinyQueue {
 
     push(item) {
         this.data.push(item);
-        this.length++;
-        this._up(this.length - 1);
+        this._up(this.length++);
     }
 
     pop() {
@@ -8258,9 +8291,8 @@ let TinyQueue$1 = class TinyQueue {
 
         const top = this.data[0];
         const bottom = this.data.pop();
-        this.length--;
 
-        if (this.length > 0) {
+        if (--this.length > 0) {
             this.data[0] = bottom;
             this._down(0);
         }
@@ -8293,30 +8325,24 @@ let TinyQueue$1 = class TinyQueue {
         const item = data[pos];
 
         while (pos < halfLength) {
-            let left = (pos << 1) + 1;
-            let best = data[left];
-            const right = left + 1;
+            let bestChild = (pos << 1) + 1; // initially it is the left child
+            const right = bestChild + 1;
 
-            if (right < this.length && compare(data[right], best) < 0) {
-                left = right;
-                best = data[right];
+            if (right < this.length && compare(data[right], data[bestChild]) < 0) {
+                bestChild = right;
             }
-            if (compare(best, item) >= 0) break;
+            if (compare(data[bestChild], item) >= 0) break;
 
-            data[pos] = best;
-            pos = left;
+            data[pos] = data[bestChild];
+            pos = bestChild;
         }
 
         data[pos] = item;
     }
 };
 
-function defaultCompare$1(a, b) {
-    return a < b ? -1 : a > b ? 1 : 0;
-}
-
 function quickselect(arr, k, left, right, compare) {
-    quickselectStep(arr, k, left , right || (arr.length - 1), compare || defaultCompare);
+    quickselectStep(arr, k, left, right || (arr.length - 1), compare || defaultCompare);
 }
 
 function quickselectStep(arr, k, left, right, compare) {
@@ -13533,7 +13559,7 @@ class ZoomHistory {
     }
 }
 
-// The following table comes from <https://www.unicode.org/Public/12.0.0/ucd/Blocks.txt>.
+// The following table comes from <https://www.unicode.org/Public/16.0.0/ucd/Blocks.txt>.
 // Keep it synchronized with <https://www.unicode.org/Public/UCD/latest/ucd/Blocks.txt>.
 const unicodeBlockLookup = {
     // 'Basic Latin': (char) => char >= 0x0000 && char <= 0x007F,
@@ -13548,15 +13574,16 @@ const unicodeBlockLookup = {
     // 'Cyrillic Supplement': (char) => char >= 0x0500 && char <= 0x052F,
     // 'Armenian': (char) => char >= 0x0530 && char <= 0x058F,
     //'Hebrew': (char) => char >= 0x0590 && char <= 0x05FF,
-    'Arabic': (char) => char >= 0x0600 && char <= 0x06FF,
+    // 'Arabic': (char) => char >= 0x0600 && char <= 0x06FF,
     //'Syriac': (char) => char >= 0x0700 && char <= 0x074F,
-    'Arabic Supplement': (char) => char >= 0x0750 && char <= 0x077F,
+    // 'Arabic Supplement': (char) => char >= 0x0750 && char <= 0x077F,
     // 'Thaana': (char) => char >= 0x0780 && char <= 0x07BF,
     // 'NKo': (char) => char >= 0x07C0 && char <= 0x07FF,
     // 'Samaritan': (char) => char >= 0x0800 && char <= 0x083F,
     // 'Mandaic': (char) => char >= 0x0840 && char <= 0x085F,
     // 'Syriac Supplement': (char) => char >= 0x0860 && char <= 0x086F,
-    'Arabic Extended-A': (char) => char >= 0x08A0 && char <= 0x08FF,
+    // 'Arabic Extended-B': (char) => char >= 0x0870 && char <= 0x089F,
+    // 'Arabic Extended-A': (char) => char >= 0x08A0 && char <= 0x08FF,
     // 'Devanagari': (char) => char >= 0x0900 && char <= 0x097F,
     // 'Bengali': (char) => char >= 0x0980 && char <= 0x09FF,
     // 'Gurmukhi': (char) => char >= 0x0A00 && char <= 0x0A7F,
@@ -13576,7 +13603,7 @@ const unicodeBlockLookup = {
     // 'Ethiopic': (char) => char >= 0x1200 && char <= 0x137F,
     // 'Ethiopic Supplement': (char) => char >= 0x1380 && char <= 0x139F,
     // 'Cherokee': (char) => char >= 0x13A0 && char <= 0x13FF,
-    'Unified Canadian Aboriginal Syllabics': (char) => char >= 0x1400 && char <= 0x167F,
+    // 'Unified Canadian Aboriginal Syllabics': (char) => char >= 0x1400 && char <= 0x167F,
     // 'Ogham': (char) => char >= 0x1680 && char <= 0x169F,
     // 'Runic': (char) => char >= 0x16A0 && char <= 0x16FF,
     // 'Tagalog': (char) => char >= 0x1700 && char <= 0x171F,
@@ -13585,7 +13612,7 @@ const unicodeBlockLookup = {
     // 'Tagbanwa': (char) => char >= 0x1760 && char <= 0x177F,
     'Khmer': (char) => char >= 0x1780 && char <= 0x17FF,
     // 'Mongolian': (char) => char >= 0x1800 && char <= 0x18AF,
-    'Unified Canadian Aboriginal Syllabics Extended': (char) => char >= 0x18B0 && char <= 0x18FF,
+    // 'Unified Canadian Aboriginal Syllabics Extended': (char) => char >= 0x18B0 && char <= 0x18FF,
     // 'Limbu': (char) => char >= 0x1900 && char <= 0x194F,
     // 'Tai Le': (char) => char >= 0x1950 && char <= 0x197F,
     // 'New Tai Lue': (char) => char >= 0x1980 && char <= 0x19DF,
@@ -13639,25 +13666,25 @@ const unicodeBlockLookup = {
     // 'Ethiopic Extended': (char) => char >= 0x2D80 && char <= 0x2DDF,
     // 'Cyrillic Extended-A': (char) => char >= 0x2DE0 && char <= 0x2DFF,
     // 'Supplemental Punctuation': (char) => char >= 0x2E00 && char <= 0x2E7F,
-    'CJK Radicals Supplement': (char) => char >= 0x2E80 && char <= 0x2EFF,
-    'Kangxi Radicals': (char) => char >= 0x2F00 && char <= 0x2FDF,
+    // 'CJK Radicals Supplement': (char) => char >= 0x2E80 && char <= 0x2EFF,
+    // 'Kangxi Radicals': (char) => char >= 0x2F00 && char <= 0x2FDF,
     'Ideographic Description Characters': (char) => char >= 0x2FF0 && char <= 0x2FFF,
     'CJK Symbols and Punctuation': (char) => char >= 0x3000 && char <= 0x303F,
-    'Hiragana': (char) => char >= 0x3040 && char <= 0x309F,
+    // 'Hiragana': (char) => char >= 0x3040 && char <= 0x309F,
     'Katakana': (char) => char >= 0x30A0 && char <= 0x30FF,
-    'Bopomofo': (char) => char >= 0x3100 && char <= 0x312F,
-    'Hangul Compatibility Jamo': (char) => char >= 0x3130 && char <= 0x318F,
+    // 'Bopomofo': (char) => char >= 0x3100 && char <= 0x312F,
+    // 'Hangul Compatibility Jamo': (char) => char >= 0x3130 && char <= 0x318F,
     'Kanbun': (char) => char >= 0x3190 && char <= 0x319F,
-    'Bopomofo Extended': (char) => char >= 0x31A0 && char <= 0x31BF,
+    // 'Bopomofo Extended': (char) => char >= 0x31A0 && char <= 0x31BF,
     'CJK Strokes': (char) => char >= 0x31C0 && char <= 0x31EF,
-    'Katakana Phonetic Extensions': (char) => char >= 0x31F0 && char <= 0x31FF,
+    // 'Katakana Phonetic Extensions': (char) => char >= 0x31F0 && char <= 0x31FF,
     'Enclosed CJK Letters and Months': (char) => char >= 0x3200 && char <= 0x32FF,
     'CJK Compatibility': (char) => char >= 0x3300 && char <= 0x33FF,
-    'CJK Unified Ideographs Extension A': (char) => char >= 0x3400 && char <= 0x4DBF,
+    // 'CJK Unified Ideographs Extension A': (char) => char >= 0x3400 && char <= 0x4DBF,
     'Yijing Hexagram Symbols': (char) => char >= 0x4DC0 && char <= 0x4DFF,
-    'CJK Unified Ideographs': (char) => char >= 0x4E00 && char <= 0x9FFF,
-    'Yi Syllables': (char) => char >= 0xA000 && char <= 0xA48F,
-    'Yi Radicals': (char) => char >= 0xA490 && char <= 0xA4CF,
+    // 'CJK Unified Ideographs': (char) => char >= 0x4E00 && char <= 0x9FFF,
+    // 'Yi Syllables': (char) => char >= 0xA000 && char <= 0xA48F,
+    // 'Yi Radicals': (char) => char >= 0xA490 && char <= 0xA4CF,
     // 'Lisu': (char) => char >= 0xA4D0 && char <= 0xA4FF,
     // 'Vai': (char) => char >= 0xA500 && char <= 0xA63F,
     // 'Cyrillic Extended-B': (char) => char >= 0xA640 && char <= 0xA69F,
@@ -13671,7 +13698,7 @@ const unicodeBlockLookup = {
     // 'Devanagari Extended': (char) => char >= 0xA8E0 && char <= 0xA8FF,
     // 'Kayah Li': (char) => char >= 0xA900 && char <= 0xA92F,
     // 'Rejang': (char) => char >= 0xA930 && char <= 0xA95F,
-    'Hangul Jamo Extended-A': (char) => char >= 0xA960 && char <= 0xA97F,
+    // 'Hangul Jamo Extended-A': (char) => char >= 0xA960 && char <= 0xA97F,
     // 'Javanese': (char) => char >= 0xA980 && char <= 0xA9DF,
     // 'Myanmar Extended-B': (char) => char >= 0xA9E0 && char <= 0xA9FF,
     // 'Cham': (char) => char >= 0xAA00 && char <= 0xAA5F,
@@ -13682,21 +13709,21 @@ const unicodeBlockLookup = {
     // 'Latin Extended-E': (char) => char >= 0xAB30 && char <= 0xAB6F,
     // 'Cherokee Supplement': (char) => char >= 0xAB70 && char <= 0xABBF,
     // 'Meetei Mayek': (char) => char >= 0xABC0 && char <= 0xABFF,
-    'Hangul Syllables': (char) => char >= 0xAC00 && char <= 0xD7AF,
-    'Hangul Jamo Extended-B': (char) => char >= 0xD7B0 && char <= 0xD7FF,
+    // 'Hangul Syllables': (char) => char >= 0xAC00 && char <= 0xD7AF,
+    // 'Hangul Jamo Extended-B': (char) => char >= 0xD7B0 && char <= 0xD7FF,
     // 'High Surrogates': (char) => char >= 0xD800 && char <= 0xDB7F,
     // 'High Private Use Surrogates': (char) => char >= 0xDB80 && char <= 0xDBFF,
     // 'Low Surrogates': (char) => char >= 0xDC00 && char <= 0xDFFF,
     'Private Use Area': (char) => char >= 0xE000 && char <= 0xF8FF,
-    'CJK Compatibility Ideographs': (char) => char >= 0xF900 && char <= 0xFAFF,
+    // 'CJK Compatibility Ideographs': (char) => char >= 0xF900 && char <= 0xFAFF,
     // 'Alphabetic Presentation Forms': (char) => char >= 0xFB00 && char <= 0xFB4F,
-    'Arabic Presentation Forms-A': (char) => char >= 0xFB50 && char <= 0xFDFF,
+    // 'Arabic Presentation Forms-A': (char) => char >= 0xFB50 && char <= 0xFDFF,
     // 'Variation Selectors': (char) => char >= 0xFE00 && char <= 0xFE0F,
     'Vertical Forms': (char) => char >= 0xFE10 && char <= 0xFE1F,
     // 'Combining Half Marks': (char) => char >= 0xFE20 && char <= 0xFE2F,
     'CJK Compatibility Forms': (char) => char >= 0xFE30 && char <= 0xFE4F,
     'Small Form Variants': (char) => char >= 0xFE50 && char <= 0xFE6F,
-    'Arabic Presentation Forms-B': (char) => char >= 0xFE70 && char <= 0xFEFF,
+    // 'Arabic Presentation Forms-B': (char) => char >= 0xFE70 && char <= 0xFEFF,
     'Halfwidth and Fullwidth Forms': (char) => char >= 0xFF00 && char <= 0xFFEF
     // 'Specials': (char) => char >= 0xFFF0 && char <= 0xFFFF,
     // 'Linear B Syllabary': (char) => char >= 0x10000 && char <= 0x1007F,
@@ -13719,7 +13746,10 @@ const unicodeBlockLookup = {
     // 'Osage': (char) => char >= 0x104B0 && char <= 0x104FF,
     // 'Elbasan': (char) => char >= 0x10500 && char <= 0x1052F,
     // 'Caucasian Albanian': (char) => char >= 0x10530 && char <= 0x1056F,
+    // 'Vithkuqi': (char) => char >= 0x10570 && char <= 0x105BF,
+    // 'Todhri': (char) => char >= 0x105C0 && char <= 0x105FF,
     // 'Linear A': (char) => char >= 0x10600 && char <= 0x1077F,
+    // 'Latin Extended-F': (char) => char >= 0x10780 && char <= 0x107BF,
     // 'Cypriot Syllabary': (char) => char >= 0x10800 && char <= 0x1083F,
     // 'Imperial Aramaic': (char) => char >= 0x10840 && char <= 0x1085F,
     // 'Palmyrene': (char) => char >= 0x10860 && char <= 0x1087F,
@@ -13740,9 +13770,14 @@ const unicodeBlockLookup = {
     // 'Old Turkic': (char) => char >= 0x10C00 && char <= 0x10C4F,
     // 'Old Hungarian': (char) => char >= 0x10C80 && char <= 0x10CFF,
     // 'Hanifi Rohingya': (char) => char >= 0x10D00 && char <= 0x10D3F,
+    // 'Garay': (char) => char >= 0x10D40 && char <= 0x10D8F,
     // 'Rumi Numeral Symbols': (char) => char >= 0x10E60 && char <= 0x10E7F,
+    // 'Yezidi': (char) => char >= 0x10E80 && char <= 0x10EBF,
+    // 'Arabic Extended-C': (char) => char >= 0x10EC0 && char <= 0x10EFF,
     // 'Old Sogdian': (char) => char >= 0x10F00 && char <= 0x10F2F,
     // 'Sogdian': (char) => char >= 0x10F30 && char <= 0x10F6F,
+    // 'Old Uyghur': (char) => char >= 0x10F70 && char <= 0x10FAF,
+    // 'Chorasmian': (char) => char >= 0x10FB0 && char <= 0x10FDF,
     // 'Elymaic': (char) => char >= 0x10FE0 && char <= 0x10FFF,
     // 'Brahmi': (char) => char >= 0x11000 && char <= 0x1107F,
     // 'Kaithi': (char) => char >= 0x11080 && char <= 0x110CF,
@@ -13755,57 +13790,82 @@ const unicodeBlockLookup = {
     // 'Multani': (char) => char >= 0x11280 && char <= 0x112AF,
     // 'Khudawadi': (char) => char >= 0x112B0 && char <= 0x112FF,
     // 'Grantha': (char) => char >= 0x11300 && char <= 0x1137F,
+    // 'Tulu-Tigalari': (char) => char >= 0x11380 && char <= 0x113FF,
     // 'Newa': (char) => char >= 0x11400 && char <= 0x1147F,
     // 'Tirhuta': (char) => char >= 0x11480 && char <= 0x114DF,
     // 'Siddham': (char) => char >= 0x11580 && char <= 0x115FF,
     // 'Modi': (char) => char >= 0x11600 && char <= 0x1165F,
     // 'Mongolian Supplement': (char) => char >= 0x11660 && char <= 0x1167F,
     // 'Takri': (char) => char >= 0x11680 && char <= 0x116CF,
-    // 'Ahom': (char) => char >= 0x11700 && char <= 0x1173F,
+    // 'Myanmar Extended-C': (char) => char >= 0x116D0 && char <= 0x116FF,
+    // 'Ahom': (char) => char >= 0x11700 && char <= 0x1174F,
     // 'Dogra': (char) => char >= 0x11800 && char <= 0x1184F,
     // 'Warang Citi': (char) => char >= 0x118A0 && char <= 0x118FF,
+    // 'Dives Akuru': (char) => char >= 0x11900 && char <= 0x1195F,
     // 'Nandinagari': (char) => char >= 0x119A0 && char <= 0x119FF,
     // 'Zanabazar Square': (char) => char >= 0x11A00 && char <= 0x11A4F,
     // 'Soyombo': (char) => char >= 0x11A50 && char <= 0x11AAF,
+    // 'Unified Canadian Aboriginal Syllabics Extended-A': (char) => char >= 0x11AB0 && char <= 0x11ABF,
     // 'Pau Cin Hau': (char) => char >= 0x11AC0 && char <= 0x11AFF,
+    // 'Devanagari Extended-A': (char) => char >= 0x11B00 && char <= 0x11B5F,
+    // 'Sunuwar': (char) => char >= 0x11BC0 && char <= 0x11BFF,
     // 'Bhaiksuki': (char) => char >= 0x11C00 && char <= 0x11C6F,
     // 'Marchen': (char) => char >= 0x11C70 && char <= 0x11CBF,
     // 'Masaram Gondi': (char) => char >= 0x11D00 && char <= 0x11D5F,
     // 'Gunjala Gondi': (char) => char >= 0x11D60 && char <= 0x11DAF,
     // 'Makasar': (char) => char >= 0x11EE0 && char <= 0x11EFF,
+    // 'Kawi': (char) => char >= 0x11F00 && char <= 0x11F5F,
+    // 'Lisu Supplement': (char) => char >= 0x11FB0 && char <= 0x11FBF,
     // 'Tamil Supplement': (char) => char >= 0x11FC0 && char <= 0x11FFF,
     // 'Cuneiform': (char) => char >= 0x12000 && char <= 0x123FF,
     // 'Cuneiform Numbers and Punctuation': (char) => char >= 0x12400 && char <= 0x1247F,
     // 'Early Dynastic Cuneiform': (char) => char >= 0x12480 && char <= 0x1254F,
+    // 'Cypro-Minoan': (char) => char >= 0x12F90 && char <= 0x12FFF,
     // 'Egyptian Hieroglyphs': (char) => char >= 0x13000 && char <= 0x1342F,
-    // 'Egyptian Hieroglyph Format Controls': (char) => char >= 0x13430 && char <= 0x1343F,
+    // 'Egyptian Hieroglyph Format Controls': (char) => char >= 0x13430 && char <= 0x1345F,
+    // 'Egyptian Hieroglyphs Extended-A': (char) => char >= 0x13460 && char <= 0x143FF,
     // 'Anatolian Hieroglyphs': (char) => char >= 0x14400 && char <= 0x1467F,
+    // 'Gurung Khema': (char) => char >= 0x16100 && char <= 0x1613F,
     // 'Bamum Supplement': (char) => char >= 0x16800 && char <= 0x16A3F,
     // 'Mro': (char) => char >= 0x16A40 && char <= 0x16A6F,
+    // 'Tangsa': (char) => char >= 0x16A70 && char <= 0x16ACF,
     // 'Bassa Vah': (char) => char >= 0x16AD0 && char <= 0x16AFF,
     // 'Pahawh Hmong': (char) => char >= 0x16B00 && char <= 0x16B8F,
+    // 'Kirat Rai': (char) => char >= 0x16D40 && char <= 0x16D7F,
     // 'Medefaidrin': (char) => char >= 0x16E40 && char <= 0x16E9F,
     // 'Miao': (char) => char >= 0x16F00 && char <= 0x16F9F,
     // 'Ideographic Symbols and Punctuation': (char) => char >= 0x16FE0 && char <= 0x16FFF,
     // 'Tangut': (char) => char >= 0x17000 && char <= 0x187FF,
     // 'Tangut Components': (char) => char >= 0x18800 && char <= 0x18AFF,
+    // 'Khitan Small Script': (char) => char >= 0x18B00 && char <= 0x18CFF,
+    // 'Tangut Supplement': (char) => char >= 0x18D00 && char <= 0x18D7F,
+    // 'Kana Extended-B': (char) => char >= 0x1AFF0 && char <= 0x1AFFF,
     // 'Kana Supplement': (char) => char >= 0x1B000 && char <= 0x1B0FF,
     // 'Kana Extended-A': (char) => char >= 0x1B100 && char <= 0x1B12F,
     // 'Small Kana Extension': (char) => char >= 0x1B130 && char <= 0x1B16F,
     // 'Nushu': (char) => char >= 0x1B170 && char <= 0x1B2FF,
     // 'Duployan': (char) => char >= 0x1BC00 && char <= 0x1BC9F,
     // 'Shorthand Format Controls': (char) => char >= 0x1BCA0 && char <= 0x1BCAF,
+    // 'Symbols for Legacy Computing Supplement': (char) => char >= 0x1CC00 && char <= 0x1CEBF,
+    // 'Znamenny Musical Notation': (char) => char >= 0x1CF00 && char <= 0x1CFCF,
     // 'Byzantine Musical Symbols': (char) => char >= 0x1D000 && char <= 0x1D0FF,
     // 'Musical Symbols': (char) => char >= 0x1D100 && char <= 0x1D1FF,
     // 'Ancient Greek Musical Notation': (char) => char >= 0x1D200 && char <= 0x1D24F,
+    // 'Kaktovik Numerals': (char) => char >= 0x1D2C0 && char <= 0x1D2DF,
     // 'Mayan Numerals': (char) => char >= 0x1D2E0 && char <= 0x1D2FF,
     // 'Tai Xuan Jing Symbols': (char) => char >= 0x1D300 && char <= 0x1D35F,
     // 'Counting Rod Numerals': (char) => char >= 0x1D360 && char <= 0x1D37F,
     // 'Mathematical Alphanumeric Symbols': (char) => char >= 0x1D400 && char <= 0x1D7FF,
     // 'Sutton SignWriting': (char) => char >= 0x1D800 && char <= 0x1DAAF,
+    // 'Latin Extended-G': (char) => char >= 0x1DF00 && char <= 0x1DFFF,
     // 'Glagolitic Supplement': (char) => char >= 0x1E000 && char <= 0x1E02F,
+    // 'Cyrillic Extended-D': (char) => char >= 0x1E030 && char <= 0x1E08F,
     // 'Nyiakeng Puachue Hmong': (char) => char >= 0x1E100 && char <= 0x1E14F,
+    // 'Toto': (char) => char >= 0x1E290 && char <= 0x1E2BF,
     // 'Wancho': (char) => char >= 0x1E2C0 && char <= 0x1E2FF,
+    // 'Nag Mundari': (char) => char >= 0x1E4D0 && char <= 0x1E4FF,
+    // 'Ol Onal': (char) => char >= 0x1E5D0 && char <= 0x1E5FF,
+    // 'Ethiopic Extended-B': (char) => char >= 0x1E7E0 && char <= 0x1E7FF,
     // 'Mende Kikakui': (char) => char >= 0x1E800 && char <= 0x1E8DF,
     // 'Adlam': (char) => char >= 0x1E900 && char <= 0x1E95F,
     // 'Indic Siyaq Numbers': (char) => char >= 0x1EC70 && char <= 0x1ECBF,
@@ -13826,11 +13886,15 @@ const unicodeBlockLookup = {
     // 'Supplemental Symbols and Pictographs': (char) => char >= 0x1F900 && char <= 0x1F9FF,
     // 'Chess Symbols': (char) => char >= 0x1FA00 && char <= 0x1FA6F,
     // 'Symbols and Pictographs Extended-A': (char) => char >= 0x1FA70 && char <= 0x1FAFF,
+    // 'Symbols for Legacy Computing': (char) => char >= 0x1FB00 && char <= 0x1FBFF,
     // 'CJK Unified Ideographs Extension B': (char) => char >= 0x20000 && char <= 0x2A6DF,
     // 'CJK Unified Ideographs Extension C': (char) => char >= 0x2A700 && char <= 0x2B73F,
     // 'CJK Unified Ideographs Extension D': (char) => char >= 0x2B740 && char <= 0x2B81F,
     // 'CJK Unified Ideographs Extension E': (char) => char >= 0x2B820 && char <= 0x2CEAF,
     // 'CJK Unified Ideographs Extension F': (char) => char >= 0x2CEB0 && char <= 0x2EBEF,
+    // 'CJK Unified Ideographs Extension I': (char) => char >= 0x2EBF0 && char <= 0x2EE5F,
+    // 'CJK Unified Ideographs Extension G': (char) => char >= 0x30000 && char <= 0x3134F,
+    // 'CJK Unified Ideographs Extension H': (char) => char >= 0x31350 && char <= 0x323AF,
     // 'CJK Compatibility Ideographs Supplement': (char) => char >= 0x2F800 && char <= 0x2FA1F,
     // 'Tags': (char) => char >= 0xE0000 && char <= 0xE007F,
     // 'Variation Selectors Supplement': (char) => char >= 0xE0100 && char <= 0xE01EF,
@@ -13860,67 +13924,77 @@ function allowsLetterSpacing(chars) {
     }
     return true;
 }
-function charAllowsLetterSpacing(char) {
-    if (unicodeBlockLookup['Arabic'](char))
-        return false;
-    if (unicodeBlockLookup['Arabic Supplement'](char))
-        return false;
-    if (unicodeBlockLookup['Arabic Extended-A'](char))
-        return false;
-    if (unicodeBlockLookup['Arabic Presentation Forms-A'](char))
-        return false;
-    if (unicodeBlockLookup['Arabic Presentation Forms-B'](char))
-        return false;
-    return true;
+/**
+ * Returns a regular expression matching the given script codes, excluding any
+ * code that the execution environment lacks support for in regular expressions.
+ */
+function sanitizedRegExpFromScriptCodes(scriptCodes) {
+    const supportedPropertyEscapes = scriptCodes.map(code => {
+        try {
+            return new RegExp(`\\p{sc=${code}}`, 'u').source;
+        }
+        catch (e) {
+            return null;
+        }
+    }).filter(pe => pe);
+    return new RegExp(supportedPropertyEscapes.join('|'), 'u');
 }
+/**
+ * ISO 15924 script codes of scripts that disallow letter spacing as of Unicode
+ * 16.0.0.
+ *
+ * In general, cursive scripts are incompatible with letter spacing.
+ */
+const cursiveScriptCodes = [
+    'Arab', // Arabic
+    'Dupl', // Duployan
+    'Mong', // Mongolian
+    'Ougr', // Old Uyghur
+    'Syrc', // Syriac
+];
+const cursiveScriptRegExp = sanitizedRegExpFromScriptCodes(cursiveScriptCodes);
+function charAllowsLetterSpacing(char) {
+    return !cursiveScriptRegExp.test(String.fromCodePoint(char));
+}
+/**
+ * ISO 15924 script codes of scripts that allow ideographic line breaking beyond
+ * the CJKV scripts that are considered ideographic in Unicode 16.0.0.
+ */
+const ideographicBreakingScriptCodes = [
+    'Bopo', // Bopomofo
+    'Hani', // Han
+    'Hira', // Hiragana
+    'Kana', // Katakana
+    'Kits', // Khitan Small Script
+    'Nshu', // Nushu
+    'Tang', // Tangut
+    'Yiii', // Yi
+];
+const ideographicBreakingRegExp = sanitizedRegExpFromScriptCodes(ideographicBreakingScriptCodes);
 function charAllowsIdeographicBreaking(char) {
     // Return early for characters outside all ideographic ranges.
     if (char < 0x2E80)
         return false;
-    if (unicodeBlockLookup['Bopomofo Extended'](char))
-        return true;
-    if (unicodeBlockLookup['Bopomofo'](char))
-        return true;
     if (unicodeBlockLookup['CJK Compatibility Forms'](char))
         return true;
-    if (unicodeBlockLookup['CJK Compatibility Ideographs'](char))
-        return true;
     if (unicodeBlockLookup['CJK Compatibility'](char))
-        return true;
-    if (unicodeBlockLookup['CJK Radicals Supplement'](char))
         return true;
     if (unicodeBlockLookup['CJK Strokes'](char))
         return true;
     if (unicodeBlockLookup['CJK Symbols and Punctuation'](char))
         return true;
-    if (unicodeBlockLookup['CJK Unified Ideographs Extension A'](char))
-        return true;
-    if (unicodeBlockLookup['CJK Unified Ideographs'](char))
-        return true;
     if (unicodeBlockLookup['Enclosed CJK Letters and Months'](char))
         return true;
     if (unicodeBlockLookup['Halfwidth and Fullwidth Forms'](char))
         return true;
-    if (unicodeBlockLookup['Hiragana'](char))
-        return true;
     if (unicodeBlockLookup['Ideographic Description Characters'](char))
-        return true;
-    if (unicodeBlockLookup['Kangxi Radicals'](char))
-        return true;
-    if (unicodeBlockLookup['Katakana Phonetic Extensions'](char))
-        return true;
-    if (unicodeBlockLookup['Katakana'](char))
         return true;
     if (unicodeBlockLookup['Vertical Forms'](char))
         return true;
-    if (unicodeBlockLookup['Yi Radicals'](char))
-        return true;
-    if (unicodeBlockLookup['Yi Syllables'](char))
-        return true;
-    return false;
+    return ideographicBreakingRegExp.test(String.fromCodePoint(char));
 }
 // The following logic comes from
-// <https://www.unicode.org/Public/12.0.0/ucd/VerticalOrientation.txt>.
+// <https://www.unicode.org/Public/16.0.0/ucd/VerticalOrientation.txt>.
 // Keep it synchronized with
 // <https://www.unicode.org/Public/UCD/latest/ucd/VerticalOrientation.txt>.
 // The data file denotes with “U” or “Tu” any codepoint that may be drawn
@@ -13947,20 +14021,12 @@ function charHasUprightVerticalOrientation(char) {
     // upright in vertical writing mode.
     if (char < 0x1100)
         return false;
-    if (unicodeBlockLookup['Bopomofo Extended'](char))
-        return true;
-    if (unicodeBlockLookup['Bopomofo'](char))
-        return true;
     if (unicodeBlockLookup['CJK Compatibility Forms'](char)) {
         if (!((char >= 0xFE49 /* dashed overline */ && char <= 0xFE4F) /* wavy low line */)) {
             return true;
         }
     }
-    if (unicodeBlockLookup['CJK Compatibility Ideographs'](char))
-        return true;
     if (unicodeBlockLookup['CJK Compatibility'](char))
-        return true;
-    if (unicodeBlockLookup['CJK Radicals Supplement'](char))
         return true;
     if (unicodeBlockLookup['CJK Strokes'](char))
         return true;
@@ -13971,31 +14037,11 @@ function charHasUprightVerticalOrientation(char) {
             return true;
         }
     }
-    if (unicodeBlockLookup['CJK Unified Ideographs Extension A'](char))
-        return true;
-    if (unicodeBlockLookup['CJK Unified Ideographs'](char))
-        return true;
     if (unicodeBlockLookup['Enclosed CJK Letters and Months'](char))
-        return true;
-    if (unicodeBlockLookup['Hangul Compatibility Jamo'](char))
-        return true;
-    if (unicodeBlockLookup['Hangul Jamo Extended-A'](char))
-        return true;
-    if (unicodeBlockLookup['Hangul Jamo Extended-B'](char))
-        return true;
-    if (unicodeBlockLookup['Hangul Jamo'](char))
-        return true;
-    if (unicodeBlockLookup['Hangul Syllables'](char))
-        return true;
-    if (unicodeBlockLookup['Hiragana'](char))
         return true;
     if (unicodeBlockLookup['Ideographic Description Characters'](char))
         return true;
     if (unicodeBlockLookup['Kanbun'](char))
-        return true;
-    if (unicodeBlockLookup['Kangxi Radicals'](char))
-        return true;
-    if (unicodeBlockLookup['Katakana Phonetic Extensions'](char))
         return true;
     if (unicodeBlockLookup['Katakana'](char)) {
         if (char !== 0x30FC /* katakana-hiragana prolonged sound mark */) {
@@ -14022,17 +14068,15 @@ function charHasUprightVerticalOrientation(char) {
             return true;
         }
     }
-    if (unicodeBlockLookup['Unified Canadian Aboriginal Syllabics'](char))
-        return true;
-    if (unicodeBlockLookup['Unified Canadian Aboriginal Syllabics Extended'](char))
-        return true;
     if (unicodeBlockLookup['Vertical Forms'](char))
         return true;
     if (unicodeBlockLookup['Yijing Hexagram Symbols'](char))
         return true;
-    if (unicodeBlockLookup['Yi Syllables'](char))
+    if ( /* Canadian Aboriginal *//\p{sc=Cans}/u.test(String.fromCodePoint(char)))
         return true;
-    if (unicodeBlockLookup['Yi Radicals'](char))
+    if ( /* Hangul *//\p{sc=Hang}/u.test(String.fromCodePoint(char)))
+        return true;
+    if (ideographicBreakingRegExp.test(String.fromCodePoint(char)))
         return true;
     return false;
 }
@@ -14151,17 +14195,53 @@ function charHasRotatedVerticalOrientation(char) {
         charHasNeutralVerticalOrientation(char));
 }
 function charInComplexShapingScript(char) {
-    return unicodeBlockLookup['Arabic'](char) ||
-        unicodeBlockLookup['Arabic Supplement'](char) ||
-        unicodeBlockLookup['Arabic Extended-A'](char) ||
-        unicodeBlockLookup['Arabic Presentation Forms-A'](char) ||
-        unicodeBlockLookup['Arabic Presentation Forms-B'](char);
+    return /\p{sc=Arab}/u.test(String.fromCodePoint(char));
 }
+/**
+ * ISO 15924 script codes of scripts that are primarily written horizontally
+ * right-to-left according to Unicode 16.0.0.
+ */
+const rtlScriptCodes = [
+    'Adlm', // Adlam
+    'Arab', // Arabic
+    'Armi', // Imperial Aramaic
+    'Avst', // Avestan
+    'Chrs', // Chorasmian
+    'Cprt', // Cypriot
+    'Egyp', // Egyptian Hieroglyphs
+    'Elym', // Elymaic
+    'Gara', // Garay
+    'Hatr', // Hatran
+    'Hebr', // Hebrew
+    'Hung', // Old Hungarian
+    'Khar', // Kharoshthi
+    'Lydi', // Lydian
+    'Mand', // Mandaic
+    'Mani', // Manichaean
+    'Mend', // Mende Kikakui
+    'Merc', // Meroitic Cursive
+    'Mero', // Meroitic Hieroglyphs
+    'Narb', // Old North Arabian
+    'Nbat', // Nabataean
+    'Nkoo', // NKo
+    'Orkh', // Old Turkic
+    'Palm', // Palmyrene
+    'Phli', // Inscriptional Pahlavi
+    'Phlp', // Psalter Pahlavi
+    'Phnx', // Phoenician
+    'Prti', // Inscriptional Parthian
+    'Rohg', // Hanifi Rohingya
+    'Samr', // Samaritan
+    'Sarb', // Old South Arabian
+    'Sogo', // Old Sogdian
+    'Syrc', // Syriac
+    'Thaa', // Thaana
+    'Todr', // Todhri
+    'Yezi', // Yezidi
+];
+const rtlScriptRegExp = sanitizedRegExpFromScriptCodes(rtlScriptCodes);
 function charInRTLScript(char) {
-    // Main blocks for Hebrew, Arabic, Thaana and other RTL scripts
-    return (char >= 0x0590 && char <= 0x08FF) ||
-        unicodeBlockLookup['Arabic Presentation Forms-A'](char) ||
-        unicodeBlockLookup['Arabic Presentation Forms-B'](char);
+    return rtlScriptRegExp.test(String.fromCodePoint(char));
 }
 function charInSupportedScript(char, canRenderRTL) {
     // This is a rough heuristic: whether we "can render" a script
@@ -25301,6 +25381,7 @@ function renderColorRamp(params) {
     return image;
 }
 
+const HEATMAP_FULL_RENDER_FBO_KEY = 'big-fb';
 /**
  * A style layer that defines a heatmap
  */
@@ -25310,6 +25391,7 @@ class HeatmapStyleLayer extends StyleLayer {
     }
     constructor(layer) {
         super(layer, properties$7);
+        this.heatmapFbos = new Map();
         // make sure color ramp texture is generated for default heatmap color too
         this._updateColorRamp();
     }
@@ -25328,9 +25410,8 @@ class HeatmapStyleLayer extends StyleLayer {
         this.colorRampTexture = null;
     }
     resize() {
-        if (this.heatmapFbo) {
-            this.heatmapFbo.destroy();
-            this.heatmapFbo = null;
+        if (this.heatmapFbos.has(HEATMAP_FULL_RENDER_FBO_KEY)) {
+            this.heatmapFbos.delete(HEATMAP_FULL_RENDER_FBO_KEY);
         }
     }
     queryRadius() {
@@ -32458,12 +32539,50 @@ class MercatorCoordinate {
 }
 
 /**
+ * Returns true if a given tile zoom (Z), X, and Y are in the bounds of the world.
+ * Zoom bounds are the minimum zoom (inclusive) through the maximum zoom (inclusive).
+ * X and Y bounds are 0 (inclusive) to their respective zoom-dependent maxima (exclusive).
+ *
+ * @param zoom - the tile zoom (Z)
+ * @param x - the tile X
+ * @param y - the tile Y
+ * @returns `true` if a given tile zoom, X, and Y are in the bounds of the world.
+ */
+function isInBoundsForTileZoomXY(zoom, x, y) {
+    return !(zoom < MIN_TILE_ZOOM ||
+        zoom > MAX_TILE_ZOOM ||
+        y < 0 ||
+        y >= Math.pow(2, zoom) ||
+        x < 0 ||
+        x >= Math.pow(2, zoom));
+}
+/**
+ * Returns true if a given zoom and `LngLat` are in the bounds of the world.
+ * Does not wrap `LngLat` when checking if in bounds.
+ * Zoom bounds are the minimum zoom (inclusive) through the maximum zoom (inclusive).
+ * `LngLat` bounds are the mercator world's north-west corner (inclusive) to its south-east corner (exclusive).
+ *
+ * @param zoom - the tile zoom (Z)
+ * @param LngLat - the `LngLat` object containing the longitude and latitude
+ * @returns `true` if a given zoom and `LngLat` are in the bounds of the world.
+ */
+function isInBoundsForZoomLngLat(zoom, lnglat) {
+    const { x, y } = MercatorCoordinate.fromLngLat(lnglat);
+    return !(zoom < MIN_TILE_ZOOM ||
+        zoom > MAX_TILE_ZOOM ||
+        y < 0 ||
+        y >= 1 ||
+        x < 0 ||
+        x >= 1);
+}
+
+/**
  * A canonical way to define a tile ID
  */
 class CanonicalTileID {
     constructor(z, x, y) {
-        if (z < 0 || z > 25 || y < 0 || y >= Math.pow(2, z) || x < 0 || x >= Math.pow(2, z)) {
-            throw new Error(`x=${x}, y=${y}, z=${z} outside of bounds. 0<=x<${Math.pow(2, z)}, 0<=y<${Math.pow(2, z)} 0<=z<=25 `);
+        if (!isInBoundsForTileZoomXY(z, x, y)) {
+            throw new Error(`x=${x}, y=${y}, z=${z} outside of bounds. 0<=x<${Math.pow(2, z)}, 0<=y<${Math.pow(2, z)} ${MIN_TILE_ZOOM}<=z<=${MAX_TILE_ZOOM} `);
         }
         this.z = z;
         this.x = x;

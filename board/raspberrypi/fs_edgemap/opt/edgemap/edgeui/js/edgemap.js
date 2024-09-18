@@ -137,6 +137,56 @@ class radioList {
 }
 
 
+// reticulum node list
+class reticulumList {
+        constructor() {
+            this.members = [];
+            this.age = [];
+            this.hash = [];
+            
+        }
+        add(callsign,age,hash) {            
+            const index = this.members.findIndex(x => x === callsign);
+            if (index !== -1) {
+                // Update existing but don't over write existing 
+                this.members[index] = callsign;
+                this.age[index] = age;
+                this.hash[index] = hash;
+                return true;
+            } else {
+                // Add new
+                this.members.push(callsign);  
+                this.age.push(age); 
+                this.hash.push(hash); 
+                return true;
+            }
+            return false;
+        }
+        // TODO: Not tested at all
+        remove(callsign) {
+            const index = this.members.findIndex(x => x === callsign);
+            if (index !== -1) {
+                this.members.splice(index, 1);
+                this.age.splice(index, 1);
+                this.hash.splice(index, 1);
+                return true;
+            }
+            return false;
+        }
+        present(callsign) {
+            const index = this.members.findIndex(x => x === callsign);
+            if (index !== -1) {
+                return true;
+            }
+            return false;
+        }
+        getSize() {
+            return this.members.length;
+        }
+}
+
+
+
 function updateRadioListBlock() {
     document.getElementById("radiolist").innerHTML = "";
     var radioLoop=0;
@@ -160,6 +210,43 @@ function updateRadioListBlock() {
     document.getElementById("radiolist").innerHTML = radioListContent;
 }
 
+function updateReticulumBlock() {
+    document.getElementById("reticulumlist").innerHTML = "";
+    
+    var reticulumLoop=0;
+    var reticulumListContent = "";
+    reticulumListContent = "<table width=90%><tr ><td style='border-bottom: 1px solid #0F0;' >Callsign</td><td style='border-bottom: 1px solid #0F0;' >Age</td><td style='border-bottom: 1px solid #0F0;'>Hash</td></tr>";
+    for ( reticulumLoop = 0; reticulumLoop < reticulumNodesOnSystem.getSize(); reticulumLoop++) { 
+        reticulumListContent += "<tr><td>" + reticulumNodesOnSystem.members[reticulumLoop] + "</td><td>" + reticulumNodesOnSystem.age[reticulumLoop] + "</td><td>" + reticulumNodesOnSystem.hash[reticulumLoop] + "</td></tr>";
+    }
+    reticulumListContent += "</table>";
+    
+    
+    document.getElementById("reticulumlist").innerHTML = reticulumListContent;
+}
+
+// TODO: add openJanus() and janus destroy
+function toggleVideoConference() {
+    const elementOpacity=0.8;
+    if( typeof toggleVideoConference.videoListVisible == 'undefined' ) {
+        fadeInTo09(videoConferenceDiv ,400,elementOpacity);
+        toggleVideoConference.videoListVisible = true;
+        openJanus();
+        return;
+    }
+    if ( toggleVideoConference.videoListVisible == true ) {
+        fadeOutFrom09(videoConferenceDiv ,400,elementOpacity);
+        toggleVideoConference.videoListVisible = false;
+        closeJanus();
+        return;
+    }
+    if ( toggleVideoConference.videoListVisible == false ) {
+        fadeInTo09(videoConferenceDiv ,400,elementOpacity);
+        toggleVideoConference.videoListVisible = true;
+        openJanus();
+        return;
+    }    
+}
 
 function toggleUserList() {
     const elementOpacity=0.8;
@@ -182,6 +269,12 @@ function toggleUserList() {
 
 function toggleRadioList() {
     const elementOpacity=0.8;
+    
+    if ( toggleReticulumList.radioListVisible == true ) {
+        fadeOutFrom09(reticulumListblockDiv ,400,elementOpacity);
+        toggleReticulumList.radioListVisible = false;
+    }
+    
     if( typeof toggleRadioList.radioListVisible == 'undefined' ) {
         fadeInTo09(radiolistblockDiv ,400,elementOpacity);
         toggleRadioList.radioListVisible = true;
@@ -201,12 +294,41 @@ function toggleRadioList() {
     }    
 }
 
+function toggleReticulumList() {
+    const elementOpacity=0.8;
+    
+    if ( toggleRadioList.radioListVisible == true ) {
+        fadeOutFrom09(radiolistblockDiv ,400,elementOpacity);
+        toggleRadioList.radioListVisible = false;
+    }
+    
+    if( typeof toggleReticulumList.radioListVisible == 'undefined' ) {
+        fadeInTo09(reticulumListblockDiv ,400,elementOpacity);
+        toggleReticulumList.radioListVisible = true; // ???
+        fadeOut(radioNotifyDotDiv,200);
+        return;
+    }
+    if ( toggleReticulumList.radioListVisible == true ) {
+        fadeOutFrom09(reticulumListblockDiv ,400,elementOpacity);
+        toggleReticulumList.radioListVisible = false;
+        return;
+    }
+    if ( toggleReticulumList.radioListVisible == false ) {
+        fadeInTo09(reticulumListblockDiv ,400,elementOpacity);
+        toggleReticulumList.radioListVisible = true;
+        fadeOut(radioNotifyDotDiv,200);
+        return;
+    }    
+}
+
+
 function sendMessage(messagepayload) {
     if ( msgSocketConnected ) {
         msgSocket.send( messagepayload );
     }
 }
 
+/*
 function updatePeerListBlock() {
     document.getElementById("peerlist").innerHTML = "";
     var peerLoop=0;
@@ -216,24 +338,20 @@ function updatePeerListBlock() {
         peerListContent += "<br>";
     }
     document.getElementById("peerlist").innerHTML = peerListContent;
-}
+}*/
 
-
-
-
-
-
-// Remove peers if unheard over 30 s
+// Remove peers if unheard over 30 s -> 600 s (10 min)
+/*
 function checkPeerExpiry() {
     let currentTime = Math.round(+new Date()/1000);
     for ( peerLoop = 0; peerLoop < peersOnMap.getSize(); peerLoop++) {
         var peerAge = parseInt ( currentTime ) - parseInt( peersOnMap.timestamps[peerLoop] );
-        if ( peerAge > 30 ) {
+        if ( peerAge > 600 ) {
             peersOnMap.remove( peersOnMap.members[peerLoop] );
             updatePeerListBlock(); 
         }
     }
-}
+}*/
 
 // Remove radios if unheard over 300 s
 function checkRadioExpiry() {
@@ -255,6 +373,10 @@ function notifyMessage(message, timeout) {
             fadeOut(document.getElementById("bottomLog") ,1000);
         }, timeout);
 }
+
+
+
+
 
 // 
 // Replace window.location.reload(); on page reload
@@ -470,9 +592,11 @@ function createTrackMarkerFromMessage(lon, lat, msgFrom, msgMessage) {
         // Get new position
         var ll = new maplibregl.LngLat(lon, lat);
         // Add marker to map
+        // TODO: Calculate offset based on getAnchor(), see: https://www.spatialillusions.com/milsymbol/documentation.html#getanchor
         trackMessageMarkers[msgFrom] = new maplibregl.Marker({
             element: trackMessageMarkerGraphDom,
-            draggable: false
+            draggable: false,
+            offset: [30, 0]
             })
             .setLngLat( ll )
             .addTo(map);
@@ -560,7 +684,7 @@ function parse_query_string(query) {
 
 // Local GPS marker animation
 function animateLocalGpsMarker(timestamp) {		
-    localGpsMarker.remove();
+    // localGpsMarker.remove();
     var lat = document.getElementById('lat_localgps').innerHTML;
     var lon = document.getElementById('lon_localgps').innerHTML; 
     var mode = document.getElementById('mode_localgps').innerHTML;
@@ -571,9 +695,9 @@ function animateLocalGpsMarker(timestamp) {
     milSymbolLocalGps.setOptions({ commonIdentifier: "" });
     milSymbolLocalGps.setOptions({ type: localGpsName });
     milSymbolLocalGpsMarker = milSymbolLocalGps.asDOM(); 
-    localGpsMarker = new maplibregl.Marker({
+    /*localGpsMarker = new maplibregl.Marker({
             element: milSymbolLocalGpsMarker
-        });
+        });*/
     localGpsMarker.setLngLat([lat,lon]);
     localGpsMarker.addTo(map);
     requestAnimationFrame(animateLocalGpsMarker);
@@ -759,7 +883,7 @@ function checkVideoServer(cb){
 }
 function videoPanelsVisible(videoAvail) {
 	var x = document.getElementById("leftVideo");
-	var y = document.getElementById("rightVideo");
+	var y = document.getElementById("rightVideo"); 
 	if ( videoAvail == true ) {
 		x.style.display = "";
 		y.style.display = "";
@@ -845,8 +969,11 @@ function createImage(sName) {
 function getCoordinatesToClipboard() {
 	var copyText = document.getElementById('lat').innerHTML + "," + document.getElementById('lon').innerHTML;
 	copyToClipboard(copyText);
-    fadeIn( document.getElementById("copyStatusIcon"), 0 );
-    fadeOut( document.getElementById("copyStatusIcon"), 1400 );
+    document.getElementById('lat').innerHTML = "";
+    document.getElementById('lon').innerHTML = "";
+    document.getElementById('coordinateComma').innerHTML = "";
+    document.getElementById("copyNotifyText").innerHTML = "Copied to clipboard!";
+    fadeOut( document.getElementById("mapClickLatlonSection"), 1400 );
 } 
 
 function changeLanguage(language) {
@@ -923,8 +1050,10 @@ function addDot(lon,lat) {
             return true;
         }
     };
-    // 
+    // if (!map.hasImage('pulsing-dot')) 
     map.addImage('pulsing-dot', pulsingDot, {pixelRatio: 2});
+    
+    // map.removeSource('pulsingpoints');
     map.addSource('pulsingpoints', {
         'type': 'geojson',
         'data': {
@@ -940,6 +1069,7 @@ function addDot(lon,lat) {
             ]
         }
     });
+    // if (map.getLayer('pulsepointslayer')) map.removeLayer('pulsepointslayer');
     map.addLayer({
         'id': 'pulsepointslayer',
         'type': 'symbol',
@@ -1025,11 +1155,31 @@ function closeCoordinateSearchEntryBox() {
 function openCallSignEntryBox() {
     fadeIn(callSignEntryBoxDiv,200);
 }
+
 function closeCallSignEntryBox() {
     fadeOut(callSignEntryBoxDiv,200);
-    var newCallSign=document.getElementById('myCallSign').value; 
+    var newCallSign = document.getElementById('myCallSign').value; 
     document.getElementById('myCallSign').value = newCallSign;
     document.getElementById('callSignDisplay').innerHTML = newCallSign;
+    newCallSignWithLifeFeed = newCallSign + "\n";
+    
+    // Save changes to "/opt/edgemap-persist/callsign.txt"
+    fetch('save_callsign.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ data: newCallSignWithLifeFeed })
+    })
+    .then(response => response.text())
+    .then(data => {
+        console.log('Data saved:', data);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+    
+    
 }
 
 function openRadioList() {
@@ -1047,6 +1197,13 @@ function closeRadioList() {
     }
 }
 
+function closeReticulumList() {
+    if (logDiv.style.display !== "inline-block" ) {
+        fadeOut(reticulumListblockDiv ,200);
+    }
+}
+
+
 function openMessageEntryBox() {
     const canVibrate = window.navigator.vibrate
     if (canVibrate) window.navigator.vibrate(100)
@@ -1055,43 +1212,70 @@ function openMessageEntryBox() {
         const canVibrate = window.navigator.vibrate
         if (canVibrate) window.navigator.vibrate([200, 100, 200]);
         fadeIn(logDiv,200);
-        fadeOut(zoomDiv,200);
-        fadeOut(sensorDiv,200);
+        // fadeOut(zoomDiv,200);
+        // fadeOut(sensorDiv,200);
         fadeOut(bottomBarDiv,200);
-        fadeOut(cameracontrol,200);
-        fadeOut(userlistbuttonDiv ,200);
-        fadeOut(radiolistbuttonDiv ,200);
+        // fadeOut(cameracontrol,200);
+        // fadeOut(userlistbuttonDiv ,200);
+        // fadeOut(radiolistbuttonDiv ,200);
         fadeOut(radiolistblockDiv ,200);
-         
+        // fadeOut(videoconferenceButton ,200);
+        fadeOut(reticulumListblockDiv ,200);
+        // fadeOut(reticulumListButtonDiv ,200);
+        // fadeOut(manualGpsbuttonDiv ,200);
     }
     document.getElementById("msgInput").focus();
 }
+
 function closeMessageEntryBox() {
+    console.log("closeMessageEntryBox()");
+    // return; // new menu debug
     if ( logDiv.style.display == "" )
     {
       fadeIn(logDiv,200);
-      fadeOut(zoomDiv,200);
-      fadeOut(sensorDiv,200);
-      fadeOut(cameracontrol,200);
-      fadeOut(userlistbuttonDiv ,200);
+      /*
+        fadeOut(zoomDiv,200);
+        fadeOut(sensorDiv,200);
+        fadeOut(cameracontrol,200);
+        fadeOut(userlistbuttonDiv ,200);
+        fadeOut(videoconferenceButton ,200);
+        fadeOut(reticulumListblockDiv ,200);
+        fadeOut(reticulumListButtonDiv ,200);
+        fadeOut(deliveryStatusDiv ,200);
+        */
+       // fadeOut(manualGpsbuttonDiv ,200);
     } else {
       if (logDiv.style.display !== "none" ) {      
         fadeOut(logDiv,200);
-        fadeIn(zoomDiv,200);
+        fadeOut(deliveryStatusDiv,200); 
+        fadeIn(bottomBarDiv,200);
+        /*fadeIn(zoomDiv,200);
         fadeIn(sensorDiv,200);
         fadeIn(bottomBarDiv,200);
         fadeIn(cameracontrol,200);
         fadeIn(userlistbuttonDiv ,200);
         fadeIn(radiolistbuttonDiv ,200);
+        fadeIn(videoconferenceButton ,200);
+        // fadeIn(reticulumListblockDiv ,200);
+        fadeIn(reticulumListButtonDiv ,200);
+        fadeIn(manualGpsbuttonDiv ,200); */
         
       } else {
         fadeIn(logDiv,200);
+        /*
         fadeOut(zoomDiv,200);
         fadeOut(sensorDiv,200);
         fadeOut(cameracontrol,200);
         fadeOut(userlistbuttonDiv,200);
         fadeOut(radiolistbuttonDiv ,200);
         fadeOut(radiolistblockDiv ,200);
+        fadeOut(videoconferenceButton ,200);
+        fadeOut(reticulumListblockDiv ,200);
+        fadeOut(reticulumListButtonDiv ,200);
+        fadeOut(deliveryStatusDiv ,200);
+        // fadeOut(manualGpsbuttonDiv ,200);
+        */
+        
       }
     }
 }
@@ -1245,7 +1429,8 @@ function onDrag() {
 function onDragEnd() {
     const lngLat = dragMarker.getLngLat();
     var dragLocationPayload = callSign + `|dragMarker|${lngLat.lng},${lngLat.lat}|released` + '\n';
-    // NOTE: On meshtastic branch, we disable drag delivery over messaging channel
+    // NOTE: On meshtastic  & reticulum branch, we disable drag delivery over messaging channel
+    // console.log("Drag: ", dragLocationPayload);
     // msgSocket.send( dragLocationPayload );
 }
 
@@ -1306,3 +1491,304 @@ function check_lat_lon(lat, lon) {
   let validLon = regexLon.test(lon);
   return (validLat && validLon);
 }
+
+
+
+
+// 
+// Loads possibly persisted call sign at:
+// /opt/edgemap-persist/callsign.txt
+//
+function loadCallSign() {
+    fetch('load_callsign.php')
+    .then(response => response.json())
+    .then(data => {
+        callSign = data.data;
+        document.getElementById('myCallSign').value = data.data;
+        document.getElementById('callSignDisplay').innerHTML = data.data;
+        return data.data;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        return;
+    });
+}
+
+// 
+// Work in progress
+//
+// TODO: Erase sensors. Now we need to erase file under /opt/edgemap-persist/
+// 
+
+function sensorDefine() {
+    
+    var sensorDescription = document.getElementById('sensorNameInput').value;
+    var sensorLocation = document.getElementById('sensorLat').innerHTML + "," + document.getElementById('sensorLon').innerHTML;
+    console.log("sensorDefine() ",sensorToBeCreated, sensorDescription,sensorLocation);
+    
+    fetch('save_sensor.php?id='+sensorToBeCreated, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ data: [sensorDescription,',',sensorLocation] })
+    })
+    .then(response => response.text())
+    .then(data => {
+        console.log('Sensor created');
+    })
+    .catch(error => {
+        console.error('Sensor create error:', error);
+    });
+    keyEventListener=1;
+    unknownSensorCreateInProgress=0;
+    sensorClose();
+    
+}
+function sensorClose() {
+    const elementOpacity=0.8;
+    fadeOutFrom09(document.getElementById("sensorNotify"),400,elementOpacity);
+    document.getElementById('sensorLat').innerHTML = "";
+    document.getElementById('sensorLon').innerHTML = "";
+    document.getElementById('sensorLatLonComma').innerHTML = "";
+    document.getElementById("sensor-create-input").style.display = "none";
+    document.getElementById("sensorNameInput").value = ""; 
+}
+
+function sensorNotifyMessage(message, timeout) {
+    const elementOpacity=0.8;
+    fadeInTo09(document.getElementById("sensorNotify") ,400,elementOpacity);
+    document.getElementById("sensor-define-button").style.display = "none";
+    document.getElementById("sensor-create-input").style.display = "none";
+    document.getElementById("sensorMessage").innerHTML = message;
+    if( timeout > 0 ) {
+        setTimeout(() => {
+            fadeOutFrom09(document.getElementById("sensorNotify"),400,elementOpacity);
+        }, timeout);
+    }
+}
+
+function unknownSensorNotifyMessage(message,id,timeout) {
+    const elementOpacity=0.8;
+    fadeInTo09(document.getElementById("sensorNotify") ,400,elementOpacity);
+    document.getElementById("sensorMessage").innerHTML = message;
+    document.getElementById("sensor-define-button").style.display = "block";
+    document.getElementById('sensorLat').innerHTML = "";
+    document.getElementById('sensorLon').innerHTML = "";
+    document.getElementById('sensorLatLonComma').innerHTML = "";
+    document.getElementById('sensor-create-input-placeholder').style.display = "block";
+    document.getElementById('sensor-create-input-placeholder').innerHTML = "Click on map to create new";
+    document.getElementById("sensor-create-input").style.display = "none"; 
+    // Pass sensor ID with global variable
+    sensorToBeCreated = id;
+    keyEventListener=0;
+    unknownSensorCreateInProgress=1;
+    
+    if (timeout > 0 ) {
+        setTimeout(() => {
+                fadeOut(document.getElementById("sensorNotify") ,400);
+        }, timeout);
+    }
+}
+
+// event:   0 = alarm, 1 = periodic notify
+function loadSensor(id, event, state) {
+    
+    // Alarm
+    if (event == 0) {
+        fetch('load_sensor.php?id=' + id )
+        .then(response => response.json())
+        .then(data => {
+            if ( data.data == "no-sensor" ) {
+                unknownSensorNotifyMessage( "Unknown sensor alarm: "+id,id, 0);
+            } else {
+                const sensorDataArray = data.data.split(",");
+                addSensorIcon(sensorDataArray[2],sensorDataArray[1],sensorDataArray[0]);
+                sensorNotifyMessage( "Sensor alarm: " +  sensorDataArray[0] + "<br>" + sensorDataArray[1] + "," + sensorDataArray[2], 0);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            return 0;
+        });
+    }
+    
+    // Periodic
+    if (event == 1) {
+        fetch('load_sensor.php?id=' + id )
+        .then(response => response.json())
+        .then(data => {
+            if ( data.data == "no-sensor" ) {
+                sensorNotifyMessage( "Periodic notify: unknown sensor: ", 5000);
+            } else {
+                const sensorDataArray = data.data.split(",");
+                sensorNotifyMessage( "Periodic notify from: " + sensorDataArray[0] + "<br>" + sensorDataArray[1] + "," + sensorDataArray[2], 5000);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            return 0;
+        });
+    }
+}
+
+// Work in progress: This supports only one sensor at the moment.
+async function addSensorIcon(lon,lat,sensorText) {
+    
+    if ( ! map.getLayer('sensorIconLayer') ) {
+        image = await map.loadImage('img/sensor-icon.png');
+        map.addImage('sensor-icon', image.data);
+        map.addSource('sensorPoint', {
+            'type': 'geojson',
+            'data': {
+                'type': 'FeatureCollection',
+                'features': [
+                    {
+                        'type': 'Feature',
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': [lon, lat]
+                        }
+                    }
+                ]
+            }
+        });
+        
+        map.addLayer({
+            'id': 'sensorIconLayer',
+            'type': 'symbol',
+            'source': 'sensorPoint',
+            'layout': {
+                'icon-image': 'sensor-icon',
+                'icon-size': 0.35,
+                'text-font': ['Open Sans Regular'],
+                'text-size': 12,
+                'text-anchor': 'top',
+                'text-offset': [0,1],
+                'text-transform': "uppercase",
+                'text-letter-spacing': 0.10,
+                'text-field': sensorText
+            },
+            "paint": {
+                "text-color": "#F02",
+                "text-halo-color": "#fFF",
+                "text-halo-width": 2
+            },
+        });
+        map.flyTo({
+            center: [lon,lat],
+            zoom: 17,
+            speed: 0.6,
+            curve: 1,
+            essential: true
+        });
+    } else {
+        // Sensor is created, let's update just detection counter if multiple alarms arrives
+        var sensorTextField = map.getLayoutProperty('sensorIconLayer', 'text-field');
+        const sensorTextArray = sensorTextField.split("x");
+        if ( sensorTextArray[1] ) {
+            var count=sensorTextArray[1];
+            count++;
+            var setSensorTextField = sensorText + ' x ' + count;
+            map.setLayoutProperty('sensorIconLayer', 'text-field', setSensorTextField);
+        } else {
+            var count=2;
+            var setSensorTextField = sensorText + ' x ' + count;
+            map.setLayoutProperty('sensorIconLayer', 'text-field', setSensorTextField);
+        }
+    }
+}
+
+function removeSensorIcon() {
+    if (map.getImage("sensor-icon")) {
+        map.removeImage('sensor-icon');
+    }
+    if (map.getLayer("sensorIconLayer")) {
+        map.removeLayer('sensorIconLayer');
+    }
+    if (map.getSource("sensorPoint")) {
+        map.removeSource('sensorPoint');
+    }
+}
+
+// manual location manualLocationNotify
+function setManualLocationNotifyMessage() {
+    message="Set your location manually";
+    const elementOpacity=0.8;
+    fadeInTo09(document.getElementById("manualLocationNotify") ,400,elementOpacity);
+    document.getElementById("manualLocation-Message").innerHTML = message;
+    document.getElementById("manualLocation-define-button").style.display = "block";
+    document.getElementById('manualLocation-Lat').innerHTML = "";
+    document.getElementById('manualLocation-Lon').innerHTML = "";
+    document.getElementById('manualLocation-LatLonComma').innerHTML = "";
+    document.getElementById('manualLocation-create-input-placeholder').style.display = "block";
+    document.getElementById('manualLocation-create-input-placeholder').innerHTML = "Click on map to pick location";
+    document.getElementById("manualLocation-create-input").style.display = "none"; 
+    keyEventListener=0;
+    manualLocationCreateInProgress=1;
+}
+
+function manualLocationSet() {
+    var manualLocationValue = document.getElementById('manualLocation-Lat').innerHTML + "," + document.getElementById('manualLocation-Lon').innerHTML;
+    fetch('save_manual_location.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ data: [manualLocationValue] })
+    })
+    .then(response => response.text())
+    .then(data => {
+        console.log('Position saved!');
+    })
+    .catch(error => {
+        console.error('Position save error:', error);
+    });
+    keyEventListener=1;
+    unknownSensorCreateInProgress=0;
+    manualLocationClose();
+}
+
+function manualLocationErase() {
+    
+    fetch('erase_manual_location.php', {
+        method: 'GET'
+    })
+    .then(response => response.text())
+    .then(data => {
+        console.log('Manual location erased');
+    })
+    .catch(error => {
+        console.error('Manual location erase error:', error);
+    });
+    keyEventListener=1;
+    unknownSensorCreateInProgress=0;
+    manualLocationClose();
+}
+
+function manualLocationClose() {
+    const elementOpacity=0.8;
+    fadeOutFrom09(document.getElementById("manualLocationNotify"),400,elementOpacity);
+    document.getElementById('manualLocation-Lat').innerHTML = "";
+    document.getElementById('manualLocation-Lon').innerHTML = "";
+    document.getElementById('manualLocation-LatLonComma').innerHTML = "";
+    document.getElementById("manualLocation-create-input-placeholder").style.display = "none";
+}
+
+
+function clickSendImageForm() {
+    console.log("clickSendImageForm()");
+    console.log("We need to re-design image upload, because usage model has changed a lot.");
+    // document.getElementById("fileToUpload").click();
+}
+
+function submitCoordinateSearch() {
+    let inputValue = document.getElementById('coordinateInput').value;
+    const coordValue = inputValue.split(",");
+    console.log("AddDot: ",coordValue[1],coordValue[0]);
+    addDot(coordValue[1],coordValue[0]);
+    closeCoordinateSearchEntryBox();
+    document.getElementById('coordinateInput').value="";   
+}
+
+

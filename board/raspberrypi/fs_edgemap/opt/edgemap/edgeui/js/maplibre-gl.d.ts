@@ -1583,7 +1583,7 @@ declare class Framebuffer {
 	destroy(): void;
 }
 declare class HeatmapStyleLayer extends StyleLayer {
-	heatmapFbo: Framebuffer;
+	heatmapFbos: Map<string, Framebuffer>;
 	colorRamp: RGBAImage;
 	colorRampTexture: Texture;
 	_transitionablePaint: Transitionable<HeatmapPaintProps>;
@@ -1903,6 +1903,18 @@ export declare class LngLatBounds {
 	 * ```
 	 */
 	static fromLngLat(center: LngLat, radius?: number): LngLatBounds;
+	/**
+	 * Adjusts the given bounds to handle the case where the bounds cross the 180th meridian (antimeridian).
+	 *
+	 * @returns The adjusted LngLatBounds
+	 * @example
+	 * ```ts
+	 * let bounds = new LngLatBounds([175.813127, -20.157768], [-178. 340903, -15.449124]);
+	 * let adjustedBounds = bounds.adjustAntiMeridian();
+	 * // adjustedBounds will be: [[175.813127, -20.157768], [181.659097, -15.449124]]
+	 * ```
+	 */
+	adjustAntiMeridian(): LngLatBounds;
 }
 /**
  * An `EdgeInset` object represents screen space padding applied to the edges of the viewport.
@@ -2505,7 +2517,7 @@ declare class SourceCache extends Evented {
 	_updated: boolean;
 	static maxUnderzooming: number;
 	static maxOverzooming: number;
-	constructor(id: string, options: SourceSpecification, dispatcher: Dispatcher);
+	constructor(id: string, options: SourceSpecification | CanvasSourceSpecification, dispatcher: Dispatcher);
 	onAdd(map: Map$1): void;
 	onRemove(map: Map$1): void;
 	/**
@@ -5387,11 +5399,11 @@ declare class CollisionIndex {
 	queryRenderedSymbols(viewportQueryGeometry: Array<Point>): {};
 	insertCollisionBox(collisionBox: Array<number>, overlapMode: OverlapMode, ignorePlacement: boolean, bucketInstanceId: number, featureIndex: number, collisionGroupID: number): void;
 	insertCollisionCircles(collisionCircles: Array<number>, overlapMode: OverlapMode, ignorePlacement: boolean, bucketInstanceId: number, featureIndex: number, collisionGroupID: number): void;
-	projectAndGetPerspectiveRatio(posMatrix: mat4, x: number, y: number, unwrappedTileID: UnwrappedTileID, getElevation?: (x: number, y: number) => number): {
+	projectAndGetPerspectiveRatio(posMatrix: mat4, x: number, y: number, _unwrappedTileID: UnwrappedTileID, getElevation?: (x: number, y: number) => number): {
 		point: Point;
 		perspectiveRatio: number;
 		isOccluded: boolean;
-		signedDistanceFromCamera: number;
+		signedDistanceFromCamera: any;
 	};
 	getPerspectiveRatio(posMatrix: mat4, x: number, y: number, unwrappedTileID: UnwrappedTileID, getElevation?: (x: number, y: number) => number): number;
 	isOffscreen(x1: number, y1: number, x2: number, y2: number): boolean;
@@ -5829,8 +5841,8 @@ export type StyleOptions = {
 	validate?: boolean;
 	/**
 	 * Defines a CSS
-	 * font-family for locally overriding generation of glyphs in the 'CJK Unified Ideographs', 'Hiragana', 'Katakana' and 'Hangul Syllables' ranges.
-	 * In these ranges, font settings from the map's style will be ignored, except for font-weight keywords (light/regular/medium/bold).
+	 * font-family for locally overriding generation of Chinese, Japanese, and Korean characters.
+	 * For these characters, font settings from the map's style will be ignored, except for font-weight keywords (light/regular/medium/bold).
 	 * Set to `false`, to enable font settings from the map's style for these glyph ranges.
 	 * Forces a full update.
 	 */
@@ -5846,11 +5858,13 @@ export type StyleSetterOptions = {
 	validate?: boolean;
 };
 /**
- * Part of {@link Map#setStyle} options, transformStyle is a convenience function that allows to modify a style after it is fetched but before it is committed to the map state
- * this function exposes previous and next styles, it can be commonly used to support a range of functionalities like:
- *      when previous style carries certain 'state' that needs to be carried over to a new style gracefully
- *      when a desired style is a certain combination of previous and incoming style
- *      when an incoming style requires modification based on external state
+ * Part of {@link Map#setStyle} options, transformStyle is a convenience function that allows to modify a style after it is fetched but before it is committed to the map state.
+ *
+ * This function exposes previous and next styles, it can be commonly used to support a range of functionalities like:
+ *
+ * - when previous style carries certain 'state' that needs to be carried over to a new style gracefully;
+ * - when a desired style is a certain combination of previous and incoming style;
+ * - when an incoming style requires modification based on external state.
  *
  * @param previous - The current style.
  * @param next - The next style.
@@ -5978,6 +5992,7 @@ export declare class Style extends Evented {
 	 * @hidden
 	 * take an array of string IDs, and based on this._layers, generate an array of LayerSpecification
 	 * @param ids - an array of string IDs, for which serialized layers will be generated. If omitted, all serialized layers will be returned
+	 * @param returnClose - if true, return a clone of the layer object
 	 * @returns generated result
 	 */
 	private _serializeByIds;
@@ -6018,7 +6033,7 @@ export declare class Style extends Evented {
 	removeImage(id: string): this;
 	_afterImageUpdated(id: string): void;
 	listImages(): string[];
-	addSource(id: string, source: SourceSpecification, options?: StyleSetterOptions): void;
+	addSource(id: string, source: SourceSpecification | CanvasSourceSpecification, options?: StyleSetterOptions): void;
 	/**
 	 * Remove a source from this stylesheet, given its id.
 	 * @param id - id of the source to remove
@@ -6128,8 +6143,8 @@ export declare class Style extends Evented {
 	_generateCollisionBoxes(): void;
 	_updatePlacement(transform: Transform, showCollisionBoxes: boolean, fadeDuration: number, crossSourceCollisions: boolean, forceFullPlacement?: boolean): boolean;
 	_releaseSymbolFadeTiles(): void;
-	getImages(mapId: string | number, params: GetImagesParamerters): Promise<GetImagesResponse>;
-	getGlyphs(mapId: string | number, params: GetGlyphsParamerters): Promise<GetGlyphsResponse>;
+	getImages(mapId: string | number, params: GetImagesParameters): Promise<GetImagesResponse>;
+	getGlyphs(mapId: string | number, params: GetGlyphsParameters): Promise<GetGlyphsResponse>;
 	getGlyphsUrl(): string;
 	setGlyphs(glyphsUrl: string | null, options?: StyleSetterOptions): void;
 	/**
@@ -6432,7 +6447,7 @@ export type UpdateLayersParamaeters = {
 /**
  * Parameters needed to get the images
  */
-export type GetImagesParamerters = {
+export type GetImagesParameters = {
 	icons: Array<string>;
 	source: string;
 	tileID: OverscaledTileID;
@@ -6441,7 +6456,7 @@ export type GetImagesParamerters = {
 /**
  * Parameters needed to get the glyphs
  */
-export type GetGlyphsParamerters = {
+export type GetGlyphsParameters = {
 	type: string;
 	stacks: {
 		[_: string]: Array<number>;
@@ -6528,11 +6543,11 @@ export type RequestResponseMessageMap = {
 		WorkerTileResult
 	];
 	[MessageType.getGlyphs]: [
-		GetGlyphsParamerters,
+		GetGlyphsParameters,
 		GetGlyphsResponse
 	];
 	[MessageType.getImages]: [
-		GetImagesParamerters,
+		GetImagesParameters,
 		GetImagesResponse
 	];
 	[MessageType.setImages]: [
@@ -6792,7 +6807,7 @@ declare class TouchPanHandler implements Handler {
 		clickTolerance: number;
 	}, map: Map$1);
 	reset(): void;
-	minTouchs(): 1 | 2;
+	_shouldBePrevented(touchesCount: number): boolean;
 	touchstart(e: TouchEvent, points: Array<Point>, mapTouches: Array<Touch>): {
 		around: Point;
 		panDelta: Point;
@@ -7563,6 +7578,7 @@ declare abstract class Camera extends Evented {
 	 * @param bounds - Calculate the center for these bounds in the viewport and use
 	 * the highest zoom level up to and including `Map#getMaxZoom()` that fits
 	 * in the viewport. LngLatBounds represent a box that is always axis-aligned with bearing 0.
+	 * Bounds will be taken in [sw, ne] order. Southwest point will always be to the left of the northeast point.
 	 * @param options - Options object
 	 * @returns If map is able to fit to provided bounds, returns `center`, `zoom`, and `bearing`.
 	 * If map is unable to fit, method will warn and return undefined.
@@ -7605,6 +7621,7 @@ declare abstract class Camera extends Evented {
 	 *
 	 * @param bounds - Center these bounds in the viewport and use the highest
 	 * zoom level up to and including `Map#getMaxZoom()` that fits them in the viewport.
+	 * Bounds will be taken in [sw, ne] order. Southwest point will always be to the left of the northeast point.
 	 * @param options - Options supports all properties from {@link AnimationOptions} and {@link CameraOptions} in addition to the fields below.
 	 * @param eventData - Additional properties to be added to event objects of events triggered by this method.
 	 * @example
@@ -7705,7 +7722,8 @@ declare abstract class Camera extends Evented {
 	/**
 	 * @internal
 	 * Called when the camera is about to be manipulated.
-	 * If `transformCameraUpdate` is specified, a copy of the current transform is created to track the accumulated changes.
+	 * If `transformCameraUpdate` is specified or terrain is enabled, a copy of
+	 * the current transform is created to track the accumulated changes.
 	 * This underlying transform represents the "desired state" proposed by input handlers / animations / UI controls.
 	 * It may differ from the state used for rendering (`this.transform`).
 	 * @returns Transform to apply changes to
@@ -7713,8 +7731,24 @@ declare abstract class Camera extends Evented {
 	_getTransformForUpdate(): Transform;
 	/**
 	 * @internal
+	 * Checks the given transform for the camera being below terrain surface and
+	 * returns new pitch and zoom to fix that.
+	 *
+	 * With the new pitch and zoom, the camera will be at the same ground
+	 * position but at higher altitude. It will still point to the same spot on
+	 * the map.
+	 *
+	 * @param tr - The transform to check.
+	 */
+	_elevateCameraIfInsideTerrain(tr: Transform): {
+		pitch?: number;
+		zoom?: number;
+	};
+	/**
+	 * @internal
 	 * Called after the camera is done being manipulated.
 	 * @param tr - the requested camera end state
+	 * If the camera is inside terrain, it gets elevated.
 	 * Call `transformCameraUpdate` if present, and then apply the "approved" changes.
 	 */
 	_applyUpdatedTransform(tr: Transform): void;
@@ -7769,7 +7803,7 @@ declare abstract class Camera extends Evented {
 	}): void;
 	_renderFrameCallback: () => void;
 	_normalizeBearing(bearing: number, currentBearing: number): number;
-	_normalizeCenter(center: LngLat): void;
+	_normalizeCenter(center: LngLat, tr: Transform): void;
 	/**
 	 * Get the elevation difference between a given point
 	 * and a point that is currently in the middle of the screen.
@@ -8247,6 +8281,13 @@ export type MapEventType = {
 	 * Fired when terrain is changed
 	 */
 	terrain: MapTerrainEvent;
+	/**
+	 * Fired whenever the cooperativeGestures option prevents a gesture from being handled by the map.
+	 * This is useful for showing your own UI when this happens.
+	 */
+	cooperativegestureprevented: MapLibreEvent<WheelEvent | TouchEvent> & {
+		gestureType: "wheel_zoom" | "touch_pan";
+	};
 };
 /**
  * The base event for MapLibre
@@ -8821,6 +8862,10 @@ export declare class ScrollZoomHandler implements Handler {
 	 * ```
 	 */
 	disable(): void;
+	/**
+	 * Determines whether or not the gesture is blocked due to cooperativeGestures.
+	 */
+	_shouldBePrevented(e: WheelEvent): boolean;
 	wheel(e: WheelEvent): void;
 	_onTimeout: (initialEvent: MouseEvent) => void;
 	_start(e: MouseEvent): void;
@@ -8954,6 +8999,8 @@ export type GestureOptions = boolean;
 /**
  * A `CooperativeGestureHandler` is a control that adds cooperative gesture info when user tries to zoom in/out.
  *
+ * When the CooperativeGestureHandler blocks a gesture, it will emit a `cooperativegestureprevented` event.
+ *
  * @group Handlers
  *
  * @example
@@ -8977,14 +9024,12 @@ export declare class CooperativeGesturesHandler implements Handler {
 	isActive(): boolean;
 	reset(): void;
 	_setupUI(): void;
-	_destoryUI(): void;
+	_destroyUI(): void;
 	enable(): void;
 	disable(): void;
 	isEnabled(): boolean;
-	touchmove(e: TouchEvent): void;
-	wheel(e: WheelEvent): void;
-	shouldPreventWheelEvent(e: WheelEvent): boolean;
-	_onCooperativeGesture(showNotification: boolean): void;
+	isBypassed(event: MouseEvent | WheelEvent | PointerEvent): boolean;
+	notifyGestureBlocked(gestureType: "wheel_zoom" | "touch_pan", originalEvent: Event$1): void;
 }
 /**
  * The `KeyboardHandler` allows the user to zoom, rotate, and pan the map using
@@ -9498,8 +9543,8 @@ export type MapOptions = {
 	fitBoundsOptions?: FitBoundsOptions;
 	/**
 	 * Defines a CSS
-	 * font-family for locally overriding generation of glyphs in the 'CJK Unified Ideographs', 'Hiragana', 'Katakana' and 'Hangul Syllables' ranges.
-	 * In these ranges, font settings from the map's style will be ignored, except for font-weight keywords (light/regular/medium/bold).
+	 * font-family for locally overriding generation of Chinese, Japanese, and Korean characters.
+	 * For these characters, font settings from the map's style will be ignored, except for font-weight keywords (light/regular/medium/bold).
 	 * Set to `false`, to enable font settings from the map's style for these glyph ranges.
 	 * The purpose of this option is to avoid bandwidth-intensive glyph server requests. (See [Use locally generated ideographs](https://maplibre.org/maplibre-gl-js/docs/examples/local-ideographs).)
 	 * @defaultValue 'sans-serif'
@@ -9545,6 +9590,14 @@ export type MapOptions = {
 	cancelPendingTileRequestsWhileZooming?: boolean;
 };
 export type CompleteMapOptions = Complete<MapOptions>;
+export type DelegatedListener = {
+	layers: string[];
+	listener: Listener;
+	delegates: {
+		[E in keyof MapEventType]?: Delegate<MapEventType[E]>;
+	};
+};
+export type Delegate<E extends Event$1 = Event$1> = (e: E) => void;
 /**
  * The `Map` object represents the map on your page. It exposes methods
  * and properties that enable you to programmatically change the map,
@@ -9607,7 +9660,7 @@ declare class Map$1 extends Camera {
 	_antialias: boolean;
 	_refreshExpiredTiles: boolean;
 	_hash: Hash;
-	_delegatedListeners: any;
+	_delegatedListeners: Record<string, DelegatedListener[]>;
 	_fadeDuration: number;
 	_crossSourceCollisions: boolean;
 	_crossFadingFactor: number;
@@ -10003,16 +10056,12 @@ declare class Map$1 extends Camera {
 	 * ```
 	 */
 	isRotating(): boolean;
-	_createDelegatedListener(type: keyof MapEventType | string, layerId: string, listener: Listener): {
-		layer: string;
-		listener: Listener;
-		delegates: {
-			[type in keyof MapEventType]?: (e: any) => void;
-		};
-	};
+	_createDelegatedListener(type: keyof MapEventType | string, layerIds: string[], listener: Listener): DelegatedListener;
+	_saveDelegatedListener(type: keyof MapEventType | string, delegatedListener: DelegatedListener): void;
+	_removeDelegatedListener(type: string, layerIds: string[], listener: Listener): void;
 	/**
 	 * @event
-	 * Adds a listener for events of a specified type, optionally limited to features in a specified style layer.
+	 * Adds a listener for events of a specified type, optionally limited to features in a specified style layer(s).
 	 * See {@link MapEventType} and {@link MapLayerEventType} for a full list of events and their description.
 	 *
 	 * | Event                  | Compatible with `layerId` |
@@ -10117,6 +10166,14 @@ declare class Map$1 extends Camera {
 	 */
 	on<T extends keyof MapLayerEventType>(type: T, layer: string, listener: (ev: MapLayerEventType[T] & Object) => void): Map$1;
 	/**
+	 * Overload of the `on` method that allows to listen to events specifying multiple layers.
+	 * @event
+	 * @param type - The type of the event.
+	 * @param layerIds - The array of style layer IDs.
+	 * @param listener - The listener callback.
+	 */
+	on<T extends keyof MapLayerEventType>(type: T, layerIds: string[], listener: (ev: MapLayerEventType[T] & Object) => void): this;
+	/**
 	 * Overload of the `on` method that allows to listen to events without specifying a layer.
 	 * @event
 	 * @param type - The type of the event.
@@ -10148,6 +10205,14 @@ declare class Map$1 extends Camera {
 	 */
 	once<T extends keyof MapLayerEventType>(type: T, layer: string, listener?: (ev: MapLayerEventType[T] & Object) => void): this | Promise<MapLayerEventType[T] & Object>;
 	/**
+	 * Overload of the `once` method that allows to listen to events specifying multiple layers.
+	 * @event
+	 * @param type - The type of the event.
+	 * @param layerIds - The array of style layer IDs.
+	 * @param listener - The listener callback.
+	 */
+	once<T extends keyof MapLayerEventType>(type: T, layerIds: string[], listener?: (ev: MapLayerEventType[T] & Object) => void): this | Promise<any>;
+	/**
 	 * Overload of the `once` method that allows to listen to events without specifying a layer.
 	 * @event
 	 * @param type - The type of the event.
@@ -10171,14 +10236,23 @@ declare class Map$1 extends Camera {
 	 */
 	off<T extends keyof MapLayerEventType>(type: T, layer: string, listener: (ev: MapLayerEventType[T] & Object) => void): this;
 	/**
-	 * Overload of the `off` method that allows to listen to events without specifying a layer.
+	 * Overload of the `off` method that allows to remove an event created with multiple layers.
+	 * Provide the same layer IDs as to `on` or `once`, when the listener was registered.
+	 * @event
+	 * @param type - The type of the event.
+	 * @param layers - The layer IDs previously used to install the listener.
+	 * @param listener - The function previously installed as a listener.
+	 */
+	off<T extends keyof MapLayerEventType>(type: T, layers: string[], listener: (ev: MapLayerEventType[T] & Object) => void): this;
+	/**
+	 * Overload of the `off` method that allows to remove an event created without specifying a layer.
 	 * @event
 	 * @param type - The type of the event.
 	 * @param listener - The function previously installed as a listener.
 	 */
 	off<T extends keyof MapEventType>(type: T, listener: (ev: MapEventType[T] & Object) => void): this;
 	/**
-	 * Overload of the `off` method that allows to listen to events without specifying a layer.
+	 * Overload of the `off` method that allows to remove an event created without specifying a layer.
 	 * @event
 	 * @param type - The type of the event.
 	 * @param listener - The function previously installed as a listener.
@@ -10423,7 +10497,7 @@ declare class Map$1 extends Camera {
 	 * ```
 	 * @see GeoJSON source: [Add live realtime data](https://maplibre.org/maplibre-gl-js/docs/examples/live-geojson/)
 	 */
-	addSource(id: string, source: SourceSpecification): this;
+	addSource(id: string, source: SourceSpecification | CanvasSourceSpecification): this;
 	/**
 	 * Returns a Boolean indicating whether the source is loaded. Returns `true` if the source with
 	 * the given ID in the map's style has no outstanding network requests, otherwise `false`.
@@ -10502,7 +10576,7 @@ declare class Map$1 extends Camera {
 	 * @see [Animate a point](https://maplibre.org/maplibre-gl-js/docs/examples/animate-point-along-line/)
 	 * @see [Add live realtime data](https://maplibre.org/maplibre-gl-js/docs/examples/live-geojson/)
 	 */
-	getSource(id: string): Source | undefined;
+	getSource<TSource extends Source>(id: string): TSource | undefined;
 	/**
 	 * Add an image to the style. This image can be displayed on the map like any other icon in the style's
 	 * sprite using the image's ID with
@@ -10965,7 +11039,7 @@ declare class Map$1 extends Camera {
 	/**
 	 * Loads sky and fog defined by {@link SkySpecification} onto the map.
 	 * Note: The fog only shows when using the terrain 3D feature.
-	 * @param sky - Sky properties to set. Must conform to the [MapLibre Style Specification](https://maplibre.org/maplibre-gl-js-docs/style-spec/#sky).
+	 * @param sky - Sky properties to set. Must conform to the [MapLibre Style Specification](https://maplibre.org/maplibre-style-spec/sky/).
 	 * @returns `this`
 	 * @example
 	 * ```ts
@@ -10976,7 +11050,11 @@ declare class Map$1 extends Camera {
 	/**
 	 * Returns the value of the sky object.
 	 *
-	 * @returns sky Sky properties of the style.
+	 * @returns the sky properties of the style.
+	 * @example
+	 * ```ts
+	 * map.getSky();
+	 * ```
 	 */
 	getSky(): SkySpecification;
 	/**

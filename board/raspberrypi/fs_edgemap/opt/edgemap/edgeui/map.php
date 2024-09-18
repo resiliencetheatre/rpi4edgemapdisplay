@@ -9,8 +9,13 @@
     <script src="protomaps-js/pmtiles.js"></script>
     <script src="js/milsymbol.js"></script>
     <script src="js/feather.js"></script>
-    <script src="js/edgemapv3.js"></script>
-    <link href="css/edgemapv3.css" rel="stylesheet" />
+    <script src="js/edgemap.js"></script>
+    <link rel="stylesheet" href="radial-menu-js-2/css/main.css">
+    <link rel="stylesheet" href="radial-menu-js-2/css/RadialMenu.css">
+    <link rel="stylesheet" href="radial-menu-js-2/css/RadialMenuCustom.css">
+    <script src="radial-menu-js-2/js/RadialMenu.js"></script>
+    <script src="radial-menu-js-2/js/main.js"></script>
+    <link href="css/edgemap.css" rel="stylesheet" />
     
     <link rel="apple-touch-icon" sizes="57x57" href="app-icon/apple-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="app-icon/apple-icon-60x60.png">
@@ -38,6 +43,50 @@
 </head>
 
 <body  style="background-color:#000000" >   
+    
+    <svg id="svg-icon-my-location" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="#0F0" d="M11 22.95v-2q-3.125-.35-5.363-2.587T3.05 13h-2v-2h2q.35-3.125 2.588-5.363T11 3.05v-2h2v2q3.125.35 5.363 2.588T20.95 11h2v2h-2q-.35 3.125-2.587 5.363T13 20.95v2zM12 19q2.9 0 4.95-2.05T19 12t-2.05-4.95T12 5T7.05 7.05T5 12t2.05 4.95T12 19m0-3q-1.65 0-2.825-1.175T8 12t1.175-2.825T12 8t2.825 1.175T16 12t-1.175 2.825T12 16m0-2q.825 0 1.413-.587T14 12t-.587-1.412T12 10t-1.412.588T10 12t.588 1.413T12 14m0-2"/></svg>
+    <svg id="svg-icon-camera" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="#0F0" d="M20.6 6.325q0-1.65-1.137-2.787T16.675 2.4q-.275 0-.475-.212T16 1.7t.2-.475t.475-.2q2.2 0 3.75 1.55t1.55 3.75q0 .275-.2.475T21.3 7t-.488-.2t-.212-.475m-2.7.025q0-.525-.362-.887T16.65 5.1q-.275 0-.462-.212T16 4.4t.2-.475t.475-.2q1.075 0 1.838.763t.762 1.837q0 .275-.2.475T18.6 7t-.488-.187t-.212-.463M4 21q-.825 0-1.412-.587T2 19V7q0-.825.588-1.412T4 5h3.15L8.4 3.65q.275-.3.663-.475T9.875 3H14q.425 0 .713.288T15 4t-.288.713T14 5H9.875L8.05 7H4v12h16V9q0-.425.288-.712T21 8t.713.288T22 9v10q0 .825-.587 1.413T20 21zm8-3.5q1.875 0 3.188-1.312T16.5 13t-1.312-3.187T12 8.5T8.813 9.813T7.5 13t1.313 3.188T12 17.5m0-2q-1.05 0-1.775-.725T9.5 13t.725-1.775T12 10.5t1.775.725T14.5 13t-.725 1.775T12 15.5"/></svg>
+    <svg id="svg-icon-meshtastic" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 48 48"><path fill="none" stroke="#0F0" stroke-width=".4em" stroke-linecap="round" stroke-linejoin="round" d="m5.5 32.667l13-17.334m26 17.334l-13-17.334l-13 17.334"/></svg>
+    <svg id="svg-icon-reticulum" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512"><path fill="#0F0" d="M363.6 36.48c-22.2 0-40 17.8-40 40c0 22.23 17.8 40.02 40 40.02s40-17.79 40-40.02c0-22.2-17.8-40-40-40m-56.7 51.97c-53.2 18.95-108.7 34.95-169 45.25c1.8 4.6 2.8 9.6 2.8 14.8c0 4.8-.8 9.4-2.4 13.6c96.2 12.9 182.8 36 257.8 71.9c1.6-5.9 4.5-11.3 8.3-15.9c-71.2-34.3-152.4-57.2-241.5-70.7c53.2-10.6 102.8-25.4 150.4-42.2c-3-5.2-5.2-10.79-6.4-16.75m97.8 28.85c-4.3 4.3-9.2 8-14.6 10.8c15.3 24.8 26 50.6 31.8 77.8c4.3-1.5 9-2.4 13.8-2.4c1.4 0 2.8.1 4.1.2c-6.3-30.3-18.2-59.1-35.1-86.4m-305 8.2c-12.81 0-23 10.2-23 23s10.19 23 23 23c12.8 0 23-10.2 23-23s-10.2-23-23-23m34.7 44.6c-3.2 5.2-7.5 9.6-12.6 12.9c32.1 32.6 66.1 65.9 120.6 80.4c0-.9-.1-1.9-.1-2.8c0-5.3 1.3-10.3 3.5-14.8c-49.5-13.5-80-43.8-111.4-75.7m-57 12.7c-21.76 67.8-27.12 137.2-32.29 206c2.13-.5 4.34-.7 6.6-.7c3.99 0 7.81.7 11.35 2.1c5.19-68.4 10.57-136 31.29-201.1c-6.18-.8-11.94-3-16.95-6.3m358.3 38.7c-12.8 0-23 10.2-23 23s10.2 23 23 23s23-10.2 23-23s-10.2-23-23-23m-41 22.2c-28.4 5.8-56.6 10.8-86 10.5c.4 2.1.6 4.2.6 6.4c0 4-.7 7.9-2.1 11.5c32 .6 62-4.7 91.2-10.8c-2.4-5.1-3.7-10.8-3.7-16.8zm-118.9 1.4c-8.7 0-15.5 6.8-15.5 15.5s6.8 15.5 15.5 15.5s15.5-6.8 15.5-15.5s-6.8-15.5-15.5-15.5M399 262.7c-55.6 45.9-106.6 94.4-143.1 150.7c5.9 1.8 11.2 5 15.6 9.1c34.9-53.5 84.2-100.8 138.8-145.9c-4.7-3.7-8.6-8.5-11.3-13.9m-152 15c-47.9 46.4-109.6 83.2-172.85 119.5c4.36 4.2 7.56 9.6 9.05 15.6C146.8 376.4 210 338.9 260 290.1c-5.4-2.9-9.9-7.2-13-12.4m179.4 6.7c1.3 28.8 6 57.3 14.3 85.2c4.8-3.4 10.7-5.6 17-6c-7.6-26-11.9-52.3-13.2-79.1c-2.9.7-5.8 1-8.8 1c-3.2 0-6.3-.4-9.3-1.1m33.3 97.1c-8.4 0-15 6.6-15 15s6.6 15 15 15s15-6.6 15-15s-6.6-15-15-15M51.71 406.1c-8.07 0-14.42 6.4-14.42 14.4c0 8.1 6.35 14.5 14.42 14.5s14.42-6.4 14.42-14.5c0-8-6.35-14.4-14.42-14.4m376.49.3c-44.7 24.5-93.8 32.6-144.9 35.6c.9 3.4 1.4 6.9 1.4 10.5c0 2.6-.3 5.1-.7 7.5c53.1-3.1 105.8-11.6 154.3-38.5c-4.7-4-8.2-9.2-10.1-15.1M83.91 416.8c.14 1.2.22 2.4.22 3.7c0 5-1.15 9.7-3.19 14l121.86 20.3c-.1-.8-.1-1.5-.1-2.3c0-5.4 1.1-10.6 3-15.4zm159.79 12.7c-12.8 0-23 10.2-23 23s10.2 23 23 23s23-10.2 23-23s-10.2-23-23-23"/></svg>
+    <svg id="svg-icon-message" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="#0F0" d="M8 11q.425 0 .713-.288T9 10t-.288-.712T8 9t-.712.288T7 10t.288.713T8 11m4 0q.425 0 .713-.288T13 10t-.288-.712T12 9t-.712.288T11 10t.288.713T12 11m4 0q.425 0 .713-.288T17 10t-.288-.712T16 9t-.712.288T15 10t.288.713T16 11M2 22V4q0-.825.588-1.412T4 2h16q.825 0 1.413.588T22 4v12q0 .825-.587 1.413T20 18H6zm3.15-6H20V4H4v13.125zM4 16V4z"/></svg>
+    <svg id="svg-icon-terrain" xmlns="http://www.w3.org/2000/svg" width="1" height="1" viewBox="0 0 24 24"><path fill="#0F0" d="m14 6l-4.22 5.63l1.25 1.67L14 9.33L19 16h-8.46l-4.01-5.37L1 18h22zM5 16l1.52-2.03L8.04 16z"/></svg>
+    <svg id="svg-icon-more" xmlns="http://www.w3.org/2000/svg" width="1" height="1" viewBox="0 0 16 16"><path fill="#0F0" d="M3 8a5 5 0 1 1 10 0A5 5 0 0 1 3 8m5-6a6 6 0 1 0 0 12A6 6 0 0 0 8 2m0 7a1 1 0 1 0 0-2a1 1 0 0 0 0 2m4-1a1 1 0 1 1-2 0a1 1 0 0 1 2 0M5 9a1 1 0 1 0 0-2a1 1 0 0 0 0 2"/></svg>
+    <svg id="svg-icon-language" xmlns="http://www.w3.org/2000/svg" width="1" height="1" viewBox="0 0 512 512"><path fill="#0F0" d="m478.33 433.6l-90-218a22 22 0 0 0-40.67 0l-90 218a22 22 0 1 0 40.67 16.79L316.66 406h102.67l18.33 44.39A22 22 0 0 0 458 464a22 22 0 0 0 20.32-30.4ZM334.83 362L368 281.65L401.17 362Zm-66.99-19.08a22 22 0 0 0-4.89-30.7c-.2-.15-15-11.13-36.49-34.73c39.65-53.68 62.11-114.75 71.27-143.49H330a22 22 0 0 0 0-44H214V70a22 22 0 0 0-44 0v20H54a22 22 0 0 0 0 44h197.25c-9.52 26.95-27.05 69.5-53.79 108.36c-31.41-41.68-43.08-68.65-43.17-68.87a22 22 0 0 0-40.58 17c.58 1.38 14.55 34.23 52.86 83.93c.92 1.19 1.83 2.35 2.74 3.51c-39.24 44.35-77.74 71.86-93.85 80.74a22 22 0 1 0 21.07 38.63c2.16-1.18 48.6-26.89 101.63-85.59c22.52 24.08 38 35.44 38.93 36.1a22 22 0 0 0 30.75-4.9Z"/></svg>
+    <svg id="svg-icon-coordinate-search" xmlns="http://www.w3.org/2000/svg" width="1" height="1" viewBox="0 0 24 24"><g fill="none" stroke="#0F0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M21 12a9 9 0 1 0-9 9M3.6 9h16.8M3.6 15h7.9"/><path d="M11.5 3a17 17 0 0 0 0 18m1-18a17 17 0 0 1 2.574 8.62M15 18a3 3 0 1 0 6 0a3 3 0 1 0-6 0m5.2 2.2L22 22"/></g></svg>
+    <svg id="svg-icon-about" xmlns="http://www.w3.org/2000/svg" width="1" height="1" viewBox="0 0 24 24"><path fill="#0F0" d="M11 9h2V7h-2m1 13c-4.41 0-8-3.59-8-8s3.59-8 8-8s8 3.59 8 8s-3.59 8-8 8m0-18A10 10 0 0 0 2 12a10 10 0 0 0 10 10a10 10 0 0 0 10-10A10 10 0 0 0 12 2m-1 15h2v-6h-2z"/></svg>
+    <svg id="svg-icon-language-en" xmlns="http://www.w3.org/2000/svg" width="1" height="1" viewBox="0 0 36 36"><path fill="#00247d" d="M0 9.059V13h5.628zM4.664 31H13v-5.837zM23 25.164V31h8.335zM0 23v3.941L5.63 23zM31.337 5H23v5.837zM36 26.942V23h-5.631zM36 13V9.059L30.371 13zM13 5H4.664L13 10.837z"/><path fill="#cf1b2b" d="m25.14 23l9.712 6.801a4 4 0 0 0 .99-1.749L28.627 23zM13 23h-2.141l-9.711 6.8c.521.53 1.189.909 1.938 1.085L13 23.943zm10-10h2.141l9.711-6.8a4 4 0 0 0-1.937-1.085L23 12.057zm-12.141 0L1.148 6.2a4 4 0 0 0-.991 1.749L7.372 13z"/><path fill="#eee" d="M36 21H21v10h2v-5.836L31.335 31H32a4 4 0 0 0 2.852-1.199L25.14 23h3.487l7.215 5.052c.093-.337.158-.686.158-1.052v-.058L30.369 23H36zM0 21v2h5.63L0 26.941V27c0 1.091.439 2.078 1.148 2.8l9.711-6.8H13v.943l-9.914 6.941c.294.07.598.116.914.116h.664L13 25.163V31h2V21zM36 9a3.98 3.98 0 0 0-1.148-2.8L25.141 13H23v-.943l9.915-6.942A4 4 0 0 0 32 5h-.663L23 10.837V5h-2v10h15v-2h-5.629L36 9.059zM13 5v5.837L4.664 5H4a4 4 0 0 0-2.852 1.2l9.711 6.8H7.372L.157 7.949A4 4 0 0 0 0 9v.059L5.628 13H0v2h15V5z"/><path fill="#cf1b2b" d="M21 15V5h-6v10H0v6h15v10h6V21h15v-6z"/></svg>
+    <svg id="svg-icon-language-zh" xmlns="http://www.w3.org/2000/svg" width="1" height="1" viewBox="0 0 36 36"><path fill="#de2910" d="M36 27a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V9a4 4 0 0 1 4-4h28a4 4 0 0 1 4 4z"/><path fill="#ffde02" d="m11.136 8.977l.736.356l.589-.566l-.111.81l.72.386l-.804.144l-.144.804l-.386-.72l-.81.111l.566-.589zm4.665 2.941l-.356.735l.566.59l-.809-.112l-.386.721l-.144-.805l-.805-.144l.721-.386l-.112-.809l.59.566zm-.957 3.779l.268.772l.817.017l-.651.493l.237.783l-.671-.467l-.671.467l.236-.783l-.651-.493l.817-.017zm-3.708 3.28l.736.356l.589-.566l-.111.81l.72.386l-.804.144l-.144.804l-.386-.72l-.81.111l.566-.589zM7 10.951l.929 2.671l2.826.058l-2.253 1.708l.819 2.706L7 16.479l-2.321 1.615l.819-2.706l-2.253-1.708l2.826-.058z"/></svg>
+    <svg id="svg-icon-language-ukr" xmlns="http://www.w3.org/2000/svg" width="1" height="1" viewBox="0 0 36 36"><path fill="#005bbb" d="M32 5H4a4 4 0 0 0-4 4v9h36V9a4 4 0 0 0-4-4"/><path fill="#ffd500" d="M36 27a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4v-9h36z"/></svg>
+    <svg id="svg-icon-language-ar" xmlns="http://www.w3.org/2000/svg" width="1" height="1" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6v4m3 4h8q-2.518-3-4-3m-4-5v9.958c0 .963 0 1.444-.293 1.743S11.943 18 11 18h-1M7 6v9.958c0 .963 0 1.444-.293 1.743S5.943 18 5 18H4"/></svg>
+    <svg id="svg-icon-language-de" xmlns="http://www.w3.org/2000/svg" width="1" height="1" viewBox="0 0 36 36"><path fill="#ffcd05" d="M0 27a4 4 0 0 0 4 4h28a4 4 0 0 0 4-4v-4H0z"/><path fill="#ed1f24" d="M0 14h36v9H0z"/><path fill="#141414" d="M32 5H4a4 4 0 0 0-4 4v5h36V9a4 4 0 0 0-4-4"/></svg>
+    <svg id="svg-icon-language-es" xmlns="http://www.w3.org/2000/svg" width="1" height="1" viewBox="0 0 36 36"><path fill="#c60a1d" d="M36 27a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V9a4 4 0 0 1 4-4h28a4 4 0 0 1 4 4z"/><path fill="#ffc400" d="M0 12h36v12H0z"/><path fill="#ea596e" d="M9 17v3a3 3 0 1 0 6 0v-3z"/><path fill="#f4a2b2" d="M12 16h3v3h-3z"/><path fill="#dd2e44" d="M9 16h3v3H9z"/><ellipse cx="12" cy="14.5" fill="#ea596e" rx="3" ry="1.5"/><ellipse cx="12" cy="13.75" fill="#ffac33" rx="3" ry=".75"/><path fill="#99aab5" d="M7 16h1v7H7zm9 0h1v7h-1z"/><path fill="#66757f" d="M6 22h3v1H6zm9 0h3v1h-3zm-8-7h1v1H7zm9 0h1v1h-1z"/></svg>
+    <svg id="svg-icon-language-fr" xmlns="http://www.w3.org/2000/svg" width="1" height="1" viewBox="0 0 36 36"><path fill="#ed2939" d="M36 27a4 4 0 0 1-4 4h-8V5h8a4 4 0 0 1 4 4z"/><path fill="#002495" d="M4 5a4 4 0 0 0-4 4v18a4 4 0 0 0 4 4h8V5z"/><path fill="#eee" d="M12 5h12v26H12z"/></svg>
+    <svg id="svg-icon-language-ru"  xmlns="http://www.w3.org/2000/svg" width="1" height="1" viewBox="0 0 36 36"><path fill="#ce2028" d="M36 27a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4v-4h36z"/><path fill="#22408c" d="M0 13h36v10H0z"/><path fill="#eee" d="M32 5H4a4 4 0 0 0-4 4v4h36V9a4 4 0 0 0-4-4"/></svg>
+    <svg id="svg-icon-language-he"  xmlns="http://www.w3.org/2000/svg" width="1" height="1" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M7 6c2.333 5.143 6.611 6.857 9.333 12"/><path d="M13.667 14c2.505-1.5 2.666-4.141 2.666-5.333C16.333 6.889 15.89 6 15.89 6M7.485 18S7 17.095 7 15.286c0-1.172.164-3.722 2.641-5.27"/></g></svg>
+    <svg id="svg-icon-meshtastic-topbar" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 48 48"><path fill="none" stroke="#0F0" stroke-width=".4em" stroke-linecap="round" stroke-linejoin="round" d="m5.5 32.667l13-17.334m26 17.334l-13-17.334l-13 17.334"/></svg>
+    <svg id="svg-icon-reticulum-topbar" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 512 512"><path fill="#0F0" d="M363.6 36.48c-22.2 0-40 17.8-40 40c0 22.23 17.8 40.02 40 40.02s40-17.79 40-40.02c0-22.2-17.8-40-40-40m-56.7 51.97c-53.2 18.95-108.7 34.95-169 45.25c1.8 4.6 2.8 9.6 2.8 14.8c0 4.8-.8 9.4-2.4 13.6c96.2 12.9 182.8 36 257.8 71.9c1.6-5.9 4.5-11.3 8.3-15.9c-71.2-34.3-152.4-57.2-241.5-70.7c53.2-10.6 102.8-25.4 150.4-42.2c-3-5.2-5.2-10.79-6.4-16.75m97.8 28.85c-4.3 4.3-9.2 8-14.6 10.8c15.3 24.8 26 50.6 31.8 77.8c4.3-1.5 9-2.4 13.8-2.4c1.4 0 2.8.1 4.1.2c-6.3-30.3-18.2-59.1-35.1-86.4m-305 8.2c-12.81 0-23 10.2-23 23s10.19 23 23 23c12.8 0 23-10.2 23-23s-10.2-23-23-23m34.7 44.6c-3.2 5.2-7.5 9.6-12.6 12.9c32.1 32.6 66.1 65.9 120.6 80.4c0-.9-.1-1.9-.1-2.8c0-5.3 1.3-10.3 3.5-14.8c-49.5-13.5-80-43.8-111.4-75.7m-57 12.7c-21.76 67.8-27.12 137.2-32.29 206c2.13-.5 4.34-.7 6.6-.7c3.99 0 7.81.7 11.35 2.1c5.19-68.4 10.57-136 31.29-201.1c-6.18-.8-11.94-3-16.95-6.3m358.3 38.7c-12.8 0-23 10.2-23 23s10.2 23 23 23s23-10.2 23-23s-10.2-23-23-23m-41 22.2c-28.4 5.8-56.6 10.8-86 10.5c.4 2.1.6 4.2.6 6.4c0 4-.7 7.9-2.1 11.5c32 .6 62-4.7 91.2-10.8c-2.4-5.1-3.7-10.8-3.7-16.8zm-118.9 1.4c-8.7 0-15.5 6.8-15.5 15.5s6.8 15.5 15.5 15.5s15.5-6.8 15.5-15.5s-6.8-15.5-15.5-15.5M399 262.7c-55.6 45.9-106.6 94.4-143.1 150.7c5.9 1.8 11.2 5 15.6 9.1c34.9-53.5 84.2-100.8 138.8-145.9c-4.7-3.7-8.6-8.5-11.3-13.9m-152 15c-47.9 46.4-109.6 83.2-172.85 119.5c4.36 4.2 7.56 9.6 9.05 15.6C146.8 376.4 210 338.9 260 290.1c-5.4-2.9-9.9-7.2-13-12.4m179.4 6.7c1.3 28.8 6 57.3 14.3 85.2c4.8-3.4 10.7-5.6 17-6c-7.6-26-11.9-52.3-13.2-79.1c-2.9.7-5.8 1-8.8 1c-3.2 0-6.3-.4-9.3-1.1m33.3 97.1c-8.4 0-15 6.6-15 15s6.6 15 15 15s15-6.6 15-15s-6.6-15-15-15M51.71 406.1c-8.07 0-14.42 6.4-14.42 14.4c0 8.1 6.35 14.5 14.42 14.5s14.42-6.4 14.42-14.5c0-8-6.35-14.4-14.42-14.4m376.49.3c-44.7 24.5-93.8 32.6-144.9 35.6c.9 3.4 1.4 6.9 1.4 10.5c0 2.6-.3 5.1-.7 7.5c53.1-3.1 105.8-11.6 154.3-38.5c-4.7-4-8.2-9.2-10.1-15.1M83.91 416.8c.14 1.2.22 2.4.22 3.7c0 5-1.15 9.7-3.19 14l121.86 20.3c-.1-.8-.1-1.5-.1-2.3c0-5.4 1.1-10.6 3-15.4zm159.79 12.7c-12.8 0-23 10.2-23 23s10.2 23 23 23s23-10.2 23-23s-10.2-23-23-23"/></svg>
+    <svg id="svg-icon-gnss-topbar" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 100 100"><path fill="#0F0" d="M41.979 0C29.724.005 19.283 4.451 17.322 10.5h49.356C64.716 4.447 54.263 0 42 0ZM17.322 14.5c1.752 5.405 10.335 9.61 21.178 10.377V100h7v-2.828c5.832-.264 9.863-.495 11.822-2.14c1.96-1.647 5.939-2.275 8.998-2.198v5.486c0 .928.752 1.68 1.68 1.68h7.71v-1.68h14.9V100h7.71a1.68 1.68 0 0 0 1.68-1.68v-6.693h-1.68v-30.04H100V53.68A1.68 1.68 0 0 0 98.32 52H68a1.68 1.68 0 0 0-1.68 1.68v7.908H68v27.238c-7.951.135-10.084.933-12.951 2.914s-4.684 1.31-9.549 1.469V24.877c10.843-.767 19.426-4.972 21.178-10.377ZM72.4 58.08h21.52v35.84H72.4Zm2.628 3.473v13.56h16.32v-13.56Zm8.16 16.67a5.4 5.4 0 1 0 0 10.801a5.4 5.4 0 0 0 0-10.801" color="currentColor"/></svg>
+    <svg id="svg-icon-ptt-topbar" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 24 24"><path fill="#0F0" d="M9 2a1 1 0 0 0-1 1v17c0 1.11.89 2 2 2h5c1.11 0 2-.89 2-2V9c0-1.11-.89-2-2-2h-5V3a1 1 0 0 0-1-1m1 7h5v4h-5z"/></svg>
+    <svg id="svg-icon-msgsocket-topbar" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 24 24"><path fill="#0F0" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2m0 14H5.2L4 17.2V4h16zm-9.53-2L7 10.5l1.4-1.41l2.07 2.08L15.6 6L17 7.41z"/></svg>
+    <svg id="svg-icon-highrate-topbar" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="2em" viewBox="0 0 20 25"><path fill="#0F0" d="M22 11h-1l-1-2h-6.25L16 12.5h-2L10.75 9H4c-.55 0-2-.45-2-1s1.5-2.5 3.5-2.5S7.67 6.5 9 7h12a1 1 0 0 1 1 1zM10.75 6.5L14 3h2l-2.25 3.5zM18 11V9.5h1.75L19 11zM3 19a1 1 0 0 1-1-1a1 1 0 0 1 1-1a4 4 0 0 1 4 4a1 1 0 0 1-1 1a1 1 0 0 1-1-1a2 2 0 0 0-2-2m8 2a1 1 0 0 1-1 1a1 1 0 0 1-1-1a6 6 0 0 0-6-6a1 1 0 0 1-1-1a1 1 0 0 1 1-1a8 8 0 0 1 8 8"/></svg>
+    <svg id="svg-icon-tracking-topbar" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="2em" viewBox="0 0 20 25"><path fill="#0F0" d="m20 6l-1-1l-1.5 1.5L16 5l-1 1l1.5 1.5L15 9l1 1l1.5-1.5L19 10l1-1l-1.5-1.5z"/><circle cx="7.5" cy="14.5" r="3.5" fill="currentColor"/><circle cx="7" cy="3" r="2" fill="currentColor"/><circle cx="13" cy="7" r="1" fill="currentColor"/><circle cx="10" cy="6" r="1" fill="currentColor"/><circle cx="3" cy="3" r="1" fill="currentColor"/><circle cx="1" cy="6" r="1" fill="currentColor"/><circle cx="1" cy="9" r="1" fill="currentColor"/><circle cx="3" cy="12" r="1" fill="currentColor"/></svg>    
+    <svg id="svg-icon-msgsocket-red-topbar" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 24 24"><path fill="#F00" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2m0 14H5.2L4 17.2V4h16zm-9.53-2L7 10.5l1.4-1.41l2.07 2.08L15.6 6L17 7.41z"/></svg>
+    <svg id="svg-icon-meshtastic-red-topbar" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 48 48"><path fill="none" stroke="#F00" stroke-width=".4em" stroke-linecap="round" stroke-linejoin="round" d="m5.5 32.667l13-17.334m26 17.334l-13-17.334l-13 17.334"/></svg>
+    <svg id="svg-icon-reticulum-red-topbar" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 512 512"><path fill="#F00" d="M363.6 36.48c-22.2 0-40 17.8-40 40c0 22.23 17.8 40.02 40 40.02s40-17.79 40-40.02c0-22.2-17.8-40-40-40m-56.7 51.97c-53.2 18.95-108.7 34.95-169 45.25c1.8 4.6 2.8 9.6 2.8 14.8c0 4.8-.8 9.4-2.4 13.6c96.2 12.9 182.8 36 257.8 71.9c1.6-5.9 4.5-11.3 8.3-15.9c-71.2-34.3-152.4-57.2-241.5-70.7c53.2-10.6 102.8-25.4 150.4-42.2c-3-5.2-5.2-10.79-6.4-16.75m97.8 28.85c-4.3 4.3-9.2 8-14.6 10.8c15.3 24.8 26 50.6 31.8 77.8c4.3-1.5 9-2.4 13.8-2.4c1.4 0 2.8.1 4.1.2c-6.3-30.3-18.2-59.1-35.1-86.4m-305 8.2c-12.81 0-23 10.2-23 23s10.19 23 23 23c12.8 0 23-10.2 23-23s-10.2-23-23-23m34.7 44.6c-3.2 5.2-7.5 9.6-12.6 12.9c32.1 32.6 66.1 65.9 120.6 80.4c0-.9-.1-1.9-.1-2.8c0-5.3 1.3-10.3 3.5-14.8c-49.5-13.5-80-43.8-111.4-75.7m-57 12.7c-21.76 67.8-27.12 137.2-32.29 206c2.13-.5 4.34-.7 6.6-.7c3.99 0 7.81.7 11.35 2.1c5.19-68.4 10.57-136 31.29-201.1c-6.18-.8-11.94-3-16.95-6.3m358.3 38.7c-12.8 0-23 10.2-23 23s10.2 23 23 23s23-10.2 23-23s-10.2-23-23-23m-41 22.2c-28.4 5.8-56.6 10.8-86 10.5c.4 2.1.6 4.2.6 6.4c0 4-.7 7.9-2.1 11.5c32 .6 62-4.7 91.2-10.8c-2.4-5.1-3.7-10.8-3.7-16.8zm-118.9 1.4c-8.7 0-15.5 6.8-15.5 15.5s6.8 15.5 15.5 15.5s15.5-6.8 15.5-15.5s-6.8-15.5-15.5-15.5M399 262.7c-55.6 45.9-106.6 94.4-143.1 150.7c5.9 1.8 11.2 5 15.6 9.1c34.9-53.5 84.2-100.8 138.8-145.9c-4.7-3.7-8.6-8.5-11.3-13.9m-152 15c-47.9 46.4-109.6 83.2-172.85 119.5c4.36 4.2 7.56 9.6 9.05 15.6C146.8 376.4 210 338.9 260 290.1c-5.4-2.9-9.9-7.2-13-12.4m179.4 6.7c1.3 28.8 6 57.3 14.3 85.2c4.8-3.4 10.7-5.6 17-6c-7.6-26-11.9-52.3-13.2-79.1c-2.9.7-5.8 1-8.8 1c-3.2 0-6.3-.4-9.3-1.1m33.3 97.1c-8.4 0-15 6.6-15 15s6.6 15 15 15s15-6.6 15-15s-6.6-15-15-15M51.71 406.1c-8.07 0-14.42 6.4-14.42 14.4c0 8.1 6.35 14.5 14.42 14.5s14.42-6.4 14.42-14.5c0-8-6.35-14.4-14.42-14.4m376.49.3c-44.7 24.5-93.8 32.6-144.9 35.6c.9 3.4 1.4 6.9 1.4 10.5c0 2.6-.3 5.1-.7 7.5c53.1-3.1 105.8-11.6 154.3-38.5c-4.7-4-8.2-9.2-10.1-15.1M83.91 416.8c.14 1.2.22 2.4.22 3.7c0 5-1.15 9.7-3.19 14l121.86 20.3c-.1-.8-.1-1.5-.1-2.3c0-5.4 1.1-10.6 3-15.4zm159.79 12.7c-12.8 0-23 10.2-23 23s10.2 23 23 23s23-10.2 23-23s-10.2-23-23-23"/></svg>
+    <svg id="svg-icon-gnss-red-topbar" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 100 100"><path fill="#F00" d="M41.979 0C29.724.005 19.283 4.451 17.322 10.5h49.356C64.716 4.447 54.263 0 42 0ZM17.322 14.5c1.752 5.405 10.335 9.61 21.178 10.377V100h7v-2.828c5.832-.264 9.863-.495 11.822-2.14c1.96-1.647 5.939-2.275 8.998-2.198v5.486c0 .928.752 1.68 1.68 1.68h7.71v-1.68h14.9V100h7.71a1.68 1.68 0 0 0 1.68-1.68v-6.693h-1.68v-30.04H100V53.68A1.68 1.68 0 0 0 98.32 52H68a1.68 1.68 0 0 0-1.68 1.68v7.908H68v27.238c-7.951.135-10.084.933-12.951 2.914s-4.684 1.31-9.549 1.469V24.877c10.843-.767 19.426-4.972 21.178-10.377ZM72.4 58.08h21.52v35.84H72.4Zm2.628 3.473v13.56h16.32v-13.56Zm8.16 16.67a5.4 5.4 0 1 0 0 10.801a5.4 5.4 0 0 0 0-10.801" color="currentColor"/></svg>
+    <svg id="svg-icon-ptt-red-topbar" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 24 24"><path fill="#F00" d="M9 2a1 1 0 0 0-1 1v17c0 1.11.89 2 2 2h5c1.11 0 2-.89 2-2V9c0-1.11-.89-2-2-2h-5V3a1 1 0 0 0-1-1m1 7h5v4h-5z"/></svg>
+    <svg id="svg-icon-highrate-red-topbar" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="2em" viewBox="0 0 20 25"><path fill="#F00" d="M22 11h-1l-1-2h-6.25L16 12.5h-2L10.75 9H4c-.55 0-2-.45-2-1s1.5-2.5 3.5-2.5S7.67 6.5 9 7h12a1 1 0 0 1 1 1zM10.75 6.5L14 3h2l-2.25 3.5zM18 11V9.5h1.75L19 11zM3 19a1 1 0 0 1-1-1a1 1 0 0 1 1-1a4 4 0 0 1 4 4a1 1 0 0 1-1 1a1 1 0 0 1-1-1a2 2 0 0 0-2-2m8 2a1 1 0 0 1-1 1a1 1 0 0 1-1-1a6 6 0 0 0-6-6a1 1 0 0 1-1-1a1 1 0 0 1 1-1a8 8 0 0 1 8 8"/></svg>
+    <svg id="svg-icon-tracking-red-topbar" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="2em" viewBox="0 0 20 25"><path fill="#F00" d="m20 6l-1-1l-1.5 1.5L16 5l-1 1l1.5 1.5L15 9l1 1l1.5-1.5L19 10l1-1l-1.5-1.5z"/><circle cx="7.5" cy="14.5" r="3.5" fill="#F00"/><circle cx="7" cy="3" r="2" fill="#F00"/><circle cx="13" cy="7" r="1" fill="#F00"/><circle cx="10" cy="6" r="1" fill="#F00"/><circle cx="3" cy="3" r="1" fill="#F00"/><circle cx="1" cy="6" r="1" fill="#F00"/><circle cx="1" cy="9" r="1" fill="#F00"/><circle cx="3" cy="12" r="1" fill="#F00"/></svg>    
+
+    <svg id="svg-icon-search" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" ><path fill="#0F0" d="M10 18a7.95 7.95 0 0 0 4.897-1.688l4.396 4.396l1.414-1.414l-4.396-4.396A7.95 7.95 0 0 0 18 10c0-4.411-3.589-8-8-8s-8 3.589-8 8s3.589 8 8 8m0-14c3.309 0 6 2.691 6 6s-2.691 6-6 6s-6-2.691-6-6s2.691-6 6-6"/></svg>
+
+    <svg id="svg-icon-close" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" ><path fill="#F00" d="M2.93 17.07A10 10 0 1 1 17.07 2.93A10 10 0 0 1 2.93 17.07m1.41-1.41A8 8 0 1 0 15.66 4.34A8 8 0 0 0 4.34 15.66m9.9-8.49L11.41 10l2.83 2.83l-1.41 1.41L10 11.41l-2.83 2.83l-1.41-1.41L8.59 10L5.76 7.17l1.41-1.41L10 8.59l2.83-2.83z"/></svg>
+    
+    <svg id="svg-icon-copypaste" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><g fill="none" stroke="#0F0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M16 4h2a2 2 0 0 1 2 2v4m1 4H11"/><path d="m15 10l-4 4l4 4"/></g></svg>
+
+    <svg xmlns="http://www.w3.org/2000/svg" width="1" height="1" viewBox="0 0 36 36"><path fill="#00247d" d="M0 9.059V13h5.628zM4.664 31H13v-5.837zM23 25.164V31h8.335zM0 23v3.941L5.63 23zM31.337 5H23v5.837zM36 26.942V23h-5.631zM36 13V9.059L30.371 13zM13 5H4.664L13 10.837z"/><path fill="#cf1b2b" d="m25.14 23l9.712 6.801a4 4 0 0 0 .99-1.749L28.627 23zM13 23h-2.141l-9.711 6.8c.521.53 1.189.909 1.938 1.085L13 23.943zm10-10h2.141l9.711-6.8a4 4 0 0 0-1.937-1.085L23 12.057zm-12.141 0L1.148 6.2a4 4 0 0 0-.991 1.749L7.372 13z"/><path fill="#eee" d="M36 21H21v10h2v-5.836L31.335 31H32a4 4 0 0 0 2.852-1.199L25.14 23h3.487l7.215 5.052c.093-.337.158-.686.158-1.052v-.058L30.369 23H36zM0 21v2h5.63L0 26.941V27c0 1.091.439 2.078 1.148 2.8l9.711-6.8H13v.943l-9.914 6.941c.294.07.598.116.914.116h.664L13 25.163V31h2V21zM36 9a3.98 3.98 0 0 0-1.148-2.8L25.141 13H23v-.943l9.915-6.942A4 4 0 0 0 32 5h-.663L23 10.837V5h-2v10h15v-2h-5.629L36 9.059zM13 5v5.837L4.664 5H4a4 4 0 0 0-2.852 1.2l9.711 6.8H7.372L.157 7.949A4 4 0 0 0 0 9v.059L5.628 13H0v2h15V5z"/><path fill="#cf1b2b" d="M21 15V5h-6v10H0v6h15v10h6V21h15v-6z"/></svg>
+    
+    
     <div id="map"></div>
     <pre id="features"></pre>
     <pre id="coordinates" class="coordinates"></pre>
@@ -57,154 +106,93 @@
         <img src="<?php echo $CAM[0]; ?>" id='cam10' width=100%;>
     </div>
     
-    <button class="btn btn-success" autocomplete="off" id="start" >Join</button>
-    
-    
-    <div id="myModal" class="modal">
-        <span class="close">&times;</span>
-        <img class="modal-content" id="img01">
-        <div id="caption"></div>
-    </div>
-
-    <div class="map-top-callsign-overlay">
+    <div class="map-top-status-icon-overlay">
     <center>
-        <table border=0 width=100% >
-        <tr valign="top" >
-            <td width=5% >
-                <div class="tooltip"> 
-                    <i id="msgSocketStatus" style="display: none; padding-left: 5px; padding-top:5px;" class="feather-small" data-feather="message-square"></i>
-                    <span class="tooltiptext">Message socket connected</span>
-                </div>
-            </td>
-            <td width=5% >
-                <div class="tooltip"> 
-                    <i id="highRateSocketStatus" style="display: none; "  class="feather-small" data-feather="map-pin" ></i>
-                    <span class="tooltiptext">Highrate socket connected</span>
-                </div>
-            </td>            
-            
-            <td >
-                <table>
-                    <tr><td id="securePttTx" class="mapSecurepttTransmissionStatus">TX</div></td></tr>  
-                    <tr><td id="securePttRx" class="mapSecurepttTransmissionStatus">RX</div></td></tr>
-                </table>
-            </td>
-            <td width=5% >
-                <div class="tooltip"> 
-                    <i id="securePttStatus" style="color: #0F0; padding-top:5px;"  class="feather-small" data-feather="radio" ></i>
-                    <span class="tooltiptext">SecurePTT</span>
-                </div>
-            </td>
-            
-            <td width=5% >
-                <div class="tooltip"> 
-                    <i id="gpsSocketStatus" style="display: none; padding-top:5px;"  class="feather-small" data-feather="navigation" ></i>
-                    <span class="tooltiptext">Local GPS connected</span>
-                </div>
-            </td>
-
-            <td width=2% >
-                <div class="tooltip"> 
-                    <i id="meshtasticStatus" style="display: none; "  class="feather-small" data-feather="link" ></i>
-                    <span id="meshtasticStatusToolTip" class="tooltiptext" >Meshtastic daemon connected</span>
-                </div>
-            </td>            
-            
-            
-            <td width=40% >
-                <center>
-                <div class="tooltip">
-                    <span id="callSignDisplay" style="padding-right: 5px; padding-top:5px;" ></span> 
-                    <span class="tooltiptext">Your callsign</span>
-                </div>
-                </center>
-            </td>
-            
-            <td width=40% >
-                <center>
-                <div class="tooltip">
-                    <span id="gpsDisplay" style="padding-right: 5px; " onClick="sendMyGpsLocation();"></span> 
-                    <span class="tooltiptext">Local GPS data</span>
-                </div>
-                </center>
-            </td>
-            
-            
-            
-            <td width=10%>
-                <div class="tooltipright"> 
-                    <i id="trackingIndicator" style="display: none;"  class="feather-small" data-feather="send" ></i>
-                    <span class="tooltiptextright">Sharing your location</span>
-                </div>
-            </td>
-        </tr>
+        <div class="icon-container">
+                <svg id="msgSocketStatus">
+                  <use href="#svg-icon-msgsocket-topbar"></use>
+                </svg>
+                <svg id="msgSocketStatusRed">
+                  <use href="#svg-icon-msgsocket-red-topbar"></use>
+                </svg>
+                <svg id="securePttStatus"   >
+                  <use href="#svg-icon-ptt-topbar"></use>
+                </svg>
+                <svg id="securePttStatusRed"   >
+                  <use href="#svg-icon-ptt-red-topbar"></use>
+                </svg>
+                <svg id="gpsSocketStatus"  >
+                  <use href="#svg-icon-gnss-topbar"></use>
+                </svg>
+                <svg id="gpsSocketStatusRed"  >
+                  <use href="#svg-icon-gnss-red-topbar"></use>
+                </svg>
+                <svg id="meshtasticStatus"   >
+                  <use href="#svg-icon-meshtastic-topbar"></use>
+                </svg>
+                <svg id="meshtasticStatusRed"   >
+                  <use href="#svg-icon-meshtastic-red-topbar"></use>
+                </svg>
+                <svg id="reticulumStatus"  >
+                  <use href="#svg-icon-reticulum-topbar"></use>
+                </svg>
+                <svg id="reticulumStatusRed"  >
+                  <use href="#svg-icon-reticulum-red-topbar"></use>
+                </svg>
+                <svg id="highRateSocketStatus"  >
+                  <use href="#svg-icon-highrate-topbar"></use>
+                </svg>
+                <svg id="highRateSocketStatusRed"  >
+                  <use href="#svg-icon-highrate-red-topbar"></use>
+                </svg>
+                <svg id="trackingIndicator"  >
+                  <use href="#svg-icon-tracking-topbar"></use>
+                </svg>  
+                <svg id="trackingIndicatorRed"  >
+                  <use href="#svg-icon-tracking-red-topbar"></use>
+                </svg>  
+        </div>
+        <table style="display: none;">
+            <tr><td id="securePttTx" class="mapSecurepttTransmissionStatus">TX</div></td> <td> </td></tr>  
+            <tr><td id="securePttRx" class="mapSecurepttTransmissionStatus">RX</div></td> <td></td></tr>
         </table>
     </center>
     </div>
-
-
-
     
-
-    <div class="map-secureptt-overlay">
-        <table width=100%>
-            <tr style="vertical-align: middle;">
-                <td class="secureptt-icon" width=5%>
-                    <div class="tooltipright"> 
-                        <i id="" class="feather-small" data-feather="radio" ></i>
-                        <span class="tooltiptextright">SecurePTT</span>
-                    </div>
-                </td>
-                <td class="secureptt-callsign-present">Alpha</td>
-                <td></td>
-                <td class="secureptt-callsign">Bravo</td>
-                <td></td>
-                <td class="secureptt-callsign">Charlie</td>
-                <td></td>
-                <td class="secureptt-callsign">Delta</td>
-            </tr>
-        </table>
-    </div>
-    
-
-    <div class="map-top-mobile-overlay">
+    <div class="map-top-callsign-overlay">
         <center>
-                <i data-feather="refresh-cw" class="feather-mid" onClick="reloadPage();" ></i>
+            <span id="callSignDisplay" style=" padding-top:5px;"></span>
         </center>
     </div>
-
-    <div class="map-top-local-gps-button">
+    
+    <div class="map-top-gpslocation-overlay">
         <center>
-                <i data-feather="target" class="feather-mid" onClick="setManualLocationNotifyMessage();" ></i>
+            <span id="gpsDisplay"  onClick="sendMyGpsLocation();"></span>
         </center>
     </div>
-
-
-    <div class="map-right-zoom-overlay" id="rightZoomButtons">
-        <div class="map-right-zoom-overlay-inner">
-                <center>
-                    <span id="zoomlevel" style="font-size:20px;"></span>
-                    <i data-feather="zoom-in" class="feather-zoom" onClick="zoomIn();" ></i>
-                    <i data-feather="zoom-out" class="feather-zoom" onClick="zoomOut();" ></i>
-                </center>
-        </div>
+    
+    <div id="mapClickLatlonSection" class="map-top-latlon-overlay" style="display: none;" >
+        <center>
+            <span id="lat" onclick="getCoordinatesToClipboard()" ></span><span id="coordinateComma">,</span><span id="lon" onclick="getCoordinatesToClipboard()"></span>
+            <span id="copyNotifyText"></span>
+        </center>
     </div>
-
-    <div class="map-right-command-overlay" id="rightSensoryDisplay">
-        <div class="map-right-command-overlay-inner">
-            <div id="legend" class="legend">
-                
-                <center>
-                <i id="statusChannelState" class="crosshair_status_yellow" data-feather="crosshair"></i>
-                <div id="first-indicator" class="button-command-indicator"></div>
-                <div id="second-indicator" class="button-command-indicator"></div>
-                <div id="third-indicator" class="button-command-indicator"></div>
-                </center>
-            </div>
-        </div>
+    
+    <div class="map-top-reloadbutton-overlay" onClick="reloadPage();">
+        <center>
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="-3 -3 25 25">
+                <g fill="none"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.75 10.75h-3m12.5-2c0 3-2.798 5.5-6.25 5.5c-3.75 0-6.25-3.5-6.25-3.5v3.5m9.5-9h3m-12.5 2c0-3 2.798-5.5 6.25-5.5c3.75 0 6.25 3.5 6.25 3.5v-3.5"/></g>
+            </svg>
+        </center>
     </div>
-
-    <div class="map-right-upload-overlay" id="cameracontrol">
+    
+    <div id="topRightMenuButton" class="map-top-menubutton-overlay">
+        <svg xmlns="http://www.w3.org/2000/svg" width="29" height="29" viewBox="-3 -3 25 25">
+        <g fill="none"><path d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"/><path fill="currentColor" d="M20 17.5a1.5 1.5 0 0 1 .144 2.993L20 20.5H4a1.5 1.5 0 0 1-.144-2.993L4 17.5zm0-7a1.5 1.5 0 0 1 0 3H4a1.5 1.5 0 0 1 0-3zm0-7a1.5 1.5 0 0 1 0 3H4a1.5 1.5 0 1 1 0-3z"/></g>
+        </svg>
+    </div>
+    
+    <div class="map-right-upload-overlay" id="cameracontrol" style="display: none;">
         <div class="map-right-upload-overlay-inner">
             <div id="legend" class="legend">
                     <iframe name="dummyframe" id="dummyframe" style="display: none;">X</iframe>
@@ -222,56 +210,7 @@
         </div>
     </div>
     
-    <div class="map-bottom-statusbar-overlay" id="bottomBar">
-        <div id="legend" class="legend">
-                <table width=100% border=0>
-                    <tr >
-                    <td width=40%>
-                        
-                        <div class="tooltipbottomleft">                         
-                            <i style="display:none;" data-feather="mouse-pointer" class="feather-small"></i><span id="lat" onclick="getCoordinatesToClipboard()" ></span>,<span id="lon" onclick="getCoordinatesToClipboard()"></span>
-                            <span class="tooltiptextbottomleft">Coordinates from map click.<p>Click on coordinates copies them to clipboard</p></span>
-                        </div>
-                        
-                        <span id="copyStatusIcon" style="display:none;">Copied!</span><span style="" id="status"></span>
-                        <img src="" id="debugImage" height=20; style="display:none;" ></img>
-                        <i style="display:none;" data-feather="alert-triangle" class="feather-small"  ></i><span style="display:none;"> SIMULATION</span>
-                    </td>
-                    <td width=10%></td>
-                    <td align="right"; width=50%>
-                        
-                        <div class="tooltipbottomright">
-                            <span style="padding-right: 15px;" id="log-icon" onclick="toggleHillShadow();"><i data-feather="trending-up" class="feather-mid"></i></span> 
-                            <span class="tooltiptextbottomright">Enable terrain model</span>
-                        </div>
-                        
-                        <div class="tooltipbottomright">
-                            <span style="padding-right: 15px;" id="log-icon" onclick="openLanguageSelectBox();"><i data-feather="globe" class="feather-mid"></i></span> 
-                            <span class="tooltiptextbottomright">Change map language</span>
-                        </div>
-                        
-                        <div class="tooltipbottomright">
-                            <span style="padding-right: 15px;" id="log-icon" onclick="openCoordinateSearchEntryBox();"><i data-feather="target" class="feather-mid"></i></span> 
-                            <span class="tooltiptextbottomright">Search with coordinates</span>
-                        </div>
-                        
-                        
-                        <div class="tooltipbottomright">    
-                            <span style="padding-right: 15px;" id="info-icon"><i data-feather="help-circle" class="feather-mid"></i></span>
-                            <span class="tooltiptextbottomright">About Edgemap</span>
-                        </div>    
-                            
-                        <div class="tooltipbottomright">
-                            <span id="log-icon" onclick="openMessageEntryBox();"><i data-feather="menu" class="feather-mid"></i></span> 
-                            <span class="tooltiptextbottomright">Messaging & markers</span>
-                        </div> 
-                        
-                    </td>
-                    </tr>
-                </table>
-
-        </div>
-    </div>
+    
 
     <div class="notify-box" id="info-box">
         <center>
@@ -311,39 +250,20 @@
             <button class="attribution-button" id="infobox-close"><i data-feather="x-circle" class="feather-normal"></i> Close</button>
         </center>
     </div>
-    
-    <div class="languageSelect" id="languageSelectDialog" >
-        <center>
-        <p>
-            <span style="padding-right: 5px;" id="log-icon" onclick="changeLanguage('zh');"><i data-feather="globe" class="feather-mid"></i>CN</span> 
-            <span style="padding-right: 5px;" id="log-icon" onclick="changeLanguage('he');"><i data-feather="globe" class="feather-mid"></i>HE</span> 
-            <span style="padding-right: 5px;" id="log-icon" onclick="changeLanguage('ar');"><i data-feather="globe" class="feather-mid"></i>AR</span> 
-            <span style="padding-right: 5px;" id="log-icon" onclick="changeLanguage('ru');"><i data-feather="globe" class="feather-mid"></i>RU</span> 
-            <span style="padding-right: 5px;" id="log-icon" onclick="changeLanguage('uk');"><i data-feather="globe" class="feather-mid"></i>UKR</span> 
-        </p>
-        <p>
-            <span style="padding-right: 5px;" id="log-icon" onclick="changeLanguage('my');"><i data-feather="globe" class="feather-mid"></i>MY</span> 
-            <span style="padding-right: 5px;" id="log-icon" onclick="changeLanguage('de');"><i data-feather="globe" class="feather-mid"></i>DE</span> 
-            <span style="padding-right: 5px;" id="log-icon" onclick="changeLanguage('es');"><i data-feather="globe" class="feather-mid"></i>ES</span> 
-            <span style="padding-right: 5px;" id="log-icon" onclick="changeLanguage('fr');"><i data-feather="globe" class="feather-mid"></i>FR</span> 
-            <span style="padding-right: 20px;" id="log-icon" onclick="changeLanguage('en');"><i data-feather="globe" class="feather-mid"></i>EN</span> 
-        </p>
-        </center>
-    </div>
+
 
     <div class="coordinateSearch" id="coordinateSearchEntry" >
-        <table border=0 width=100%>
-            <tr>
-                <td width=90%>
-                    <span class="coordinateSearchTitle">Coordinates:</span><input id="coordinateInput" type="text" class="coordinateSearchInput" maxlength="20" onkeypress="handleKeyPress(event)" onfocus="ensureVisible(this)">
-                </td>
-                <td>
-                
-                <i data-feather="check-circle" class="feather-submitCallSignEntry" onClick='closeCoordinateSearchEntryBox();' ></i> 
-                </td>
-            </tr>
-        </table>	
+            <input id="coordinateInput" type="text" placeholder="[latitude,longitude]" class="coordinateSearchInput" maxlength="20" onkeypress="handleKeyPress(event)" onfocus="ensureVisible(this)">
     </div>
+    
+    
+    
+
+    
+    
+    
+    
+    
 
     <div class="callSignEntry" id="callSignEntry" >
         <table border=0 width=100%>
@@ -357,6 +277,11 @@
                 </td>
             </tr>
         </table>	
+    </div>
+
+    <div class="delivery-status" id="delivery-status-window">	
+    <div id="logo" class="toprightlogoreticulumblock"><img src="img/rnsg.png" width=40px; ></img></div>
+    <div id="delivery_status"></div>
     </div>
 
     <div class="log-window" id="log-window">	
@@ -441,41 +366,6 @@
         </div>
 
     
-    
-    
-    
-    
-        
-    <div class="map-right-meshtastic-button" id="meshtasticButton" style="display: none;">
-    <div class="map-right-meshtastic-button-inner">
-        <div id="radioNotifyDot" class="buttonNotifyDot"></div>
-        <center>
-            <i data-feather="link" class="feather-normal" onClick="toggleRadioList();"></i>
-        </center>
-    </div>
-    </div>
-    
-    <div class="map-right-meshtastic-button" id="meshtasticButton" style="display: none;">
-    <div class="map-right-meshtastic-button-inner">
-        <div id="radioNotifyDot" class="buttonNotifyDot"></div>
-        <center>
-            <i data-feather="link" class="feather-normal" onClick="toggleRadioList();"></i>
-        </center>
-    </div>
-    </div>
-    
-    <div class="map-right-videoconference-button" id="videoconferenceButton" style="display: block;">
-    <div class="map-right-videoconference-button-inner">
-        <center>
-            <i data-feather="video" class="feather-normal" onClick="toggleVideoConference();"></i>
-        </center>
-    </div>
-    </div>
-    
-    <div class="peerlistblock" id="peerlistblock" style="display: none;">
-        <div id="peerlist"></div>
-    </div>
-    
     <div class="map-videoroom-overlay" id="videoBlock" style="display: none;">
         <div class="map-videoroom-title"></div>
         <div class="map-videoroom-ctrl-buttons" id="videolocalbuttons"></div>
@@ -489,10 +379,14 @@
     </div>
     
     
-    
     <div class="radiolistblock" id="radiolistblock" style="display: none;">
         <div id="logo" class="toprightlogoradiolistblock"><img src="img/meshtastic-logo.png" width=20px; ></img></div>
         <div id="radiolist"></div>
+    </div>
+    
+    <div class="reticulumlistblock" id="reticulumlistblock" style="display: none;">
+        <div id="logo" class="toprightlogoreticulumblock"><img src="img/rnsg.png" width=40px; ></img></div>
+        <div id="reticulumlist"></div>
     </div>
     
     <div id="lat_highrate" style="display: none;"></div>
@@ -554,13 +448,15 @@
       style: "styles/style.json"
     });
     
-    const edgemapUiVersion = "v0.71";
+    const edgemapUiVersion = "v0.72";
     var intialZoomLevel=1;
 	var symbolSize = 30;
     
+
+    
     // geojson url
     var geojsonUrl = 'meshtastic_geojson.php?linkline=1';
-    var geoJsonLayerActive = true;
+    var geoJsonLayerActive = false;
 	
 	// One user created pin marker for a demo
 	const mapPinMarker = [];
@@ -638,13 +534,15 @@
     //
     // Other peers
     //
-    let peersOnMap = new peerList;
+    // let peersOnMap = new peerList;
     
     // We track 'radios' on mesh - not their location on map.
     // Since we don't want to enforce or use meshtastic internal
     // positioning reports (or capability to use GPS) since it's an OPSEC
     // issue.
     let radiosOnSystem = new radioList;
+    
+    let reticulumNodesOnSystem = new reticulumList; // DEV class
     
     // Milsymbol for trackMessage
     const trackMessageMarkerGraph = new ms.Symbol("SFGPUCR-----", { size:20,
@@ -703,6 +601,7 @@
     Messaging           7990    8990
     Meshtastic status   7995    8995
     SecurePTT status    7996    8996
+    Reticulum status    7997    8997
     */
 
     // Websocket for locally attached GPS
@@ -713,8 +612,15 @@
     
     gpsSocket.onopen = function(event) {
         document.getElementById('gpsSocketStatus').style="display:block; padding-top:5px;";
+        document.getElementById('gpsSocketStatusRed').style="display:none;";
         gpsSocketConnected = true;
-    };    
+    };
+    gpsSocket.onclose = function(event) {
+        document.getElementById('gpsSocketStatusRed').style="display:block; padding-top:5px;";
+        document.getElementById('gpsSocketStatus').style="display:none;";
+        gpsSocketConnected=false;
+    };
+    
     gpsSocket.onmessage = function(event) {
             var displayString;
 			var incomingMessage = event.data;
@@ -763,12 +669,12 @@
                 localGpsMarkerCreated = true;
 			}
     };
-    gpsSocket.onclose = function(event) {
-        document.getElementById('gpsSocketStatus').style="display:none;";
-        gpsSocketConnected=false;
-    };
+    
 
+    // Not enabled atm
     // Websocket for highrate marker
+    document.getElementById('highRateSocketStatus').style="display:none;";
+    document.getElementById('highRateSocketStatusRed').style="display:block;";
     /*
     if ( wsProtocol == "ws://" )
         highrateSocket = new WebSocket(wsProtocol+wsHost+':7890');
@@ -777,8 +683,35 @@
         
     highrateSocket.onopen = function(event) {
         document.getElementById('highRateSocketStatus').style="display:block;";
+        document.getElementById('highRateSocketStatusRed').style="display:none;";
         highrateSocketConnected = true;
     };
+    highrateSocket.onclose = function(event) {
+        document.getElementById('highRateSocketStatus').style="display:none;";
+        document.getElementById('highRateSocketStatusRed').style="display:block;";
+        highrateSocketConnected=false;
+    };
+    
+    
+    highrateSocket.onmessage = function(event) {
+			var incomingMessage = event.data;
+			var trimmedString = incomingMessage.substring(0, 80);
+			const positionArray = trimmedString.split(",");
+			// TODO: Validate data better
+			getElementItem('#lat_highrate').innerHTML =  positionArray[1];
+			getElementItem('#lon_highrate').innerHTML =  positionArray[0];
+			getElementItem('#name_highrate').innerHTML =  positionArray[2];
+			var targetSymbol = positionArray[3];
+            
+			// Create highrate highrateMarker from first incoming message 
+			if ( highRateCreated == false ) {
+                highrateMarker = new maplibregl.Marker({
+                    element: milSymHighrateMarker
+				});
+				requestAnimationFrame(animateHighrateMarker);
+                highRateCreated = true;
+			}
+		};
     */
     
     // Websocket for messaging
@@ -787,10 +720,24 @@
     if ( wsProtocol == "wss://" )
         msgSocket = new WebSocket(wsProtocol+wsHost+':8990');
 
+    //
+    // msgSocket connect
+    //
     msgSocket.onopen = function(event) {
         document.getElementById('msgSocketStatus').style="display:block; padding-left: 5px; padding-top:5px;"; 
+        document.getElementById('msgSocketStatusRed').style="display:none;";
         msgSocketConnected = true;
     };
+    //
+    // msgSocket disconnect
+    //
+    msgSocket.onclose = function(event) {
+        document.getElementById('msgSocketStatus').style="display:none;";
+        document.getElementById('msgSocketStatusRed').style="display:block; padding-left: 5px; padding-top:5px;"; 
+        notifyMessage("Message channel disconnected! Try reloading page.", 5000);
+        msgSocketConnected=false;
+    };
+    
     
     // Websocket for secureptt status (/tmp/secureptt)
     if ( wsProtocol == "ws://" )
@@ -800,9 +747,17 @@
         
     securePttStatusSocket.onopen = function(event) {
         document.getElementById('securePttStatus').style="display:block; padding-top:5px;";
+        document.getElementById('securePttStatusRed').style="display:none; padding-top:5px;";
+        
         var style="font: 8px 'Helvetica Neue', Arial, Helvetica, sans-serif;padding: 1px;border: 1px solid #0E0;color: #0F0;background-color: transparent;";
         document.getElementById('securePttTx').style = style;
         document.getElementById('securePttRx').style = style;
+    };
+    securePttStatusSocket.onclose = function(event) {
+        document.getElementById('securePttStatus').style="display:none;";
+        document.getElementById('securePttStatusRed').style="display:block; padding-top:5px;";
+        document.getElementById('securePttTx').style = "display:none;"
+        document.getElementById('securePttRx').style = "display:none;"
     };
     
     securePttStatusSocket.onmessage = function(event) {
@@ -830,22 +785,24 @@
         }
     };
     
-    securePttStatusSocket.onclose = function(event) {
-        document.getElementById('securePttStatus').style="display:none;";
-        document.getElementById('securePttTx').style = "display:none;"
-        document.getElementById('securePttRx').style = "display:none;"
-    };
     
-    // Websocket for 'status' from meshpipe
+    
+    // Websocket for 'status' from meshtastic (meshpipe.py)
     if ( wsProtocol == "ws://" )
         meshtasticStatusSocket = new WebSocket(wsProtocol+wsHost+':7995');
     if ( wsProtocol == "wss://" )
         meshtasticStatusSocket = new WebSocket(wsProtocol+wsHost+':8995');
         
     meshtasticStatusSocket.onopen = function(event) {
+        // Menubar
         document.getElementById('meshtasticStatus').style="display:block; padding-top:5px;"; 
-        document.getElementById('meshtasticButton').style="display:block;";
+        document.getElementById('meshtasticStatusRed').style="display:none;";
+        // document.getElementById('meshtasticButton').style="display:block;";
         fadeOut(radioNotifyDotDiv,50);
+    };
+    meshtasticStatusSocket.onclose = function(event) {
+        document.getElementById('meshtasticStatusRed').style="display:block; padding-top:5px;"; 
+        document.getElementById('meshtasticStatus').style="display:none;";
     };
     
     meshtasticStatusSocket.onmessage = function(event) {
@@ -855,7 +812,7 @@
         if ( nodeArray[0] === "mynode" )
         {
             document.getElementById('meshtasticStatusToolTip').textContent = "My node: " + nodeArray[1];
-            document.getElementById('meshtasticButton').style="display:block;"; 
+            // document.getElementById('meshtasticButton').style="display:block;"; 
         }
         if ( nodeArray[0] === "peernode" )
         {
@@ -868,34 +825,46 @@
         }
     };
     
-    meshtasticStatusSocket.onclose = function(event) {
-        document.getElementById('meshtasticStatus').style="display:none;";
+    
+    
+    // ****
+    // Websocket for reticulum status **** DEVELOPMENT ****
+    // ****
+    if ( wsProtocol == "ws://" )
+        reticulumStatusSocket = new WebSocket(wsProtocol+wsHost+':7997');
+    if ( wsProtocol == "wss://" )
+        reticulumStatusSocket = new WebSocket(wsProtocol+wsHost+':8997');
+        
+    reticulumStatusSocket.onopen = function(event) {
+        // Menubar icon
+        document.getElementById('reticulumStatus').style="display:block; padding-top:5px;"; 
+        document.getElementById('reticulumStatusRed').style="display:none;";
+        // document.getElementById('reticulumButton').style="display:block;";
+        // fadeOut(reticulumNotifyDotDiv,50);
+    };
+    reticulumStatusSocket.onclose = function(event) {
+        document.getElementById('reticulumStatusRed').style="display:block; padding-top:5px;";
+        document.getElementById('reticulumStatus').style="display:none;";
     };
     
-    /*
-    highrateSocket.onmessage = function(event) {
-			var incomingMessage = event.data;
-			var trimmedString = incomingMessage.substring(0, 80);
-			const positionArray = trimmedString.split(",");
-			// TODO: Validate data better
-			getElementItem('#lat_highrate').innerHTML =  positionArray[1];
-			getElementItem('#lon_highrate').innerHTML =  positionArray[0];
-			getElementItem('#name_highrate').innerHTML =  positionArray[2];
-			var targetSymbol = positionArray[3];
-            
-			// Create highrate highrateMarker from first incoming message 
-			if ( highRateCreated == false ) {
-                highrateMarker = new maplibregl.Marker({
-                    element: milSymHighrateMarker
-				});
-				requestAnimationFrame(animateHighrateMarker);
-                highRateCreated = true;
-			}
-		};
-    highrateSocket.onclose = function(event) {
-        document.getElementById('highRateSocketStatus').style="display:none;";
-        highrateSocketConnected=false;
-    };*/
+    reticulumStatusSocket.onmessage = function(event) {
+        var incomingMessage = event.data;
+        var trimmedString = incomingMessage.substring(0, 80);
+        
+        const nodeArray = trimmedString.split(",");
+        // reticulumnode,[callsign],[timestamp],[hash]
+        if ( nodeArray[0] === "reticulumnode" )
+        {
+            reticulumNodesOnSystem.add( nodeArray[1],nodeArray[2],nodeArray[3] ); 
+            updateReticulumBlock(); 
+        }
+
+        fadeIn(reticulumNotifyDotDiv,200);
+        if ( ! isHidden(reticulumListblockDiv) ) {
+            fadeOut(reticulumNotifyDotDiv,10000);
+        }
+    };
+    
 
     //
     // msgSocket incoming
@@ -913,6 +882,29 @@
             console.log("My own message detected, discarding.");
             return;
         }
+        
+        // Reticulum delivery note
+        // delivery_message="|delivery_note||+" + peer_callsign
+        if ( msgType === "msg_delivery_ok" ) {
+            console.log("Delivered: ", msgMessage)
+            document.getElementById("delivery_status").innerHTML += "<span style='color:#0F0;'> "+msgMessage+"</span>";  
+        }
+        if ( msgType === "msg_delivery_timeout" ) {
+            console.log("Message delivery timeout: ", msgMessage)
+            document.getElementById("delivery_status").innerHTML += "<span style='color:#F00;'> "+msgMessage+"</span>"; 
+        }
+        if ( msgType === "msg_send_start" ) {
+            console.log("About to send message: ", msgMessage, " nodes")
+            document.getElementById("delivery_status").innerHTML = "Sending (" + msgMessage + "):";
+            fadeIn(deliveryStatusDiv,400);
+        }
+        // 
+        if ( msgType === "msg_delivery_complete" ) {
+            console.log("Send is complete: ", msgMessage, " ")
+            document.getElementById("delivery_status").innerHTML = "<div class='vertical-center'><h2>Complete! ( " + msgMessage + " seconds ) </h2></div>";
+            fadeOut(deliveryStatusDiv,5000);
+        }
+        
         
         //
         // GPIO Sensor - work in progress demo
@@ -940,6 +932,7 @@
         //
         // Join message demo
         //
+        /*
         if ( msgType === "joinMessage" ) {
             
             if ( !peersOnMap.present(msgFrom) ) {
@@ -948,7 +941,7 @@
             // Add (or update) peer with callsign and timestamp
             peersOnMap.add( msgFrom, Math.round(+new Date()/1000) );
             updatePeerListBlock(); 
-        }
+        }*/
 
         if ( msgArray.length == 4 ) 
         {
@@ -1087,18 +1080,12 @@
         }
     };
     
-    //
-    // msgSocket disconnect
-    //
-    msgSocket.onclose = function(event) {
-        document.getElementById('msgSocketStatus').style="display:none;";
-        notifyMessage("Message channel disconnected! Try reloading page.", 5000);
-        msgSocketConnected=false;
-    };
+    
     
     //
     // 'info window' open and close logic
     //
+    /*
     const targetDiv = document.getElementById("info-box");
     const btn = document.getElementById("infobox-close");
     const infoIcon = document.getElementById("info-icon");
@@ -1120,15 +1107,15 @@
             targetDiv.style.display = "block";
           }
         }
-    };
+    };*/
 	
     //
     // 'log-window' open and close logic variables
     //
     const logIcon = document.getElementById("log-icon");
     const logDiv = document.getElementById("log-window");
-    const zoomDiv = document.getElementById("rightSensoryDisplay");
-    const sensorDiv = document.getElementById("rightZoomButtons");
+    // const zoomDiv = document.getElementById("rightSensoryDisplay");
+    // const sensorDiv = document.getElementById("rightZoomButtons");
     const bottomBarDiv = document.getElementById("bottomBar");
     const callSignEntryBoxDiv =  document.getElementById("callSignEntry");
     const coordinateEntryBoxDiv =  document.getElementById("coordinateSearchEntry");
@@ -1137,8 +1124,14 @@
     const radiolistblockDiv =  document.getElementById("radiolistblock");
     const userlistbuttonDiv = document.getElementById("userlistbutton");   
     const radiolistbuttonDiv = document.getElementById("meshtasticButton");
+    // const manualGpsbuttonDiv = document.getElementById("manual-gps-button");  REMOVE
     const radioNotifyDotDiv = document.getElementById("radioNotifyDot"); 
-    const videoConferenceDiv = document.getElementById("videoBlock");  // AKU
+    const reticulumNotifyDotDiv = document.getElementById("reticulumNotifyDot");    // DEV
+    const reticulumListblockDiv =  document.getElementById("reticulumlistblock");   // DEV
+    const reticulumListButtonDiv = document.getElementById("reticulumButton"); // DEV
+    const videoConferenceDiv = document.getElementById("videoBlock");
+    const deliveryStatusDiv = document.getElementById("delivery-status-window"); 
+    const mapClickLatlonSectionDiv = document.getElementById("mapClickLatlonSection");
     
     //
     // Set rtl text plugin and pmtiles protocol
@@ -1160,7 +1153,8 @@
     dragMarkerPopup.addTo(map);
     dragMarker.on('dragend', onDragEnd);
     dragMarker.on('drag', onDrag);
-    dragMarker.addTo(map);
+    // On reticulum & meshtastic this has no purpose
+    // dragMarker.addTo(map);
     
     //
     // Reference draggable marker with MilSymbols
@@ -1198,8 +1192,8 @@
             type: "".toUpperCase(),
             padding: 5
         }).asCanvas().toDataURL();
-    document.getElementById('debugImage').src = milSymbolTest;
-    document.getElementById('debugImage').style="display:none;";
+    //document.getElementById('debugImage').src = milSymbolTest;
+    //document.getElementById('debugImage').style="display:none;";
 
 
     //
@@ -1213,7 +1207,7 @@
     // 
     window.setInterval(function () {
         if ( mapLoaded ) {
-            checkPeerExpiry();
+            // checkPeerExpiry();
             checkRadioExpiry();
             // sendMessage ( callSign + `|joinMessage||periodic update` + '\n' );
             if ( gpsSocketConnected && localGpsFixStatus == 1 ) {
@@ -1350,6 +1344,10 @@
     // Firefox: about:config => geo.enabled
     //
     
+    // review this later
+    document.getElementById('trackingIndicator').style="display:none;"; 
+    document.getElementById('trackingIndicatorRed').style="display:none;";
+    
     //
     // Initialize and add the geolocate control
     //
@@ -1368,11 +1366,13 @@
     // Callback functions for geolocation
     geolocate.on('trackuserlocationstart', function() {
       document.getElementById('trackingIndicator').style="display:block;";
+      document.getElementById('trackingIndicatorRed').style="display:none;";
       document.getElementById('gpsStatus').innerHTML = "GPS";
     });
     // On 'track end' deliver last known coordinates and 'Stopped' message
     geolocate.on('trackuserlocationend', function() {
         document.getElementById('trackingIndicator').style="display:none;"; 
+        document.getElementById('trackingIndicatorRed').style="display:block;";
         document.getElementById('gpsStatus').innerHTML = "";      
         // NOTE: On meshtastic branch we disable sending geolocation. Bandwidth issue.
         // sendMessage( callSign + `|trackMarker|${lastKnownCoordinates.longitude},${lastKnownCoordinates.latitude}|Stopped` + '\n' );
@@ -1400,7 +1400,7 @@
             }
         }
     );
-    document.getElementById('zoomlevel').innerHTML = intialZoomLevel;
+    // document.getElementById('zoomlevel').innerHTML = intialZoomLevel; // REMOVE
     feather.replace();
     
     // Capture click coordinates to UI 
@@ -1426,7 +1426,13 @@
           }
           if ( key == 'lng' ) {
               let uLon = value.toString();
-              document.getElementById('lon').innerHTML = uLon.substring(0,10);
+                document.getElementById('lon').innerHTML = uLon.substring(0,10);
+                document.getElementById("copyNotifyText").innerHTML = "";
+                document.getElementById("coordinateComma").innerHTML = ",";
+                if ( document.getElementById("mapClickLatlonSection").style.visibility != "visible") {
+                    fadeIn( document.getElementById("mapClickLatlonSection"), 400 );
+                }
+              
                 if ( unknownSensorCreateInProgress == 1 ) {
                     document.getElementById('sensorLon').innerHTML = uLon.substring(0,10);
                 }
@@ -1439,9 +1445,26 @@
     
     map.on('zoom', function () {
             let zoom = map.getZoom();
-            document.getElementById('zoomlevel').innerHTML = zoom.toFixed(0);
+            // document.getElementById('zoomlevel').innerHTML = zoom.toFixed(0);
     });
    
+    // Testing new menu, let's hide old - do this proper when done
+    
+    /*fadeOut(zoomDiv,120);
+    fadeOut(sensorDiv,120);
+    // fadeOut(bottomBarDiv,120);
+    fadeOut(cameracontrol,120);
+    fadeOut(userlistbuttonDiv ,120);
+    fadeOut(radiolistbuttonDiv ,120);
+    fadeOut(radiolistblockDiv ,120);
+    fadeOut(videoconferenceButton ,120);
+    fadeOut(reticulumListblockDiv ,120);
+    fadeOut(reticulumListButtonDiv ,120);
+    fadeOut(manualGpsbuttonDiv ,120);
+    */
+    
+    // Radial menu test
+    //REMOVED FOR NG
 
     //
     // Keypress functions
@@ -1453,7 +1476,8 @@
             let inputValue = document.getElementById('coordinateInput').value;
             const coordValue = inputValue.split(",");
             if ( check_lat_lon(coordValue[1],coordValue[0]) == true) {
-                console.log("AddDot");
+                console.log("AddDot: ",coordValue[1],coordValue[0]);
+                removeDot();
                 addDot(coordValue[1],coordValue[0]);
             }
             document.getElementById('coordinateInput').value="";   
@@ -1470,6 +1494,10 @@
             // Messaging
             if (key === "m") {
                if ( isHidden(logDiv) ) openMessageEntryBox();
+            }
+            // SVG Menu test
+            if (key === "s") {
+               // svgMenu.open();
             }
             // Radio list
             if (key === "r") {
@@ -1500,9 +1528,10 @@
             if (key === "Escape") {
                 document.getElementById('coordinateInput').value="";   
                 if ( !isHidden(coordinateEntryBoxDiv) ) closeCoordinateSearchEntryBox();
-                if ( !isHidden(languageSelectDialogDiv) ) closeLanguageSelectBox();
+                // if ( !isHidden(languageSelectDialogDiv) ) closeLanguageSelectBox(); // REMOVE
                 if ( !isHidden(logDiv) ) closeMessageEntryBox();
                 if ( !isHidden(radiolistblockDiv) ) closeRadioList();
+                if ( !isHidden(reticulumListblockDiv) ) closeReticulumList();
             }
             if (key === "h") {
                 if ( isHidden(logDiv) ) {

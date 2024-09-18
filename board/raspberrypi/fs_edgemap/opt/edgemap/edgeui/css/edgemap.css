@@ -217,7 +217,7 @@ body { margin: 0; padding: 0;  }
 	left: 10%;
     right: 10%;
 	top: 10%;
-    bottom: 10%;
+    bottom: 10px;
 	border-radius: 5px;
 	padding-top: 10px;
 	font-size: 15px;	
@@ -405,39 +405,7 @@ stroke: #FF0;
     font-size: 15px;
 }
 
-.coordinateSearch {
-	display: none;
-	font: 12px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-	background-color: #333;
-	color: #0f0;
-	position: absolute;	
-	bottom: 200px;
-	left: 50%;
-	transform: translate(-50%);	
-	border-radius: 5px;
-	padding-top: 5px;
-	padding-left: 5px;
-	width: 350px;
-	height: 50px; 
-	opacity: 0.9;
-}
 
-.coordinateSearchTitle {
-	font-size: 15px;
-}
-
-.coordinateSearchInput {
-	font-size: 15px;
-	width: 60%;
-	margin-top: -10px;
-	border-top-style: hidden;
-	border-right-style: hidden;
-	border-left-style: hidden;
-	border-bottom-style: groove;
-	border-bottom: 1px solid #0F0;
-	background-color: transparent;
-	color: #0F0;
-}
 
 
 
@@ -477,7 +445,22 @@ stroke: #FF0;
 	color: #0F0;
 }
 
-
+.delivery-status {
+	display: none;
+	font: 12px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	background-color: #333;
+	color: #0f0;
+	position: absolute;	
+	bottom: 200px;
+	left: 50%;
+	transform: translate(-50%);	
+	border-radius: 5px;
+	padding-top: 5px;
+	padding-left: 5px;
+	width: 300px;
+	height: 40px; 
+	opacity: 0.9;
+}
 
 .log-window {
 	display: none;
@@ -541,6 +524,21 @@ input:focus {
 	font-size: 14px;
 }
 
+.sensorNameInputStyle {
+  width: 50%;
+  padding: 0px 0px;
+  margin: 0px 0;
+  	border-top-style: hidden;
+	border-right-style: hidden;
+	border-left-style: hidden;
+	border-bottom-style: groove;
+	border-bottom: 1.5px solid #0F0;
+  background-color: transparent;
+  color: #0F0;
+  
+  font-size: 12px;
+}
+
 
 .feather-msgbutton {
   width: 15px;
@@ -555,7 +553,8 @@ input:focus {
 
 .msgbutton {
   background-color: transparent; /* Green */
-  border: 3px solid #4CAF50;
+  border: 3px solid #00f000;
+  border-radius: 5px;
   color: #0f0;
   padding: 5px 5px;
   vertical-align: center;
@@ -564,6 +563,7 @@ input:focus {
   display: inline-block;
   font-size: 10px;
 }
+
 .msgbutton:hover {
   box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.29);
 }
@@ -699,19 +699,71 @@ input:focus {
     border-left-color: #F00;
     }
 
-.map-top-callsign-overlay {
+
+
+
+.mapSecurepttTransmissionStatus {
+    font: 8px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    padding: 1px;
+    border: 1px solid #0E0;
+    color: #0F0;
+    background-color: #080;
+}
+
+.mapSecurepttTransmissionStatusRed {
+    font: 8px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    padding: 1px;
+    border: 1px solid #0E0;
+    color: #0F0;
+    background-color: #080;
+}
+
+
+/* Disabled 
+.map-secureptt-overlay {
+    display:none;
     font: 14px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-	background-color: #333;
+	background-color: #444;
 	color: #0f0;
 	position: absolute;
 	border-radius: 5px;
-	top: 10px;
+	top: 45px;
     right: 20%;
     left: 20%;
 	padding: 5px;
-	opacity: 0.9;
+	opacity: 0.8;
     height: 25px;
+    z-index: 1;
+}*/
+
+.secureptt-callsign {
+    border: 2px solid #0E0;
+    border-radius: 5px;
+    text-align: center;    
+    z-index: 1;
 }
+.secureptt-callsign-red {
+    background-color: #800;
+    border: 2px solid #0e0;
+    border-radius: 5px;
+    text-align: center;    
+    z-index: 1;
+}
+.secureptt-callsign-present {
+    background-color: #040;
+    border: 2px solid #0e0;
+    border-radius: 5px;
+    text-align: center;    
+    z-index: 1;
+}
+
+.secureptt-icon {
+    text-align: center;    
+    z-index: 1;
+}
+
+
+
 
 /* Tooltip container */
 .tooltip {
@@ -733,7 +785,7 @@ input:focus {
   display: inline-block;
   /* Position the tooltip text - see examples below! */
   position: absolute;
-  z-index: 1;
+  z-index: 10;
   top: 30px;
   left: -10px;
 }
@@ -763,7 +815,7 @@ input:focus {
  
   /* Position the tooltip text - see examples below! */
   position: absolute;
-  z-index: 1;
+  z-index: 10;
   top: 30px;
   right: 5px;
 }
@@ -794,7 +846,7 @@ input:focus {
  
   /* Position the tooltip text - see examples below! */
   position: absolute;
-  z-index: 1;
+  z-index: 10;
   bottom: 35px;
   left: -10px;
 }
@@ -826,7 +878,7 @@ input:focus {
  
   /* Position the tooltip text - see examples below! */
   position: absolute;
-  z-index: 1;
+  z-index: 10;
   bottom: 35px;
   right: 10px;
 }
@@ -836,17 +888,37 @@ input:focus {
   visibility: visible;
 }
 
+.rounded {
+	border-radius: 15px;
+    width: 150px;
+}
 
-.map-top-mobile-overlay {
+
+
+.map-top-menubutton-overlay {
 	background-color: #333;
 	color: #0f0;
 	position: absolute;
 	border-radius: 5px;
 	top: 10px;
-	width: 15px;
-    height: 15px;
+	width: 35px;
+    height: 35px;
+	right: 10px;
+	/* padding: 10px; */
+	opacity: 0.9;
+    z-index: 10;
+}
+
+.map-top-reloadbutton-overlay {
+	background-color: #333;
+	color: #0f0;
+	position: absolute;
+	border-radius: 5px;
+	top: 10px;
+	width: 35px;
+    height: 35px;
 	left: 10px;
-	padding: 10px;
+	/*padding: 10px;*/
 	opacity: 0.9;
 }
 
@@ -854,18 +926,72 @@ input:focus {
 	background-color: #333;
 	color: #0f0;
 	position: absolute;
-	border-radius: 5px;
+	border-radius: 15px;
 	top: 70px;
-	width: 215px;
-    height: 80%;
+	width: 150px;
+    height: 70%;
 	left: 10px;
 	padding: 10px;
 	opacity: 0.8;
+    overflow: auto;
 }
+
+.map-videoroom-title {
+	font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	color: #0f0;
+    margin-bottom: 2px;
+	font-size: 14px;	
+	opacity: 0.9;
+}
+
+.map-videoroom-metadata {
+	font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	color: #0f0;
+    margin-bottom: 1px;
+	font-size: 12px;	
+	opacity: 0.9;
+}
+
+.button-video {
+  background-color: transparent; /* Green */
+  border: 1.5px solid #0f0;
+  border-radius: 3px;
+    position: relative;
+    bottom: 5px;
+    left: 5px;
+  color: #0f0;
+  padding: 2px;
+  margin-left: 5px;
+  margin-bottom: 2px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 12px;
+  width: 65px;
+}
+
+.button-on-video {
+  background-color: transparent; /* Green */
+  border: 1.5px solid #0f0;
+  border-radius: 3px;
+    position: relative;
+    top: 5px;
+    left: 5px;
+  color: #0f0;
+  padding: 1px 1px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 12px;
+  width: 65px;
+}
+
 
 .map-top-buttons-mobile-overlay:hover {
 	opacity: 1;
 }
+
+
 
 .feather-mobile {
   width: 20px;
@@ -889,6 +1015,7 @@ input:focus {
   display: inline-block;
   font-size: 20px;
 }
+
 .button-mobile:hover {
   box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.29);
 }
@@ -927,11 +1054,56 @@ input:focus {
 	border-radius: 5px;
     width: 200px;
     height: 50px;
-	bottom: 60px;
+	bottom: 10px;
     left: 10px;
 	padding: 8px;
 	opacity: 0.8;
 }
+
+.map-bottom-sensor-entries {
+    font: 12px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	background-color: #333;
+	color: #0f0;
+	position: absolute;
+	border-radius: 5px;
+    width: 290px;
+    height: 50px;
+	bottom: 220px;
+    left: 10px;
+	padding: 10px;
+	opacity: 0.6;
+}
+
+.sensor-close-button-style {
+	font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	position: absolute;
+	width: 40px;
+    color: #0f0;
+    border: 1px solid #00fF00;
+	border-radius: 5px;
+	top: 4px;
+	right: 4px;
+	padding: 2px;
+	opacity: 1.0;
+}
+.sensor-define-button-style {
+	font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	position: absolute;
+	width: 40px;
+    color: #0f0;
+    border: 1px solid #00fF00;
+	border-radius: 5px;
+	top: 34px;
+	right: 4px;
+	padding: 2px;
+	opacity: 1.0;
+}
+
+.sensor-message-style {
+
+}
+
+
 
 
 .map-right-userlist-button {
@@ -960,7 +1132,7 @@ input:focus {
 	position: absolute;
 	width: 35px;
 	border-radius: 5px;
-	top: 400px;
+	top: 340px;
 	right: 2px;
 	padding: 5px;
 	opacity: 1.0;
@@ -976,13 +1148,35 @@ input:focus {
 	border-radius: 5px;	
 }
 
+.map-right-reticulum-button {
+	font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	position: absolute;
+	width: 35px;
+	border-radius: 5px;
+	top: 380px;
+	right: 2px;
+	padding: 5px;
+	opacity: 1.0;
+}
+
+.map-right-reticulum-button .map-right-reticulum-button-inner {
+	background-color: #333;
+	color: #0f0;
+	margin-top: 5px;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+	border-radius: 3px;
+	padding: 5px;
+	border-radius: 5px;	
+}
+
+
 
 .map-right-videoconference-button {
 	font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
 	position: absolute;
 	width: 35px;
 	border-radius: 5px;
-	top: 440px;
+	top: 420px;
 	right: 2px;
 	padding: 5px;
 	opacity: 1.0;
@@ -1034,6 +1228,26 @@ input:focus {
   top: 5px;
   right: 5px;
 }
+
+.reticulumlistblock {
+    font: 12px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	background-color: #333;
+	color: #0F0;
+	position: absolute;
+	border-radius: 5px;
+    width: 300px;
+    height: 150px;
+	bottom: 10px;
+    left: 10px;
+	padding: 5px;
+	opacity: 0.6;
+}
+.toprightlogoreticulumblock {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+}
+
 
 .buttonNotifyDot {
   position: absolute;
@@ -1167,6 +1381,217 @@ input:focus {
     background-color: #333;
     background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' fill='lightgreen' viewBox='0 0 20 20'%3E%3Cpath d='M10 4C9 4 9 5 9 5v.1A5 5 0 0 0 5.1 9H5s-1 0-1 1 1 1 1 1h.1A5 5 0 0 0 9 14.9v.1s0 1 1 1 1-1 1-1v-.1a5 5 0 0 0 3.9-3.9h.1s1 0 1-1-1-1-1-1h-.1A5 5 0 0 0 11 5.1V5s0-1-1-1zm0 2.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 1 1 0-7z'/%3E%3Ccircle cx='10' cy='10' r='2'/%3E%3C/svg%3E");
 }
+
+
+
+
+
+.map-bottom-manualLocation-entries {
+    font: 12px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	background-color: #333;
+	color: #0f0;
+	position: absolute;
+	border-radius: 5px;
+    width: 290px;
+    height: 50px;
+	bottom: 220px;
+    left: 10px;
+	padding: 10px;
+	opacity: 0.6;
+}
+
+.manualLocation-close-button-style {
+	font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	position: absolute;
+	width: 40px;
+    color: #0f0;
+    border: 1px solid #00fF00;
+	border-radius: 5px;
+	top: 4px;
+	right: 4px;
+	padding: 2px;
+	opacity: 1.0;
+}
+.manualLocation-define-button-style {
+	font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	position: absolute;
+	width: 40px;
+    color: #0f0;
+    border: 1px solid #00fF00;
+	border-radius: 5px;
+	top: 34px;
+	right: 4px;
+	padding: 2px;
+	opacity: 1.0;
+}
+
+.manualLocation-message-style {
+
+}
+
+.vertical-center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+button {
+	font-size: 16px;
+}
+
+div.info {
+	margin: 15px 0;
+}
+
+div.info * {
+	color: white;
+	text-shadow: 1px 1px 0 #000000D0;
+}
+h1 {
+	font-size: 24px;
+	font-weight: normal;
+	color: white;
+}
+
+body {
+	font-family: Arial, sans-serif;
+	font-size: 13px;
+}
+
+
+
+
+        
+
+.map-top-status-icon-overlay {
+    font: 14px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	background-color: #333;
+	color: #0f0;
+	position: absolute;
+	border-radius: 5px;
+	top: 10px;
+    right: 15%;
+    left: 15%;
+	padding: 2px;
+	opacity: 0.9;
+    height: 30px;
+    z-index: 10;
+    /*width: 60%;*/
+}
+
+.icon-container {
+    display: flex; /* Makes child elements (SVGs) align in a row */
+    gap: 5px; /* Adds space between SVGs */
+    width: 60%;
+}
+
+
+
+
+.map-top-callsign-overlay {
+    font: 14px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	background-color: #333;
+	color: #0f0;
+	position: absolute;
+	border-radius: 5px;
+	top: 45px;
+    right: 65%;
+    /*width: 60%;*/
+    left: 15%;
+	/*padding-top: 2px;*/
+    /*margin-top: 15px;*/
+	opacity: 0.9;
+    height: 20px;
+    z-index: 10;
+}
+
+.map-top-gpslocation-overlay {
+    font: 14px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	background-color: #333;
+	color: #0f0;
+	position: absolute;
+	border-radius: 5px;
+	top: 45px;
+    right: 35%;
+    /*width: 60%;*/
+    left: 40%;
+    
+	/*padding-top: 2px;*/
+    /*margin-top: 15px;*/
+	opacity: 0.9;
+    height: 20px;
+    z-index: 10;
+}
+
+.map-top-latlon-overlay {
+    font: 14px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	background-color: #333;
+	color: #0f0;
+	position: absolute;
+	border-radius: 5px;
+	top: 68px;
+    /* right: 50%;*/
+    width: 50%;
+    left: 15%;
+    
+	/*padding-top: 2px;*/
+    /*margin-top: 15px;*/
+	opacity: 0.9;
+    height: 20px;
+    z-index: 10;
+}
+
+
+.icon-container-search {
+    display: flex; /* Makes child elements (SVGs) align in a row */
+    gap: 4px; /* Adds space between SVGs */
+    padding-top: 3px; 
+    padding-left: 5px;
+}
+.coordinateSearch {
+	display: none;
+	font: 12px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	background-color: #333;
+	color: #0f0;
+	position: absolute;	
+	bottom: 200px;
+	left: 50%;
+	transform: translate(-50%);	
+	border-radius: 5px;
+	padding-top: 0px;
+	padding-left: 5px;
+	width: 300px;
+	height: 40px; 
+	opacity: 0.9;
+    
+}
+
+.coordinateSearchTitle {
+	font-size: 15px;
+}
+
+.coordinateSearchInput {
+	font-size: 15px;
+	/*width: 60%;
+	 margin-top: -10px; */
+	border-top-style: hidden;
+	border-right-style: hidden;
+	border-left-style: hidden;
+	border-bottom-style: groove;
+	border-bottom: 1px solid #0F0;
+	background-color: transparent;
+	color: #0F0;
+}
+
+
+
+
+
+
+
+
 
 
 

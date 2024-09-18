@@ -91,6 +91,13 @@ where you can pick location on map and give description. All further alarms are 
 Note that this implementation is still work in progress.
 
 
+### Reticulum
+
+Experimental support for reticulum network is included on build. Currently we have to disable meshtastic when reticulum is 
+activated into use, but this might change in future. For reticulum there is "Reticulum MeshChat" included, which is
+independent browser usable chat and nomad network access tool. Edgemap includes also messaging over lxmf/reticulum, which is highly
+experimental at the moment. 
+
 ### SecurePTT
 
 SecurePTT branch contains possbility to use small scale demo of full duplex Push-To-Talk (PTT) with exclusive level of security, where PTT streams are encrypted with One-Time-Pad (OTP). This functionality can be configured to following modes, depending on use case:
@@ -159,10 +166,10 @@ make rpi4_secureptt_6.6_defconfig
 make
 ```
 
-Current build tested with master branch of buildroot `0196ec4198771e5fe83d6df02c7cd3b13c0ce05f`.
+Current build tested with master branch of buildroot `06397d26a0cef5ddce0b04919acac8f4d63dacbf`.
 
 Modify `rpi-firmware` package file and change firmware version tag to
-match kernel version (6.6.47) we're using. 
+match kernel version (6.6.51) we're using. 
 
 ```
 # package/rpi-firmware/rpi-firmware.mk
@@ -263,6 +270,13 @@ MESHTASTIC_PORT="/dev/ttyACM0"
 * LilyGo: /dev/ttyUSB0
 * Heltec: /dev/ttyACM0
 
+## Reticulum configuration
+
+You can find reticulum (rnsd) configuration file at:
+
+```
+/opt/meshchat/config
+```
 
 ## Local GPS
 

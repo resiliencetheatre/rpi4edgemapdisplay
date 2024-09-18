@@ -1,6 +1,6 @@
 /**
  * MapLibre GL JS
- * @license 3-Clause BSD. Full text of license: https://github.com/maplibre/maplibre-gl-js/blob/v4.5.1/LICENSE.txt
+ * @license 3-Clause BSD. Full text of license: https://github.com/maplibre/maplibre-gl-js/blob/v4.7.0/LICENSE.txt
  */
 (function (global, factory) {
 typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -10,7 +10,7 @@ typeof define === 'function' && define.amd ? define(['exports'], factory) :
 
 var name = "maplibre-gl";
 var description = "BSD licensed community fork of mapbox-gl, a WebGL interactive maps library";
-var version$2 = "4.5.1";
+var version$2 = "4.7.0";
 var main = "dist/maplibre-gl.js";
 var style = "dist/maplibre-gl.css";
 var license = "BSD-3-Clause";
@@ -33,7 +33,7 @@ var dependencies = {
 	"@mapbox/unitbezier": "^0.0.1",
 	"@mapbox/vector-tile": "^1.3.1",
 	"@mapbox/whoots-js": "^3.1.0",
-	"@maplibre/maplibre-gl-style-spec": "^20.3.0",
+	"@maplibre/maplibre-gl-style-spec": "^20.3.1",
 	"@types/geojson": "^7946.0.14",
 	"@types/geojson-vt": "3.2.5",
 	"@types/mapbox__point-geometry": "^0.1.4",
@@ -43,7 +43,7 @@ var dependencies = {
 	earcut: "^3.0.0",
 	"geojson-vt": "^4.0.2",
 	"gl-matrix": "^3.4.3",
-	"global-prefix": "^3.0.0",
+	"global-prefix": "^4.0.0",
 	kdbush: "^4.0.2",
 	"murmurhash-js": "^1.0.0",
 	pbf: "^3.3.0",
@@ -54,7 +54,7 @@ var dependencies = {
 	"vt-pbf": "^3.1.3"
 };
 var devDependencies = {
-	autoprefixer: "^10.4.19",
+	autoprefixer: "^10.4.20",
 	"@mapbox/mapbox-gl-rtl-text": "^0.3.0",
 	"@mapbox/mvt-fixtures": "^3.10.0",
 	"@rollup/plugin-commonjs": "^26.0.1",
@@ -67,7 +67,7 @@ var devDependencies = {
 	"@types/benchmark": "^2.1.5",
 	"@types/cssnano": "^5.0.0",
 	"@types/d3": "^7.4.3",
-	"@types/diff": "^5.2.1",
+	"@types/diff": "^5.2.2",
 	"@types/earcut": "^2.1.4",
 	"@types/eslint": "^8.56.7",
 	"@types/gl": "^6.0.5",
@@ -77,11 +77,11 @@ var devDependencies = {
 	"@types/minimist": "^1.2.5",
 	"@types/murmurhash-js": "^1.0.6",
 	"@types/nise": "^1.4.5",
-	"@types/node": "^22.0.2",
+	"@types/node": "^22.5.4",
 	"@types/offscreencanvas": "^2019.7.3",
 	"@types/pixelmatch": "^5.2.6",
 	"@types/pngjs": "^6.0.5",
-	"@types/react": "^18.3.3",
+	"@types/react": "^18.3.5",
 	"@types/react-dom": "^18.3.0",
 	"@types/request": "^2.48.12",
 	"@types/shuffle-seed": "^1.1.3",
@@ -91,18 +91,18 @@ var devDependencies = {
 	address: "^2.0.3",
 	benchmark: "^2.1.4",
 	canvas: "^2.11.2",
-	cssnano: "^7.0.4",
+	cssnano: "^7.0.6",
 	d3: "^7.9.0",
 	"d3-queue": "^3.0.7",
-	"devtools-protocol": "^0.0.1335233",
-	diff: "^5.2.0",
+	"devtools-protocol": "^0.0.1351223",
+	diff: "^6.0.0",
 	"dts-bundle-generator": "^9.5.1",
 	eslint: "^8.57.0",
 	"eslint-config-mourner": "^3.0.0",
 	"eslint-plugin-html": "^8.1.1",
-	"eslint-plugin-import": "^2.29.1",
-	"eslint-plugin-jest": "^28.6.0",
-	"eslint-plugin-react": "^7.35.0",
+	"eslint-plugin-import": "^2.30.0",
+	"eslint-plugin-jest": "^28.8.3",
+	"eslint-plugin-react": "^7.35.2",
 	"eslint-plugin-tsdoc": "0.3.0",
 	expect: "^29.7.0",
 	glob: "^11.0.0",
@@ -112,48 +112,40 @@ var devDependencies = {
 	"jest-junit": "^16.0.0",
 	"jest-monocart-coverage": "^1.1.1",
 	"jest-webgl-canvas-mock": "^2.5.3",
-	jsdom: "^24.1.1",
-	"junit-report-builder": "^4.0.1",
+	jsdom: "^25.0.0",
+	"junit-report-builder": "^5.0.0",
 	minimist: "^1.2.8",
 	"mock-geolocation": "^1.0.11",
-	"monocart-coverage-reports": "^2.10.0",
+	"monocart-coverage-reports": "^2.10.3",
 	nise: "^6.0.0",
 	"npm-font-open-sans": "^1.1.0",
 	"npm-run-all": "^4.1.5",
 	"pdf-merger-js": "^5.1.2",
 	pixelmatch: "^6.0.0",
 	pngjs: "^7.0.0",
-	postcss: "^8.4.40",
+	postcss: "^8.4.45",
 	"postcss-cli": "^11.0.0",
 	"postcss-inline-svg": "^6.0.0",
 	"pretty-bytes": "^6.1.1",
-	puppeteer: "^22.15.0",
+	puppeteer: "^23.3.0",
 	react: "^18.3.1",
 	"react-dom": "^18.3.1",
-	rollup: "^4.19.1",
+	rollup: "^4.21.2",
 	"rollup-plugin-sourcemaps": "^0.6.3",
 	rw: "^1.3.3",
 	semver: "^7.6.3",
 	"shuffle-seed": "^1.1.6",
 	"source-map-explorer": "^2.5.3",
 	st: "^3.0.0",
-	stylelint: "^16.8.1",
+	stylelint: "^16.9.0",
 	"stylelint-config-standard": "^36.0.1",
-	"ts-jest": "^29.2.3",
+	"ts-jest": "^29.2.5",
 	"ts-node": "^10.9.2",
-	tslib: "^2.6.3",
-	typedoc: "^0.26.5",
-	"typedoc-plugin-markdown": "^4.2.3",
+	tslib: "^2.7.0",
+	typedoc: "^0.26.6",
+	"typedoc-plugin-markdown": "^4.2.7",
 	"typedoc-plugin-missing-exports": "^3.0.0",
 	typescript: "^5.5.4"
-};
-var overrides = {
-	"postcss-inline-svg": {
-		"css-select": "^5.1.0",
-		"dom-serializer": "^2.0.0",
-		htmlparser2: "^8.0.1",
-		"postcss-value-parser": "^4.2.0"
-	}
 };
 var scripts = {
 	"generate-dist-package": "node --no-warnings --loader ts-node/esm build/generate-dist-package.js",
@@ -221,7 +213,6 @@ var packageJSON = {
 	type: type,
 	dependencies: dependencies,
 	devDependencies: devDependencies,
-	overrides: overrides,
 	scripts: scripts,
 	files: files,
 	engines: engines
@@ -241,7 +232,7 @@ LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
-/* global Reflect, Promise, SuppressedError, Symbol */
+/* global Reflect, Promise, SuppressedError, Symbol, Iterator */
 
 var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf ||
@@ -352,8 +343,8 @@ function __awaiter(thisArg, _arguments, P, generator) {
 }
 
 function __generator(thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -457,7 +448,7 @@ function __await(v) {
 function __asyncGenerator(thisArg, _arguments, generator) {
     if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
     var g = generator.apply(thisArg, _arguments || []), i, q = [];
-    return i = {}, verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function () { return this; }, i;
+    return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function () { return this; }, i;
     function awaitReturn(f) { return function (v) { return Promise.resolve(v).then(f, reject); }; }
     function verb(n, f) { if (g[n]) { i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; if (f) i[n] = f(i[n]); } }
     function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
@@ -556,17 +547,22 @@ function __disposeResources(env) {
         env.error = env.hasError ? new _SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
         env.hasError = true;
     }
+    var r, s = 0;
     function next() {
-        while (env.stack.length) {
-            var rec = env.stack.pop();
+        while (r = env.stack.pop()) {
             try {
-                var result = rec.dispose && rec.dispose.call(rec.value);
-                if (rec.async) return Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
+                if (r.dispose) {
+                    var result = r.dispose.call(r.value);
+                    if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                }
+                else s |= 1;
             }
             catch (e) {
                 fail(e);
             }
         }
+        if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
         if (env.hasError) throw env.error;
     }
     return next();
@@ -1667,6 +1663,16 @@ function subscribe(target, message, listener, options) {
 function degreesToRadians(degrees) {
     return degrees * Math.PI / 180;
 }
+/**
+ * The maximum world tile zoom (Z).
+ * In other words, the upper bound supported for tile zoom.
+ */
+const MAX_TILE_ZOOM = 25;
+/**
+ * The minimum world tile zoom (Z).
+ * In other words, the lower bound supported for tile zoom.
+ */
+const MIN_TILE_ZOOM = 0;
 
 /**
  * An error message to use when an operation is aborted
@@ -7622,14 +7628,26 @@ class IndexOf {
         if (!isValidNativeType(needle, ['boolean', 'string', 'number', 'null'])) {
             throw new RuntimeError(`Expected first argument to be of type boolean, string, number or null, but found ${toString$1(typeOf(needle))} instead.`);
         }
-        if (!isValidNativeType(haystack, ['string', 'array'])) {
-            throw new RuntimeError(`Expected second argument to be of type array or string, but found ${toString$1(typeOf(haystack))} instead.`);
-        }
+        let fromIndex;
         if (this.fromIndex) {
-            const fromIndex = this.fromIndex.evaluate(ctx);
+            fromIndex = this.fromIndex.evaluate(ctx);
+        }
+        if (isValidNativeType(haystack, ['string'])) {
+            const rawIndex = haystack.indexOf(needle, fromIndex);
+            if (rawIndex === -1) {
+                return -1;
+            }
+            else {
+                // The index may be affected by surrogate pairs, so get the length of the preceding substring.
+                return [...haystack.slice(0, rawIndex)].length;
+            }
+        }
+        else if (isValidNativeType(haystack, ['array'])) {
             return haystack.indexOf(needle, fromIndex);
         }
-        return haystack.indexOf(needle);
+        else {
+            throw new RuntimeError(`Expected second argument to be of type array or string, but found ${toString$1(typeOf(haystack))} instead.`);
+        }
     }
     eachChild(fn) {
         fn(this.needle);
@@ -7811,14 +7829,20 @@ class Slice {
     evaluate(ctx) {
         const input = this.input.evaluate(ctx);
         const beginIndex = this.beginIndex.evaluate(ctx);
-        if (!isValidNativeType(input, ['string', 'array'])) {
-            throw new RuntimeError(`Expected first argument to be of type array or string, but found ${toString$1(typeOf(input))} instead.`);
-        }
+        let endIndex;
         if (this.endIndex) {
-            const endIndex = this.endIndex.evaluate(ctx);
+            endIndex = this.endIndex.evaluate(ctx);
+        }
+        if (isValidNativeType(input, ['string'])) {
+            // Indices may be affected by surrogate pairs.
+            return [...input].slice(beginIndex, endIndex).join('');
+        }
+        else if (isValidNativeType(input, ['array'])) {
             return input.slice(beginIndex, endIndex);
         }
-        return input.slice(beginIndex);
+        else {
+            throw new RuntimeError(`Expected first argument to be of type array or string, but found ${toString$1(typeOf(input))} instead.`);
+        }
     }
     eachChild(fn) {
         fn(this.input);
@@ -8779,7 +8803,8 @@ class Length {
     evaluate(ctx) {
         const input = this.input.evaluate(ctx);
         if (typeof input === 'string') {
-            return input.length;
+            // The length may be affected by surrogate pairs.
+            return [...input].length;
         }
         else if (Array.isArray(input)) {
             return input.length;
@@ -9120,7 +9145,7 @@ class Within {
 }
 
 let TinyQueue$1 = class TinyQueue {
-    constructor(data = [], compare = defaultCompare$1) {
+    constructor(data = [], compare = (a, b) => (a < b ? -1 : a > b ? 1 : 0)) {
         this.data = data;
         this.length = this.data.length;
         this.compare = compare;
@@ -9132,8 +9157,7 @@ let TinyQueue$1 = class TinyQueue {
 
     push(item) {
         this.data.push(item);
-        this.length++;
-        this._up(this.length - 1);
+        this._up(this.length++);
     }
 
     pop() {
@@ -9141,9 +9165,8 @@ let TinyQueue$1 = class TinyQueue {
 
         const top = this.data[0];
         const bottom = this.data.pop();
-        this.length--;
 
-        if (this.length > 0) {
+        if (--this.length > 0) {
             this.data[0] = bottom;
             this._down(0);
         }
@@ -9176,30 +9199,24 @@ let TinyQueue$1 = class TinyQueue {
         const item = data[pos];
 
         while (pos < halfLength) {
-            let left = (pos << 1) + 1;
-            let best = data[left];
-            const right = left + 1;
+            let bestChild = (pos << 1) + 1; // initially it is the left child
+            const right = bestChild + 1;
 
-            if (right < this.length && compare(data[right], best) < 0) {
-                left = right;
-                best = data[right];
+            if (right < this.length && compare(data[right], data[bestChild]) < 0) {
+                bestChild = right;
             }
-            if (compare(best, item) >= 0) break;
+            if (compare(data[bestChild], item) >= 0) break;
 
-            data[pos] = best;
-            pos = left;
+            data[pos] = data[bestChild];
+            pos = bestChild;
         }
 
         data[pos] = item;
     }
 };
 
-function defaultCompare$1(a, b) {
-    return a < b ? -1 : a > b ? 1 : 0;
-}
-
 function quickselect(arr, k, left, right, compare) {
-    quickselectStep(arr, k, left , right || (arr.length - 1), compare || defaultCompare);
+    quickselectStep(arr, k, left, right || (arr.length - 1), compare || defaultCompare);
 }
 
 function quickselectStep(arr, k, left, right, compare) {
@@ -13978,7 +13995,7 @@ class ZoomHistory {
     }
 }
 
-// The following table comes from <https://www.unicode.org/Public/12.0.0/ucd/Blocks.txt>.
+// The following table comes from <https://www.unicode.org/Public/16.0.0/ucd/Blocks.txt>.
 // Keep it synchronized with <https://www.unicode.org/Public/UCD/latest/ucd/Blocks.txt>.
 const unicodeBlockLookup = {
     // 'Basic Latin': (char) => char >= 0x0000 && char <= 0x007F,
@@ -13993,15 +14010,16 @@ const unicodeBlockLookup = {
     // 'Cyrillic Supplement': (char) => char >= 0x0500 && char <= 0x052F,
     // 'Armenian': (char) => char >= 0x0530 && char <= 0x058F,
     //'Hebrew': (char) => char >= 0x0590 && char <= 0x05FF,
-    'Arabic': (char) => char >= 0x0600 && char <= 0x06FF,
+    // 'Arabic': (char) => char >= 0x0600 && char <= 0x06FF,
     //'Syriac': (char) => char >= 0x0700 && char <= 0x074F,
-    'Arabic Supplement': (char) => char >= 0x0750 && char <= 0x077F,
+    // 'Arabic Supplement': (char) => char >= 0x0750 && char <= 0x077F,
     // 'Thaana': (char) => char >= 0x0780 && char <= 0x07BF,
     // 'NKo': (char) => char >= 0x07C0 && char <= 0x07FF,
     // 'Samaritan': (char) => char >= 0x0800 && char <= 0x083F,
     // 'Mandaic': (char) => char >= 0x0840 && char <= 0x085F,
     // 'Syriac Supplement': (char) => char >= 0x0860 && char <= 0x086F,
-    'Arabic Extended-A': (char) => char >= 0x08A0 && char <= 0x08FF,
+    // 'Arabic Extended-B': (char) => char >= 0x0870 && char <= 0x089F,
+    // 'Arabic Extended-A': (char) => char >= 0x08A0 && char <= 0x08FF,
     // 'Devanagari': (char) => char >= 0x0900 && char <= 0x097F,
     // 'Bengali': (char) => char >= 0x0980 && char <= 0x09FF,
     // 'Gurmukhi': (char) => char >= 0x0A00 && char <= 0x0A7F,
@@ -14021,7 +14039,7 @@ const unicodeBlockLookup = {
     // 'Ethiopic': (char) => char >= 0x1200 && char <= 0x137F,
     // 'Ethiopic Supplement': (char) => char >= 0x1380 && char <= 0x139F,
     // 'Cherokee': (char) => char >= 0x13A0 && char <= 0x13FF,
-    'Unified Canadian Aboriginal Syllabics': (char) => char >= 0x1400 && char <= 0x167F,
+    // 'Unified Canadian Aboriginal Syllabics': (char) => char >= 0x1400 && char <= 0x167F,
     // 'Ogham': (char) => char >= 0x1680 && char <= 0x169F,
     // 'Runic': (char) => char >= 0x16A0 && char <= 0x16FF,
     // 'Tagalog': (char) => char >= 0x1700 && char <= 0x171F,
@@ -14030,7 +14048,7 @@ const unicodeBlockLookup = {
     // 'Tagbanwa': (char) => char >= 0x1760 && char <= 0x177F,
     'Khmer': (char) => char >= 0x1780 && char <= 0x17FF,
     // 'Mongolian': (char) => char >= 0x1800 && char <= 0x18AF,
-    'Unified Canadian Aboriginal Syllabics Extended': (char) => char >= 0x18B0 && char <= 0x18FF,
+    // 'Unified Canadian Aboriginal Syllabics Extended': (char) => char >= 0x18B0 && char <= 0x18FF,
     // 'Limbu': (char) => char >= 0x1900 && char <= 0x194F,
     // 'Tai Le': (char) => char >= 0x1950 && char <= 0x197F,
     // 'New Tai Lue': (char) => char >= 0x1980 && char <= 0x19DF,
@@ -14084,25 +14102,25 @@ const unicodeBlockLookup = {
     // 'Ethiopic Extended': (char) => char >= 0x2D80 && char <= 0x2DDF,
     // 'Cyrillic Extended-A': (char) => char >= 0x2DE0 && char <= 0x2DFF,
     // 'Supplemental Punctuation': (char) => char >= 0x2E00 && char <= 0x2E7F,
-    'CJK Radicals Supplement': (char) => char >= 0x2E80 && char <= 0x2EFF,
-    'Kangxi Radicals': (char) => char >= 0x2F00 && char <= 0x2FDF,
+    // 'CJK Radicals Supplement': (char) => char >= 0x2E80 && char <= 0x2EFF,
+    // 'Kangxi Radicals': (char) => char >= 0x2F00 && char <= 0x2FDF,
     'Ideographic Description Characters': (char) => char >= 0x2FF0 && char <= 0x2FFF,
     'CJK Symbols and Punctuation': (char) => char >= 0x3000 && char <= 0x303F,
-    'Hiragana': (char) => char >= 0x3040 && char <= 0x309F,
+    // 'Hiragana': (char) => char >= 0x3040 && char <= 0x309F,
     'Katakana': (char) => char >= 0x30A0 && char <= 0x30FF,
-    'Bopomofo': (char) => char >= 0x3100 && char <= 0x312F,
-    'Hangul Compatibility Jamo': (char) => char >= 0x3130 && char <= 0x318F,
+    // 'Bopomofo': (char) => char >= 0x3100 && char <= 0x312F,
+    // 'Hangul Compatibility Jamo': (char) => char >= 0x3130 && char <= 0x318F,
     'Kanbun': (char) => char >= 0x3190 && char <= 0x319F,
-    'Bopomofo Extended': (char) => char >= 0x31A0 && char <= 0x31BF,
+    // 'Bopomofo Extended': (char) => char >= 0x31A0 && char <= 0x31BF,
     'CJK Strokes': (char) => char >= 0x31C0 && char <= 0x31EF,
-    'Katakana Phonetic Extensions': (char) => char >= 0x31F0 && char <= 0x31FF,
+    // 'Katakana Phonetic Extensions': (char) => char >= 0x31F0 && char <= 0x31FF,
     'Enclosed CJK Letters and Months': (char) => char >= 0x3200 && char <= 0x32FF,
     'CJK Compatibility': (char) => char >= 0x3300 && char <= 0x33FF,
-    'CJK Unified Ideographs Extension A': (char) => char >= 0x3400 && char <= 0x4DBF,
+    // 'CJK Unified Ideographs Extension A': (char) => char >= 0x3400 && char <= 0x4DBF,
     'Yijing Hexagram Symbols': (char) => char >= 0x4DC0 && char <= 0x4DFF,
-    'CJK Unified Ideographs': (char) => char >= 0x4E00 && char <= 0x9FFF,
-    'Yi Syllables': (char) => char >= 0xA000 && char <= 0xA48F,
-    'Yi Radicals': (char) => char >= 0xA490 && char <= 0xA4CF,
+    // 'CJK Unified Ideographs': (char) => char >= 0x4E00 && char <= 0x9FFF,
+    // 'Yi Syllables': (char) => char >= 0xA000 && char <= 0xA48F,
+    // 'Yi Radicals': (char) => char >= 0xA490 && char <= 0xA4CF,
     // 'Lisu': (char) => char >= 0xA4D0 && char <= 0xA4FF,
     // 'Vai': (char) => char >= 0xA500 && char <= 0xA63F,
     // 'Cyrillic Extended-B': (char) => char >= 0xA640 && char <= 0xA69F,
@@ -14116,7 +14134,7 @@ const unicodeBlockLookup = {
     // 'Devanagari Extended': (char) => char >= 0xA8E0 && char <= 0xA8FF,
     // 'Kayah Li': (char) => char >= 0xA900 && char <= 0xA92F,
     // 'Rejang': (char) => char >= 0xA930 && char <= 0xA95F,
-    'Hangul Jamo Extended-A': (char) => char >= 0xA960 && char <= 0xA97F,
+    // 'Hangul Jamo Extended-A': (char) => char >= 0xA960 && char <= 0xA97F,
     // 'Javanese': (char) => char >= 0xA980 && char <= 0xA9DF,
     // 'Myanmar Extended-B': (char) => char >= 0xA9E0 && char <= 0xA9FF,
     // 'Cham': (char) => char >= 0xAA00 && char <= 0xAA5F,
@@ -14127,21 +14145,21 @@ const unicodeBlockLookup = {
     // 'Latin Extended-E': (char) => char >= 0xAB30 && char <= 0xAB6F,
     // 'Cherokee Supplement': (char) => char >= 0xAB70 && char <= 0xABBF,
     // 'Meetei Mayek': (char) => char >= 0xABC0 && char <= 0xABFF,
-    'Hangul Syllables': (char) => char >= 0xAC00 && char <= 0xD7AF,
-    'Hangul Jamo Extended-B': (char) => char >= 0xD7B0 && char <= 0xD7FF,
+    // 'Hangul Syllables': (char) => char >= 0xAC00 && char <= 0xD7AF,
+    // 'Hangul Jamo Extended-B': (char) => char >= 0xD7B0 && char <= 0xD7FF,
     // 'High Surrogates': (char) => char >= 0xD800 && char <= 0xDB7F,
     // 'High Private Use Surrogates': (char) => char >= 0xDB80 && char <= 0xDBFF,
     // 'Low Surrogates': (char) => char >= 0xDC00 && char <= 0xDFFF,
     'Private Use Area': (char) => char >= 0xE000 && char <= 0xF8FF,
-    'CJK Compatibility Ideographs': (char) => char >= 0xF900 && char <= 0xFAFF,
+    // 'CJK Compatibility Ideographs': (char) => char >= 0xF900 && char <= 0xFAFF,
     // 'Alphabetic Presentation Forms': (char) => char >= 0xFB00 && char <= 0xFB4F,
-    'Arabic Presentation Forms-A': (char) => char >= 0xFB50 && char <= 0xFDFF,
+    // 'Arabic Presentation Forms-A': (char) => char >= 0xFB50 && char <= 0xFDFF,
     // 'Variation Selectors': (char) => char >= 0xFE00 && char <= 0xFE0F,
     'Vertical Forms': (char) => char >= 0xFE10 && char <= 0xFE1F,
     // 'Combining Half Marks': (char) => char >= 0xFE20 && char <= 0xFE2F,
     'CJK Compatibility Forms': (char) => char >= 0xFE30 && char <= 0xFE4F,
     'Small Form Variants': (char) => char >= 0xFE50 && char <= 0xFE6F,
-    'Arabic Presentation Forms-B': (char) => char >= 0xFE70 && char <= 0xFEFF,
+    // 'Arabic Presentation Forms-B': (char) => char >= 0xFE70 && char <= 0xFEFF,
     'Halfwidth and Fullwidth Forms': (char) => char >= 0xFF00 && char <= 0xFFEF
     // 'Specials': (char) => char >= 0xFFF0 && char <= 0xFFFF,
     // 'Linear B Syllabary': (char) => char >= 0x10000 && char <= 0x1007F,
@@ -14164,7 +14182,10 @@ const unicodeBlockLookup = {
     // 'Osage': (char) => char >= 0x104B0 && char <= 0x104FF,
     // 'Elbasan': (char) => char >= 0x10500 && char <= 0x1052F,
     // 'Caucasian Albanian': (char) => char >= 0x10530 && char <= 0x1056F,
+    // 'Vithkuqi': (char) => char >= 0x10570 && char <= 0x105BF,
+    // 'Todhri': (char) => char >= 0x105C0 && char <= 0x105FF,
     // 'Linear A': (char) => char >= 0x10600 && char <= 0x1077F,
+    // 'Latin Extended-F': (char) => char >= 0x10780 && char <= 0x107BF,
     // 'Cypriot Syllabary': (char) => char >= 0x10800 && char <= 0x1083F,
     // 'Imperial Aramaic': (char) => char >= 0x10840 && char <= 0x1085F,
     // 'Palmyrene': (char) => char >= 0x10860 && char <= 0x1087F,
@@ -14185,9 +14206,14 @@ const unicodeBlockLookup = {
     // 'Old Turkic': (char) => char >= 0x10C00 && char <= 0x10C4F,
     // 'Old Hungarian': (char) => char >= 0x10C80 && char <= 0x10CFF,
     // 'Hanifi Rohingya': (char) => char >= 0x10D00 && char <= 0x10D3F,
+    // 'Garay': (char) => char >= 0x10D40 && char <= 0x10D8F,
     // 'Rumi Numeral Symbols': (char) => char >= 0x10E60 && char <= 0x10E7F,
+    // 'Yezidi': (char) => char >= 0x10E80 && char <= 0x10EBF,
+    // 'Arabic Extended-C': (char) => char >= 0x10EC0 && char <= 0x10EFF,
     // 'Old Sogdian': (char) => char >= 0x10F00 && char <= 0x10F2F,
     // 'Sogdian': (char) => char >= 0x10F30 && char <= 0x10F6F,
+    // 'Old Uyghur': (char) => char >= 0x10F70 && char <= 0x10FAF,
+    // 'Chorasmian': (char) => char >= 0x10FB0 && char <= 0x10FDF,
     // 'Elymaic': (char) => char >= 0x10FE0 && char <= 0x10FFF,
     // 'Brahmi': (char) => char >= 0x11000 && char <= 0x1107F,
     // 'Kaithi': (char) => char >= 0x11080 && char <= 0x110CF,
@@ -14200,57 +14226,82 @@ const unicodeBlockLookup = {
     // 'Multani': (char) => char >= 0x11280 && char <= 0x112AF,
     // 'Khudawadi': (char) => char >= 0x112B0 && char <= 0x112FF,
     // 'Grantha': (char) => char >= 0x11300 && char <= 0x1137F,
+    // 'Tulu-Tigalari': (char) => char >= 0x11380 && char <= 0x113FF,
     // 'Newa': (char) => char >= 0x11400 && char <= 0x1147F,
     // 'Tirhuta': (char) => char >= 0x11480 && char <= 0x114DF,
     // 'Siddham': (char) => char >= 0x11580 && char <= 0x115FF,
     // 'Modi': (char) => char >= 0x11600 && char <= 0x1165F,
     // 'Mongolian Supplement': (char) => char >= 0x11660 && char <= 0x1167F,
     // 'Takri': (char) => char >= 0x11680 && char <= 0x116CF,
-    // 'Ahom': (char) => char >= 0x11700 && char <= 0x1173F,
+    // 'Myanmar Extended-C': (char) => char >= 0x116D0 && char <= 0x116FF,
+    // 'Ahom': (char) => char >= 0x11700 && char <= 0x1174F,
     // 'Dogra': (char) => char >= 0x11800 && char <= 0x1184F,
     // 'Warang Citi': (char) => char >= 0x118A0 && char <= 0x118FF,
+    // 'Dives Akuru': (char) => char >= 0x11900 && char <= 0x1195F,
     // 'Nandinagari': (char) => char >= 0x119A0 && char <= 0x119FF,
     // 'Zanabazar Square': (char) => char >= 0x11A00 && char <= 0x11A4F,
     // 'Soyombo': (char) => char >= 0x11A50 && char <= 0x11AAF,
+    // 'Unified Canadian Aboriginal Syllabics Extended-A': (char) => char >= 0x11AB0 && char <= 0x11ABF,
     // 'Pau Cin Hau': (char) => char >= 0x11AC0 && char <= 0x11AFF,
+    // 'Devanagari Extended-A': (char) => char >= 0x11B00 && char <= 0x11B5F,
+    // 'Sunuwar': (char) => char >= 0x11BC0 && char <= 0x11BFF,
     // 'Bhaiksuki': (char) => char >= 0x11C00 && char <= 0x11C6F,
     // 'Marchen': (char) => char >= 0x11C70 && char <= 0x11CBF,
     // 'Masaram Gondi': (char) => char >= 0x11D00 && char <= 0x11D5F,
     // 'Gunjala Gondi': (char) => char >= 0x11D60 && char <= 0x11DAF,
     // 'Makasar': (char) => char >= 0x11EE0 && char <= 0x11EFF,
+    // 'Kawi': (char) => char >= 0x11F00 && char <= 0x11F5F,
+    // 'Lisu Supplement': (char) => char >= 0x11FB0 && char <= 0x11FBF,
     // 'Tamil Supplement': (char) => char >= 0x11FC0 && char <= 0x11FFF,
     // 'Cuneiform': (char) => char >= 0x12000 && char <= 0x123FF,
     // 'Cuneiform Numbers and Punctuation': (char) => char >= 0x12400 && char <= 0x1247F,
     // 'Early Dynastic Cuneiform': (char) => char >= 0x12480 && char <= 0x1254F,
+    // 'Cypro-Minoan': (char) => char >= 0x12F90 && char <= 0x12FFF,
     // 'Egyptian Hieroglyphs': (char) => char >= 0x13000 && char <= 0x1342F,
-    // 'Egyptian Hieroglyph Format Controls': (char) => char >= 0x13430 && char <= 0x1343F,
+    // 'Egyptian Hieroglyph Format Controls': (char) => char >= 0x13430 && char <= 0x1345F,
+    // 'Egyptian Hieroglyphs Extended-A': (char) => char >= 0x13460 && char <= 0x143FF,
     // 'Anatolian Hieroglyphs': (char) => char >= 0x14400 && char <= 0x1467F,
+    // 'Gurung Khema': (char) => char >= 0x16100 && char <= 0x1613F,
     // 'Bamum Supplement': (char) => char >= 0x16800 && char <= 0x16A3F,
     // 'Mro': (char) => char >= 0x16A40 && char <= 0x16A6F,
+    // 'Tangsa': (char) => char >= 0x16A70 && char <= 0x16ACF,
     // 'Bassa Vah': (char) => char >= 0x16AD0 && char <= 0x16AFF,
     // 'Pahawh Hmong': (char) => char >= 0x16B00 && char <= 0x16B8F,
+    // 'Kirat Rai': (char) => char >= 0x16D40 && char <= 0x16D7F,
     // 'Medefaidrin': (char) => char >= 0x16E40 && char <= 0x16E9F,
     // 'Miao': (char) => char >= 0x16F00 && char <= 0x16F9F,
     // 'Ideographic Symbols and Punctuation': (char) => char >= 0x16FE0 && char <= 0x16FFF,
     // 'Tangut': (char) => char >= 0x17000 && char <= 0x187FF,
     // 'Tangut Components': (char) => char >= 0x18800 && char <= 0x18AFF,
+    // 'Khitan Small Script': (char) => char >= 0x18B00 && char <= 0x18CFF,
+    // 'Tangut Supplement': (char) => char >= 0x18D00 && char <= 0x18D7F,
+    // 'Kana Extended-B': (char) => char >= 0x1AFF0 && char <= 0x1AFFF,
     // 'Kana Supplement': (char) => char >= 0x1B000 && char <= 0x1B0FF,
     // 'Kana Extended-A': (char) => char >= 0x1B100 && char <= 0x1B12F,
     // 'Small Kana Extension': (char) => char >= 0x1B130 && char <= 0x1B16F,
     // 'Nushu': (char) => char >= 0x1B170 && char <= 0x1B2FF,
     // 'Duployan': (char) => char >= 0x1BC00 && char <= 0x1BC9F,
     // 'Shorthand Format Controls': (char) => char >= 0x1BCA0 && char <= 0x1BCAF,
+    // 'Symbols for Legacy Computing Supplement': (char) => char >= 0x1CC00 && char <= 0x1CEBF,
+    // 'Znamenny Musical Notation': (char) => char >= 0x1CF00 && char <= 0x1CFCF,
     // 'Byzantine Musical Symbols': (char) => char >= 0x1D000 && char <= 0x1D0FF,
     // 'Musical Symbols': (char) => char >= 0x1D100 && char <= 0x1D1FF,
     // 'Ancient Greek Musical Notation': (char) => char >= 0x1D200 && char <= 0x1D24F,
+    // 'Kaktovik Numerals': (char) => char >= 0x1D2C0 && char <= 0x1D2DF,
     // 'Mayan Numerals': (char) => char >= 0x1D2E0 && char <= 0x1D2FF,
     // 'Tai Xuan Jing Symbols': (char) => char >= 0x1D300 && char <= 0x1D35F,
     // 'Counting Rod Numerals': (char) => char >= 0x1D360 && char <= 0x1D37F,
     // 'Mathematical Alphanumeric Symbols': (char) => char >= 0x1D400 && char <= 0x1D7FF,
     // 'Sutton SignWriting': (char) => char >= 0x1D800 && char <= 0x1DAAF,
+    // 'Latin Extended-G': (char) => char >= 0x1DF00 && char <= 0x1DFFF,
     // 'Glagolitic Supplement': (char) => char >= 0x1E000 && char <= 0x1E02F,
+    // 'Cyrillic Extended-D': (char) => char >= 0x1E030 && char <= 0x1E08F,
     // 'Nyiakeng Puachue Hmong': (char) => char >= 0x1E100 && char <= 0x1E14F,
+    // 'Toto': (char) => char >= 0x1E290 && char <= 0x1E2BF,
     // 'Wancho': (char) => char >= 0x1E2C0 && char <= 0x1E2FF,
+    // 'Nag Mundari': (char) => char >= 0x1E4D0 && char <= 0x1E4FF,
+    // 'Ol Onal': (char) => char >= 0x1E5D0 && char <= 0x1E5FF,
+    // 'Ethiopic Extended-B': (char) => char >= 0x1E7E0 && char <= 0x1E7FF,
     // 'Mende Kikakui': (char) => char >= 0x1E800 && char <= 0x1E8DF,
     // 'Adlam': (char) => char >= 0x1E900 && char <= 0x1E95F,
     // 'Indic Siyaq Numbers': (char) => char >= 0x1EC70 && char <= 0x1ECBF,
@@ -14271,11 +14322,15 @@ const unicodeBlockLookup = {
     // 'Supplemental Symbols and Pictographs': (char) => char >= 0x1F900 && char <= 0x1F9FF,
     // 'Chess Symbols': (char) => char >= 0x1FA00 && char <= 0x1FA6F,
     // 'Symbols and Pictographs Extended-A': (char) => char >= 0x1FA70 && char <= 0x1FAFF,
+    // 'Symbols for Legacy Computing': (char) => char >= 0x1FB00 && char <= 0x1FBFF,
     // 'CJK Unified Ideographs Extension B': (char) => char >= 0x20000 && char <= 0x2A6DF,
     // 'CJK Unified Ideographs Extension C': (char) => char >= 0x2A700 && char <= 0x2B73F,
     // 'CJK Unified Ideographs Extension D': (char) => char >= 0x2B740 && char <= 0x2B81F,
     // 'CJK Unified Ideographs Extension E': (char) => char >= 0x2B820 && char <= 0x2CEAF,
     // 'CJK Unified Ideographs Extension F': (char) => char >= 0x2CEB0 && char <= 0x2EBEF,
+    // 'CJK Unified Ideographs Extension I': (char) => char >= 0x2EBF0 && char <= 0x2EE5F,
+    // 'CJK Unified Ideographs Extension G': (char) => char >= 0x30000 && char <= 0x3134F,
+    // 'CJK Unified Ideographs Extension H': (char) => char >= 0x31350 && char <= 0x323AF,
     // 'CJK Compatibility Ideographs Supplement': (char) => char >= 0x2F800 && char <= 0x2FA1F,
     // 'Tags': (char) => char >= 0xE0000 && char <= 0xE007F,
     // 'Variation Selectors Supplement': (char) => char >= 0xE0100 && char <= 0xE01EF,
@@ -14305,67 +14360,77 @@ function allowsLetterSpacing(chars) {
     }
     return true;
 }
-function charAllowsLetterSpacing(char) {
-    if (unicodeBlockLookup['Arabic'](char))
-        return false;
-    if (unicodeBlockLookup['Arabic Supplement'](char))
-        return false;
-    if (unicodeBlockLookup['Arabic Extended-A'](char))
-        return false;
-    if (unicodeBlockLookup['Arabic Presentation Forms-A'](char))
-        return false;
-    if (unicodeBlockLookup['Arabic Presentation Forms-B'](char))
-        return false;
-    return true;
+/**
+ * Returns a regular expression matching the given script codes, excluding any
+ * code that the execution environment lacks support for in regular expressions.
+ */
+function sanitizedRegExpFromScriptCodes(scriptCodes) {
+    const supportedPropertyEscapes = scriptCodes.map(code => {
+        try {
+            return new RegExp(`\\p{sc=${code}}`, 'u').source;
+        }
+        catch (e) {
+            return null;
+        }
+    }).filter(pe => pe);
+    return new RegExp(supportedPropertyEscapes.join('|'), 'u');
 }
+/**
+ * ISO 15924 script codes of scripts that disallow letter spacing as of Unicode
+ * 16.0.0.
+ *
+ * In general, cursive scripts are incompatible with letter spacing.
+ */
+const cursiveScriptCodes = [
+    'Arab', // Arabic
+    'Dupl', // Duployan
+    'Mong', // Mongolian
+    'Ougr', // Old Uyghur
+    'Syrc', // Syriac
+];
+const cursiveScriptRegExp = sanitizedRegExpFromScriptCodes(cursiveScriptCodes);
+function charAllowsLetterSpacing(char) {
+    return !cursiveScriptRegExp.test(String.fromCodePoint(char));
+}
+/**
+ * ISO 15924 script codes of scripts that allow ideographic line breaking beyond
+ * the CJKV scripts that are considered ideographic in Unicode 16.0.0.
+ */
+const ideographicBreakingScriptCodes = [
+    'Bopo', // Bopomofo
+    'Hani', // Han
+    'Hira', // Hiragana
+    'Kana', // Katakana
+    'Kits', // Khitan Small Script
+    'Nshu', // Nushu
+    'Tang', // Tangut
+    'Yiii', // Yi
+];
+const ideographicBreakingRegExp = sanitizedRegExpFromScriptCodes(ideographicBreakingScriptCodes);
 function charAllowsIdeographicBreaking(char) {
     // Return early for characters outside all ideographic ranges.
     if (char < 0x2E80)
         return false;
-    if (unicodeBlockLookup['Bopomofo Extended'](char))
-        return true;
-    if (unicodeBlockLookup['Bopomofo'](char))
-        return true;
     if (unicodeBlockLookup['CJK Compatibility Forms'](char))
         return true;
-    if (unicodeBlockLookup['CJK Compatibility Ideographs'](char))
-        return true;
     if (unicodeBlockLookup['CJK Compatibility'](char))
-        return true;
-    if (unicodeBlockLookup['CJK Radicals Supplement'](char))
         return true;
     if (unicodeBlockLookup['CJK Strokes'](char))
         return true;
     if (unicodeBlockLookup['CJK Symbols and Punctuation'](char))
         return true;
-    if (unicodeBlockLookup['CJK Unified Ideographs Extension A'](char))
-        return true;
-    if (unicodeBlockLookup['CJK Unified Ideographs'](char))
-        return true;
     if (unicodeBlockLookup['Enclosed CJK Letters and Months'](char))
         return true;
     if (unicodeBlockLookup['Halfwidth and Fullwidth Forms'](char))
         return true;
-    if (unicodeBlockLookup['Hiragana'](char))
-        return true;
     if (unicodeBlockLookup['Ideographic Description Characters'](char))
-        return true;
-    if (unicodeBlockLookup['Kangxi Radicals'](char))
-        return true;
-    if (unicodeBlockLookup['Katakana Phonetic Extensions'](char))
-        return true;
-    if (unicodeBlockLookup['Katakana'](char))
         return true;
     if (unicodeBlockLookup['Vertical Forms'](char))
         return true;
-    if (unicodeBlockLookup['Yi Radicals'](char))
-        return true;
-    if (unicodeBlockLookup['Yi Syllables'](char))
-        return true;
-    return false;
+    return ideographicBreakingRegExp.test(String.fromCodePoint(char));
 }
 // The following logic comes from
-// <https://www.unicode.org/Public/12.0.0/ucd/VerticalOrientation.txt>.
+// <https://www.unicode.org/Public/16.0.0/ucd/VerticalOrientation.txt>.
 // Keep it synchronized with
 // <https://www.unicode.org/Public/UCD/latest/ucd/VerticalOrientation.txt>.
 // The data file denotes with “U” or “Tu” any codepoint that may be drawn
@@ -14392,20 +14457,12 @@ function charHasUprightVerticalOrientation(char) {
     // upright in vertical writing mode.
     if (char < 0x1100)
         return false;
-    if (unicodeBlockLookup['Bopomofo Extended'](char))
-        return true;
-    if (unicodeBlockLookup['Bopomofo'](char))
-        return true;
     if (unicodeBlockLookup['CJK Compatibility Forms'](char)) {
         if (!((char >= 0xFE49 /* dashed overline */ && char <= 0xFE4F) /* wavy low line */)) {
             return true;
         }
     }
-    if (unicodeBlockLookup['CJK Compatibility Ideographs'](char))
-        return true;
     if (unicodeBlockLookup['CJK Compatibility'](char))
-        return true;
-    if (unicodeBlockLookup['CJK Radicals Supplement'](char))
         return true;
     if (unicodeBlockLookup['CJK Strokes'](char))
         return true;
@@ -14416,31 +14473,11 @@ function charHasUprightVerticalOrientation(char) {
             return true;
         }
     }
-    if (unicodeBlockLookup['CJK Unified Ideographs Extension A'](char))
-        return true;
-    if (unicodeBlockLookup['CJK Unified Ideographs'](char))
-        return true;
     if (unicodeBlockLookup['Enclosed CJK Letters and Months'](char))
-        return true;
-    if (unicodeBlockLookup['Hangul Compatibility Jamo'](char))
-        return true;
-    if (unicodeBlockLookup['Hangul Jamo Extended-A'](char))
-        return true;
-    if (unicodeBlockLookup['Hangul Jamo Extended-B'](char))
-        return true;
-    if (unicodeBlockLookup['Hangul Jamo'](char))
-        return true;
-    if (unicodeBlockLookup['Hangul Syllables'](char))
-        return true;
-    if (unicodeBlockLookup['Hiragana'](char))
         return true;
     if (unicodeBlockLookup['Ideographic Description Characters'](char))
         return true;
     if (unicodeBlockLookup['Kanbun'](char))
-        return true;
-    if (unicodeBlockLookup['Kangxi Radicals'](char))
-        return true;
-    if (unicodeBlockLookup['Katakana Phonetic Extensions'](char))
         return true;
     if (unicodeBlockLookup['Katakana'](char)) {
         if (char !== 0x30FC /* katakana-hiragana prolonged sound mark */) {
@@ -14467,17 +14504,15 @@ function charHasUprightVerticalOrientation(char) {
             return true;
         }
     }
-    if (unicodeBlockLookup['Unified Canadian Aboriginal Syllabics'](char))
-        return true;
-    if (unicodeBlockLookup['Unified Canadian Aboriginal Syllabics Extended'](char))
-        return true;
     if (unicodeBlockLookup['Vertical Forms'](char))
         return true;
     if (unicodeBlockLookup['Yijing Hexagram Symbols'](char))
         return true;
-    if (unicodeBlockLookup['Yi Syllables'](char))
+    if ( /* Canadian Aboriginal *//\p{sc=Cans}/u.test(String.fromCodePoint(char)))
         return true;
-    if (unicodeBlockLookup['Yi Radicals'](char))
+    if ( /* Hangul *//\p{sc=Hang}/u.test(String.fromCodePoint(char)))
+        return true;
+    if (ideographicBreakingRegExp.test(String.fromCodePoint(char)))
         return true;
     return false;
 }
@@ -14596,17 +14631,53 @@ function charHasRotatedVerticalOrientation(char) {
         charHasNeutralVerticalOrientation(char));
 }
 function charInComplexShapingScript(char) {
-    return unicodeBlockLookup['Arabic'](char) ||
-        unicodeBlockLookup['Arabic Supplement'](char) ||
-        unicodeBlockLookup['Arabic Extended-A'](char) ||
-        unicodeBlockLookup['Arabic Presentation Forms-A'](char) ||
-        unicodeBlockLookup['Arabic Presentation Forms-B'](char);
+    return /\p{sc=Arab}/u.test(String.fromCodePoint(char));
 }
+/**
+ * ISO 15924 script codes of scripts that are primarily written horizontally
+ * right-to-left according to Unicode 16.0.0.
+ */
+const rtlScriptCodes = [
+    'Adlm', // Adlam
+    'Arab', // Arabic
+    'Armi', // Imperial Aramaic
+    'Avst', // Avestan
+    'Chrs', // Chorasmian
+    'Cprt', // Cypriot
+    'Egyp', // Egyptian Hieroglyphs
+    'Elym', // Elymaic
+    'Gara', // Garay
+    'Hatr', // Hatran
+    'Hebr', // Hebrew
+    'Hung', // Old Hungarian
+    'Khar', // Kharoshthi
+    'Lydi', // Lydian
+    'Mand', // Mandaic
+    'Mani', // Manichaean
+    'Mend', // Mende Kikakui
+    'Merc', // Meroitic Cursive
+    'Mero', // Meroitic Hieroglyphs
+    'Narb', // Old North Arabian
+    'Nbat', // Nabataean
+    'Nkoo', // NKo
+    'Orkh', // Old Turkic
+    'Palm', // Palmyrene
+    'Phli', // Inscriptional Pahlavi
+    'Phlp', // Psalter Pahlavi
+    'Phnx', // Phoenician
+    'Prti', // Inscriptional Parthian
+    'Rohg', // Hanifi Rohingya
+    'Samr', // Samaritan
+    'Sarb', // Old South Arabian
+    'Sogo', // Old Sogdian
+    'Syrc', // Syriac
+    'Thaa', // Thaana
+    'Todr', // Todhri
+    'Yezi', // Yezidi
+];
+const rtlScriptRegExp = sanitizedRegExpFromScriptCodes(rtlScriptCodes);
 function charInRTLScript(char) {
-    // Main blocks for Hebrew, Arabic, Thaana and other RTL scripts
-    return (char >= 0x0590 && char <= 0x08FF) ||
-        unicodeBlockLookup['Arabic Presentation Forms-A'](char) ||
-        unicodeBlockLookup['Arabic Presentation Forms-B'](char);
+    return rtlScriptRegExp.test(String.fromCodePoint(char));
 }
 function charInSupportedScript(char, canRenderRTL) {
     // This is a rough heuristic: whether we "can render" a script
@@ -25746,6 +25817,7 @@ function renderColorRamp(params) {
     return image;
 }
 
+const HEATMAP_FULL_RENDER_FBO_KEY = 'big-fb';
 /**
  * A style layer that defines a heatmap
  */
@@ -25755,6 +25827,7 @@ class HeatmapStyleLayer extends StyleLayer {
     }
     constructor(layer) {
         super(layer, properties$8);
+        this.heatmapFbos = new Map();
         // make sure color ramp texture is generated for default heatmap color too
         this._updateColorRamp();
     }
@@ -25773,9 +25846,8 @@ class HeatmapStyleLayer extends StyleLayer {
         this.colorRampTexture = null;
     }
     resize() {
-        if (this.heatmapFbo) {
-            this.heatmapFbo.destroy();
-            this.heatmapFbo = null;
+        if (this.heatmapFbos.has(HEATMAP_FULL_RENDER_FBO_KEY)) {
+            this.heatmapFbos.delete(HEATMAP_FULL_RENDER_FBO_KEY);
         }
     }
     queryRadius() {
@@ -31571,13 +31643,14 @@ class GlyphManager {
         });
     }
     _doesCharSupportLocalGlyph(id) {
-        /* eslint-disable new-cap */
+        // The CJK Unified Ideographs blocks and Hangul Syllables blocks are
+        // spread across many glyph PBFs and are typically accessed very
+        // randomly. Preferring local rendering for these blocks reduces
+        // wasteful bandwidth consumption. For visual consistency within CJKV
+        // text, also include any other CJKV or siniform ideograph or hangul,
+        // hiragana, or katakana character.
         return !!this.localIdeographFontFamily &&
-            (unicodeBlockLookup['CJK Unified Ideographs'](id) ||
-                unicodeBlockLookup['Hangul Syllables'](id) ||
-                unicodeBlockLookup['Hiragana'](id) ||
-                unicodeBlockLookup['Katakana'](id));
-        /* eslint-enable new-cap */
+            /\p{Ideo}|\p{sc=Hang}|\p{sc=Hira}|\p{sc=Kana}/u.test(String.fromCodePoint(id));
     }
     _tinySDF(entry, stack, id) {
         const fontFamily = this.localIdeographFontFamily;
@@ -31733,10 +31806,20 @@ class Sky extends Evented {
         this._transitionable = new Transitionable(properties);
         this.setSky(sky);
         this._transitioning = this._transitionable.untransitioned();
+        this.recalculate(new EvaluationParameters(0));
     }
     setSky(sky, options = {}) {
         if (this._validate(validateSky, sky, options))
             return;
+        if (!sky) {
+            sky = {
+                'sky-color': 'transparent',
+                'horizon-color': 'transparent',
+                'fog-color': 'transparent',
+                'fog-ground-blend': 1,
+                'atmosphere-blend': 0,
+            };
+        }
         for (const name in sky) {
             const value = sky[name];
             if (name.endsWith(TRANSITION_SUFFIX)) {
@@ -32924,6 +33007,25 @@ class LngLatBounds {
         const latAccuracy = 360 * radius / earthCircumferenceInMetersAtEquator, lngAccuracy = latAccuracy / Math.cos((Math.PI / 180) * center.lat);
         return new LngLatBounds(new LngLat(center.lng - lngAccuracy, center.lat - latAccuracy), new LngLat(center.lng + lngAccuracy, center.lat + latAccuracy));
     }
+    /**
+     * Adjusts the given bounds to handle the case where the bounds cross the 180th meridian (antimeridian).
+     *
+     * @returns The adjusted LngLatBounds
+     * @example
+     * ```ts
+     * let bounds = new LngLatBounds([175.813127, -20.157768], [-178. 340903, -15.449124]);
+     * let adjustedBounds = bounds.adjustAntiMeridian();
+     * // adjustedBounds will be: [[175.813127, -20.157768], [181.659097, -15.449124]]
+     * ```
+     */
+    adjustAntiMeridian() {
+        const sw = new LngLat(this._sw.lng, this._sw.lat);
+        const ne = new LngLat(this._ne.lng, this._ne.lat);
+        if (sw.lng > ne.lng) {
+            return new LngLatBounds(sw, new LngLat(ne.lng + 360, ne.lat));
+        }
+        return new LngLatBounds(sw, ne);
+    }
 }
 
 /*
@@ -33455,9 +33557,6 @@ class RasterTileSource extends Evented {
                     else {
                         tile.texture = new Texture(context, img, gl.RGBA, { useMipmap: true });
                         tile.texture.bind(gl.LINEAR, gl.CLAMP_TO_EDGE, gl.LINEAR_MIPMAP_NEAREST);
-                        if (context.extTextureFilterAnisotropic) {
-                            gl.texParameterf(gl.TEXTURE_2D, context.extTextureFilterAnisotropic.TEXTURE_MAX_ANISOTROPY_EXT, context.extTextureFilterAnisotropicMax);
-                        }
                     }
                     tile.state = 'loaded';
                 }
@@ -33571,12 +33670,50 @@ function getMercCoords(x, y, z) {
 }
 
 /**
+ * Returns true if a given tile zoom (Z), X, and Y are in the bounds of the world.
+ * Zoom bounds are the minimum zoom (inclusive) through the maximum zoom (inclusive).
+ * X and Y bounds are 0 (inclusive) to their respective zoom-dependent maxima (exclusive).
+ *
+ * @param zoom - the tile zoom (Z)
+ * @param x - the tile X
+ * @param y - the tile Y
+ * @returns `true` if a given tile zoom, X, and Y are in the bounds of the world.
+ */
+function isInBoundsForTileZoomXY(zoom, x, y) {
+    return !(zoom < MIN_TILE_ZOOM ||
+        zoom > MAX_TILE_ZOOM ||
+        y < 0 ||
+        y >= Math.pow(2, zoom) ||
+        x < 0 ||
+        x >= Math.pow(2, zoom));
+}
+/**
+ * Returns true if a given zoom and `LngLat` are in the bounds of the world.
+ * Does not wrap `LngLat` when checking if in bounds.
+ * Zoom bounds are the minimum zoom (inclusive) through the maximum zoom (inclusive).
+ * `LngLat` bounds are the mercator world's north-west corner (inclusive) to its south-east corner (exclusive).
+ *
+ * @param zoom - the tile zoom (Z)
+ * @param LngLat - the `LngLat` object containing the longitude and latitude
+ * @returns `true` if a given zoom and `LngLat` are in the bounds of the world.
+ */
+function isInBoundsForZoomLngLat(zoom, lnglat) {
+    const { x, y } = MercatorCoordinate.fromLngLat(lnglat);
+    return !(zoom < MIN_TILE_ZOOM ||
+        zoom > MAX_TILE_ZOOM ||
+        y < 0 ||
+        y >= 1 ||
+        x < 0 ||
+        x >= 1);
+}
+
+/**
  * A canonical way to define a tile ID
  */
 class CanonicalTileID {
     constructor(z, x, y) {
-        if (z < 0 || z > 25 || y < 0 || y >= Math.pow(2, z) || x < 0 || x >= Math.pow(2, z)) {
-            throw new Error(`x=${x}, y=${y}, z=${z} outside of bounds. 0<=x<${Math.pow(2, z)}, 0<=y<${Math.pow(2, z)} 0<=z<=25 `);
+        if (!isInBoundsForTileZoomXY(z, x, y)) {
+            throw new Error(`x=${x}, y=${y}, z=${z} outside of bounds. 0<=x<${Math.pow(2, z)}, 0<=y<${Math.pow(2, z)} ${MIN_TILE_ZOOM}<=z<=${MAX_TILE_ZOOM} `);
         }
         this.z = z;
         this.x = x;
@@ -34111,6 +34248,9 @@ class GeoJSONSource extends Evented {
             this.attribution = options.attribution;
         this.promoteId = options.promoteId;
         const scale = EXTENT / this.tileSize;
+        if (options.clusterMaxZoom !== undefined && this.maxzoom <= options.clusterMaxZoom) {
+            warnOnce(`The maxzoom value "${this.maxzoom}" is expected to be greater than the clusterMaxZoom value "${options.clusterMaxZoom}".`);
+        }
         // sent to the worker, along with `url: ...` or `data: literal geojson`,
         // so that it can load/parse/index the geojson data
         // extending with `options.workerOptions` helps to make it easy for
@@ -37392,14 +37532,14 @@ function getGlCoordMatrix(posMatrix, pitchWithMap, rotateWithMap, transform, pix
         return transform.glCoordMatrix;
     }
 }
-function project(point, matrix, getElevation) {
+function project(x, y, matrix, getElevation) {
     let pos;
     if (getElevation) { // slow because of handle z-index
-        pos = [point.x, point.y, getElevation(point.x, point.y), 1];
+        pos = [x, y, getElevation(x, y), 1];
         transformMat4$1(pos, pos, matrix);
     }
     else { // fast because of ignore z-index
-        pos = [point.x, point.y, 0, 1];
+        pos = [x, y, 0, 1];
         xyTransformMat4(pos, pos, matrix);
     }
     const w = pos[3];
@@ -37446,7 +37586,7 @@ function updateLineLabels(bucket, posMatrix, painter, isText, labelPlaneMatrix, 
         }
         // Awkward... but we're counting on the paired "vertical" symbol coming immediately after its horizontal counterpart
         useVertical = false;
-        const anchorPos = project(new Point$2(symbol.anchorX, symbol.anchorY), posMatrix, getElevation);
+        const anchorPos = project(symbol.anchorX, symbol.anchorY, posMatrix, getElevation);
         // Don't bother calculating the correct point for invisible labels.
         if (!isVisible(anchorPos.point, clippingBuffer)) {
             hideGlyphs(symbol.numGlyphs, dynamicLayoutVertexArray);
@@ -37556,8 +37696,8 @@ function placeGlyphsAlongLine(projectionContext, symbol, fontSize, flip, keepUpr
         if (!firstAndLastGlyph) {
             return { notEnoughRoom: true };
         }
-        const firstPoint = project(firstAndLastGlyph.first.point, glCoordMatrix, projectionContext.getElevation).point;
-        const lastPoint = project(firstAndLastGlyph.last.point, glCoordMatrix, projectionContext.getElevation).point;
+        const firstPoint = project(firstAndLastGlyph.first.point.x, firstAndLastGlyph.first.point.y, glCoordMatrix, projectionContext.getElevation).point;
+        const lastPoint = project(firstAndLastGlyph.last.point.x, firstAndLastGlyph.last.point.y, glCoordMatrix, projectionContext.getElevation).point;
         if (keepUpright && !flip) {
             const orientationChange = requiresOrientationChange(symbol.writingMode, firstPoint, lastPoint, aspectRatio);
             if (orientationChange) {
@@ -37575,10 +37715,10 @@ function placeGlyphsAlongLine(projectionContext, symbol, fontSize, flip, keepUpr
         // Only a single glyph to place
         // So, determine whether to flip based on projected angle of the line segment it's on
         if (keepUpright && !flip) {
-            const a = project(projectionContext.tileAnchorPoint, posMatrix, projectionContext.getElevation).point;
+            const a = project(projectionContext.tileAnchorPoint.x, projectionContext.tileAnchorPoint.y, posMatrix, projectionContext.getElevation).point;
             const tileVertexIndex = (symbol.lineStartIndex + symbol.segment + 1);
             const tileSegmentEnd = new Point$2(projectionContext.lineVertexArray.getx(tileVertexIndex), projectionContext.lineVertexArray.gety(tileVertexIndex));
-            const projectedVertex = project(tileSegmentEnd, posMatrix, projectionContext.getElevation);
+            const projectedVertex = project(tileSegmentEnd.x, tileSegmentEnd.y, posMatrix, projectionContext.getElevation);
             // We know the anchor will be in the viewport, but the end of the line segment may be
             // behind the plane of the camera, in which case we can use a point at any arbitrary (closer)
             // point on the segment.
@@ -37643,7 +37783,7 @@ function _projectTruncatedLineSegment(previousTilePoint, currentTilePoint, previ
     // plane of the camera.
     const unitVertexToBeProjected = previousTilePoint.add(previousTilePoint.sub(currentTilePoint)._unit());
     const projectedUnitVertex = projectionMatrix !== undefined ?
-        project(unitVertexToBeProjected, projectionMatrix, projectionContext.getElevation).point :
+        project(unitVertexToBeProjected.x, unitVertexToBeProjected.y, projectionMatrix, projectionContext.getElevation).point :
         projectTileCoordinatesToViewport(unitVertexToBeProjected.x, unitVertexToBeProjected.y, projectionContext).point;
     const projectedUnitSegment = previousProjectedPoint.sub(projectedUnitVertex);
     return previousProjectedPoint.add(projectedUnitSegment._mult(minimumLength / projectedUnitSegment.mag()));
@@ -37686,7 +37826,7 @@ function projectTileCoordinatesToViewport(x, y, projectionContext) {
         projection.point.y = (-projection.point.y * 0.5 + 0.5) * projectionContext.height;
     }
     else {
-        projection = project(new Point$2(translatedX, translatedY), projectionContext.labelPlaneMatrix, projectionContext.getElevation);
+        projection = project(translatedX, translatedY, projectionContext.labelPlaneMatrix, projectionContext.getElevation);
         projection.isOccluded = false;
     }
     return projection;
@@ -37889,7 +38029,25 @@ class CollisionIndex {
         const x = collisionBox.anchorPointX + translation[0];
         const y = collisionBox.anchorPointY + translation[1];
         const projectedPoint = this.projectAndGetPerspectiveRatio(posMatrix, x, y, unwrappedTileID, getElevation);
-        const projectedBox = this._projectCollisionBox(collisionBox, textPixelRatio, posMatrix, unwrappedTileID, pitchWithMap, rotateWithMap, translation, projectedPoint, getElevation, shift);
+        const tileToViewport = textPixelRatio * projectedPoint.perspectiveRatio;
+        let projectedBox;
+        if (!pitchWithMap && !rotateWithMap) {
+            // Fast path for common symbols
+            const pointX = projectedPoint.point.x + (shift ? shift.x * tileToViewport : 0);
+            const pointY = projectedPoint.point.y + (shift ? shift.y * tileToViewport : 0);
+            projectedBox = {
+                allPointsOccluded: false,
+                box: [
+                    pointX + collisionBox.x1 * tileToViewport,
+                    pointY + collisionBox.y1 * tileToViewport,
+                    pointX + collisionBox.x2 * tileToViewport,
+                    pointY + collisionBox.y2 * tileToViewport,
+                ]
+            };
+        }
+        else {
+            projectedBox = this._projectCollisionBox(collisionBox, tileToViewport, posMatrix, unwrappedTileID, pitchWithMap, rotateWithMap, translation, projectedPoint, getElevation, shift);
+        }
         const [tlX, tlY, brX, brY] = projectedBox.box;
         const projectionOccluded = this.mapProjection.useSpecialProjectionForSymbols ? (pitchWithMap ? projectedBox.allPointsOccluded : this.mapProjection.isOccluded(x, y, unwrappedTileID)) : false;
         if (projectionOccluded || projectedPoint.perspectiveRatio < this.perspectiveRatioCutoff || !this.isInsideGrid(tlX, tlY, brX, brY) ||
@@ -38033,7 +38191,7 @@ class CollisionIndex {
         };
     }
     projectPathToScreenSpace(projectedPath, projectionContext, labelToScreenMatrix) {
-        return projectedPath.map(p => project(p, labelToScreenMatrix, projectionContext.getElevation));
+        return projectedPath.map(p => project(p.x, p.y, labelToScreenMatrix, projectionContext.getElevation));
     }
     /**
      * Because the geometries in the CollisionIndex are an approximation of the shape of
@@ -38104,25 +38262,34 @@ class CollisionIndex {
             grid.insertCircle(key, collisionCircles[k], collisionCircles[k + 1], collisionCircles[k + 2]);
         }
     }
-    projectAndGetPerspectiveRatio(posMatrix, x, y, unwrappedTileID, getElevation) {
-        const projected = this.mapProjection.useSpecialProjectionForSymbols ?
-            this.mapProjection.projectTileCoordinates(x, y, unwrappedTileID, getElevation) :
-            project(new Point$2(x, y), posMatrix, getElevation);
+    projectAndGetPerspectiveRatio(posMatrix, x, y, _unwrappedTileID, getElevation) {
+        // The code here is duplicated from "projection.ts" for performance.
+        // Code here is subject to change once globe is merged.
+        let pos;
+        if (getElevation) { // slow because of handle z-index
+            pos = [x, y, getElevation(x, y), 1];
+            transformMat4$1(pos, pos, posMatrix);
+        }
+        else { // fast because of ignore z-index
+            pos = [x, y, 0, 1];
+            xyTransformMat4(pos, pos, posMatrix);
+        }
+        const w = pos[3];
         return {
-            point: new Point$2((((projected.point.x + 1) / 2) * this.transform.width) + viewportPadding, (((-projected.point.y + 1) / 2) * this.transform.height) + viewportPadding),
+            point: new Point$2((((pos[0] / w + 1) / 2) * this.transform.width) + viewportPadding, (((-pos[1] / w + 1) / 2) * this.transform.height) + viewportPadding),
             // See perspective ratio comment in symbol_sdf.vertex
             // We're doing collision detection in viewport space so we need
             // to scale down boxes in the distance
-            perspectiveRatio: 0.5 + 0.5 * (this.transform.cameraToCenterDistance / projected.signedDistanceFromCamera),
-            isOccluded: projected.isOccluded,
-            signedDistanceFromCamera: projected.signedDistanceFromCamera
+            perspectiveRatio: 0.5 + 0.5 * (this.transform.cameraToCenterDistance / w),
+            isOccluded: false,
+            signedDistanceFromCamera: w
         };
     }
     getPerspectiveRatio(posMatrix, x, y, unwrappedTileID, getElevation) {
         // We don't care about the actual projected point, just its W component.
         const projected = this.mapProjection.useSpecialProjectionForSymbols ?
             this.mapProjection.projectTileCoordinates(x, y, unwrappedTileID, getElevation) :
-            project(new Point$2(x, y), posMatrix, getElevation);
+            project(x, y, posMatrix, getElevation);
         return 0.5 + 0.5 * (this.transform.cameraToCenterDistance / projected.signedDistanceFromCamera);
     }
     isOffscreen(x1, y1, x2, y2) {
@@ -38144,8 +38311,7 @@ class CollisionIndex {
     /**
      * Applies all layout+paint properties of the given box in order to find as good approximation of its screen-space bounding box as possible.
      */
-    _projectCollisionBox(collisionBox, textPixelRatio, posMatrix, unwrappedTileID, pitchWithMap, rotateWithMap, translation, projectedPoint, getElevation, shift) {
-        const tileToViewport = textPixelRatio * projectedPoint.perspectiveRatio;
+    _projectCollisionBox(collisionBox, tileToViewport, posMatrix, unwrappedTileID, pitchWithMap, rotateWithMap, translation, projectedPoint, getElevation, shift) {
         // These vectors are valid both for screen space viewport-rotation-aligned texts and for pitch-align: map texts that are map-rotation-aligned.
         let vecEast = new Point$2(1, 0);
         let vecSouth = new Point$2(0, 1);
@@ -41393,18 +41559,20 @@ class Style extends Evented {
      * @hidden
      * take an array of string IDs, and based on this._layers, generate an array of LayerSpecification
      * @param ids - an array of string IDs, for which serialized layers will be generated. If omitted, all serialized layers will be returned
+     * @param returnClose - if true, return a clone of the layer object
      * @returns generated result
      */
-    _serializeByIds(ids) {
+    _serializeByIds(ids, returnClone = false) {
         const serializedLayersDictionary = this._serializedAllLayers();
         if (!ids || ids.length === 0) {
-            return Object.values(serializedLayersDictionary);
+            return returnClone ? Object.values(clone$9(serializedLayersDictionary)) : Object.values(serializedLayersDictionary);
         }
         const serializedLayers = [];
         for (const id of ids) {
             // this check will skip all custom layers
             if (serializedLayersDictionary[id]) {
-                serializedLayers.push(serializedLayersDictionary[id]);
+                const toPush = returnClone ? clone$9(serializedLayersDictionary[id]) : serializedLayersDictionary[id];
+                serializedLayers.push(toPush);
             }
         }
         return serializedLayers;
@@ -41549,7 +41717,7 @@ class Style extends Evented {
     }
     _updateWorkerLayers(updatedIds, removedIds) {
         this.dispatcher.broadcast("UL" /* MessageType.updateLayers */, {
-            layers: this._serializeByIds(updatedIds),
+            layers: this._serializeByIds(updatedIds, false),
             removedIds
         });
     }
@@ -42075,7 +42243,7 @@ class Style extends Evented {
         if (!this._loaded)
             return;
         const sources = mapObject(this.sourceCaches, (source) => source.serialize());
-        const layers = this._serializeByIds(this._order);
+        const layers = this._serializeByIds(this._order, true);
         const terrain = this.map.getTerrain() || undefined;
         const myStyleSheet = this.stylesheet;
         return filterObject({
@@ -42245,17 +42413,22 @@ class Style extends Evented {
         return (_a = this.stylesheet) === null || _a === void 0 ? void 0 : _a.sky;
     }
     setSky(skyOptions, options = {}) {
-        const sky = this.sky.getSky();
+        const sky = this.getSky();
         let update = false;
-        if (!skyOptions) {
-            if (sky) {
-                update = true;
-            }
+        if (!skyOptions && !sky)
+            return;
+        if (skyOptions && !sky) {
+            update = true;
         }
-        for (const key in skyOptions) {
-            if (!deepEqual$1(skyOptions[key], sky[key])) {
-                update = true;
-                break;
+        else if (!skyOptions && sky) {
+            update = true;
+        }
+        else {
+            for (const key in skyOptions) {
+                if (!deepEqual$1(skyOptions[key], sky[key])) {
+                    update = true;
+                    break;
+                }
             }
         }
         if (!update)
@@ -42558,7 +42731,7 @@ var clippingMaskVert = 'attribute vec2 a_pos;uniform mat4 u_matrix;void main() {
 var heatmapFrag = 'uniform highp float u_intensity;varying vec2 v_extrude;\n#pragma mapbox: define highp float weight\n#define GAUSS_COEF 0.3989422804014327\nvoid main() {\n#pragma mapbox: initialize highp float weight\nfloat d=-0.5*3.0*3.0*dot(v_extrude,v_extrude);float val=weight*u_intensity*GAUSS_COEF*exp(d);gl_FragColor=vec4(val,1.0,1.0,1.0);\n#ifdef OVERDRAW_INSPECTOR\ngl_FragColor=vec4(1.0);\n#endif\n}';
 
 // This file is generated. Edit build/generate-shaders.ts, then run `npm run codegen`.
-var heatmapVert = 'uniform mat4 u_matrix;uniform float u_extrude_scale;uniform float u_opacity;uniform float u_intensity;attribute vec2 a_pos;varying vec2 v_extrude;\n#pragma mapbox: define highp float weight\n#pragma mapbox: define mediump float radius\nconst highp float ZERO=1.0/255.0/16.0;\n#define GAUSS_COEF 0.3989422804014327\nvoid main(void) {\n#pragma mapbox: initialize highp float weight\n#pragma mapbox: initialize mediump float radius\nvec2 unscaled_extrude=vec2(mod(a_pos,2.0)*2.0-1.0);float S=sqrt(-2.0*log(ZERO/weight/u_intensity/GAUSS_COEF))/3.0;v_extrude=S*unscaled_extrude;vec2 extrude=v_extrude*radius*u_extrude_scale;vec4 pos=vec4(floor(a_pos*0.5)+extrude,0,1);gl_Position=u_matrix*pos;}';
+var heatmapVert = 'uniform mat4 u_matrix;uniform float u_extrude_scale;uniform float u_opacity;uniform float u_intensity;attribute vec2 a_pos;varying vec2 v_extrude;\n#pragma mapbox: define highp float weight\n#pragma mapbox: define mediump float radius\nconst highp float ZERO=1.0/255.0/16.0;\n#define GAUSS_COEF 0.3989422804014327\nvoid main(void) {\n#pragma mapbox: initialize highp float weight\n#pragma mapbox: initialize mediump float radius\nvec2 unscaled_extrude=vec2(mod(a_pos,2.0)*2.0-1.0);float S=sqrt(-2.0*log(ZERO/weight/u_intensity/GAUSS_COEF))/3.0;v_extrude=S*unscaled_extrude;vec2 extrude=v_extrude*radius*u_extrude_scale;vec4 pos=vec4(floor(a_pos*0.5)+extrude,get_elevation(floor(a_pos*0.5)),1);gl_Position=u_matrix*pos;}';
 
 // This file is generated. Edit build/generate-shaders.ts, then run `npm run codegen`.
 var heatmapTextureFrag = 'uniform sampler2D u_image;uniform sampler2D u_color_ramp;uniform float u_opacity;varying vec2 v_pos;void main() {float t=texture2D(u_image,v_pos).r;vec4 color=texture2D(u_color_ramp,vec2(t,0.5));gl_FragColor=color*u_opacity;\n#ifdef OVERDRAW_INSPECTOR\ngl_FragColor=vec4(0.0);\n#endif\n}';
@@ -44883,7 +45056,7 @@ function getShiftedAnchor(projectedAnchorPoint, projectionContext, rotateWithMap
             adjustedShift = adjustedShift.rotate(-transformAngle);
         }
         const tileAnchorShifted = translatedAnchor.add(adjustedShift);
-        return project(tileAnchorShifted, projectionContext.labelPlaneMatrix, projectionContext.getElevation).point;
+        return project(tileAnchorShifted.x, tileAnchorShifted.y, projectionContext.labelPlaneMatrix, projectionContext.getElevation).point;
     }
     else {
         if (rotateWithMap) {
@@ -44930,7 +45103,7 @@ function updateVariableAnchorsForBucket(bucket, rotateWithMap, pitchWithMap, var
                 unwrappedTileID
             };
             const projectedAnchor = pitchWithMap ?
-                project(tileAnchor, posMatrix, getElevation) :
+                project(tileAnchor.x, tileAnchor.y, posMatrix, getElevation) :
                 projectTileCoordinatesToViewport(tileAnchor.x, tileAnchor.y, projectionContext);
             const perspectiveRatio = getPerspectiveRatio(transform.cameraToCenterDistance, projectedAnchor.signedDistanceFromCamera);
             let renderTextSize = evaluateSizeForFeature(bucket.textSizeData, size, symbol) * perspectiveRatio / ONE_EM;
@@ -45207,92 +45380,164 @@ function drawCircles(painter, sourceCache, layer, coords) {
     }
 }
 
-function drawHeatmap(painter, sourceCache, layer, coords) {
+function drawHeatmap(painter, sourceCache, layer, tileIDs) {
     if (layer.paint.get('heatmap-opacity') === 0) {
         return;
     }
-    if (painter.renderPass === 'offscreen') {
-        const context = painter.context;
-        const gl = context.gl;
-        // Allow kernels to be drawn across boundaries, so that
-        // large kernels are not clipped to tiles
-        const stencilMode = StencilMode.disabled;
-        // Turn on additive blending for kernels, which is a key aspect of kernel density estimation formula
-        const colorMode = new ColorMode([gl.ONE, gl.ONE], Color.transparent, [true, true, true, true]);
-        bindFramebuffer(context, painter, layer);
-        context.clear({ color: Color.transparent });
-        for (let i = 0; i < coords.length; i++) {
-            const coord = coords[i];
+    const context = painter.context;
+    if (painter.style.map.terrain) {
+        for (const coord of tileIDs) {
+            const tile = sourceCache.getTile(coord);
             // Skip tiles that have uncovered parents to avoid flickering; we don't need
             // to use complex tile masking here because the change between zoom levels is subtle,
             // so it's fine to simply render the parent until all its 4 children are loaded
             if (sourceCache.hasRenderableParent(coord))
                 continue;
-            const tile = sourceCache.getTile(coord);
-            const bucket = tile.getBucket(layer);
-            if (!bucket)
-                continue;
-            const programConfiguration = bucket.programConfigurations.get(layer.id);
-            const program = painter.useProgram('heatmap', programConfiguration);
-            const { zoom } = painter.transform;
-            program.draw(context, gl.TRIANGLES, DepthMode.disabled, stencilMode, colorMode, CullFaceMode.disabled, heatmapUniformValues(coord.posMatrix, tile, zoom, layer.paint.get('heatmap-intensity')), null, layer.id, bucket.layoutVertexBuffer, bucket.indexBuffer, bucket.segments, layer.paint, painter.transform.zoom, programConfiguration);
+            if (painter.renderPass === 'offscreen') {
+                prepareHeatmapTerrain(painter, tile, layer, coord);
+            }
+            else if (painter.renderPass === 'translucent') {
+                renderHeatmapTerrain(painter, layer, coord);
+            }
         }
         context.viewport.set([0, 0, painter.width, painter.height]);
     }
-    else if (painter.renderPass === 'translucent') {
-        painter.context.setColorMode(painter.colorModeForRenderPass());
-        renderTextureToMap(painter, layer);
+    else {
+        if (painter.renderPass === 'offscreen') {
+            prepareHeatmapFlat(painter, sourceCache, layer, tileIDs);
+        }
+        else if (painter.renderPass === 'translucent') {
+            renderHeatmapFlat(painter, layer);
+        }
     }
+}
+function prepareHeatmapFlat(painter, sourceCache, layer, coords) {
+    const context = painter.context;
+    const gl = context.gl;
+    // Allow kernels to be drawn across boundaries, so that
+    // large kernels are not clipped to tiles
+    const stencilMode = StencilMode.disabled;
+    // Turn on additive blending for kernels, which is a key aspect of kernel density estimation formula
+    const colorMode = new ColorMode([gl.ONE, gl.ONE], Color.transparent, [true, true, true, true]);
+    bindFramebuffer(context, painter, layer);
+    context.clear({ color: Color.transparent });
+    for (let i = 0; i < coords.length; i++) {
+        const coord = coords[i];
+        // Skip tiles that have uncovered parents to avoid flickering; we don't need
+        // to use complex tile masking here because the change between zoom levels is subtle,
+        // so it's fine to simply render the parent until all its 4 children are loaded
+        if (sourceCache.hasRenderableParent(coord))
+            continue;
+        const tile = sourceCache.getTile(coord);
+        const bucket = tile.getBucket(layer);
+        if (!bucket)
+            continue;
+        const programConfiguration = bucket.programConfigurations.get(layer.id);
+        const program = painter.useProgram('heatmap', programConfiguration);
+        const { zoom } = painter.transform;
+        program.draw(context, gl.TRIANGLES, DepthMode.disabled, stencilMode, colorMode, CullFaceMode.disabled, heatmapUniformValues(coord.posMatrix, tile, zoom, layer.paint.get('heatmap-intensity')), null, layer.id, bucket.layoutVertexBuffer, bucket.indexBuffer, bucket.segments, layer.paint, painter.transform.zoom, programConfiguration);
+    }
+    context.viewport.set([0, 0, painter.width, painter.height]);
+}
+function renderHeatmapFlat(painter, layer) {
+    const context = painter.context;
+    const gl = context.gl;
+    context.setColorMode(painter.colorModeForRenderPass());
+    // Here we bind two different textures from which we'll sample in drawing
+    // heatmaps: the kernel texture, prepared in the offscreen pass, and a
+    // color ramp texture.
+    const fbo = layer.heatmapFbos.get(HEATMAP_FULL_RENDER_FBO_KEY);
+    if (!fbo)
+        return;
+    context.activeTexture.set(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, fbo.colorAttachment.get());
+    context.activeTexture.set(gl.TEXTURE1);
+    const colorRampTexture = getColorRampTexture(context, layer);
+    colorRampTexture.bind(gl.LINEAR, gl.CLAMP_TO_EDGE);
+    painter.useProgram('heatmapTexture').draw(context, gl.TRIANGLES, DepthMode.disabled, StencilMode.disabled, painter.colorModeForRenderPass(), CullFaceMode.disabled, heatmapTextureUniformValues(painter, layer, 0, 1), null, layer.id, painter.viewportBuffer, painter.quadTriangleIndexBuffer, painter.viewportSegments, layer.paint, painter.transform.zoom);
+}
+function prepareHeatmapTerrain(painter, tile, layer, coord) {
+    const context = painter.context;
+    const gl = context.gl;
+    const stencilMode = StencilMode.disabled;
+    // Turn on additive blending for kernels, which is a key aspect of kernel density estimation formula
+    const colorMode = new ColorMode([gl.ONE, gl.ONE], Color.transparent, [true, true, true, true]);
+    const bucket = tile.getBucket(layer);
+    if (!bucket)
+        return;
+    const tileKey = coord.key;
+    let fbo = layer.heatmapFbos.get(tileKey);
+    if (!fbo) {
+        fbo = createHeatmapFbo(context, tile.tileSize, tile.tileSize);
+        layer.heatmapFbos.set(tileKey, fbo);
+    }
+    context.bindFramebuffer.set(fbo.framebuffer);
+    context.viewport.set([0, 0, tile.tileSize, tile.tileSize]);
+    context.clear({ color: Color.transparent });
+    const programConfiguration = bucket.programConfigurations.get(layer.id);
+    const program = painter.useProgram('heatmap', programConfiguration);
+    const terrainData = painter.style.map.terrain.getTerrainData(coord);
+    program.draw(context, gl.TRIANGLES, DepthMode.disabled, stencilMode, colorMode, CullFaceMode.disabled, heatmapUniformValues(coord.posMatrix, tile, painter.transform.zoom, layer.paint.get('heatmap-intensity')), terrainData, layer.id, bucket.layoutVertexBuffer, bucket.indexBuffer, bucket.segments, layer.paint, painter.transform.zoom, programConfiguration);
+}
+function renderHeatmapTerrain(painter, layer, coord) {
+    const context = painter.context;
+    const gl = context.gl;
+    context.setColorMode(painter.colorModeForRenderPass());
+    const colorRampTexture = getColorRampTexture(context, layer);
+    // Here we bind two different textures from which we'll sample in drawing
+    // heatmaps: the kernel texture, prepared in the offscreen pass, and a
+    // color ramp texture.
+    const tileKey = coord.key;
+    const fbo = layer.heatmapFbos.get(tileKey);
+    if (!fbo)
+        return;
+    context.activeTexture.set(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, fbo.colorAttachment.get());
+    context.activeTexture.set(gl.TEXTURE1);
+    colorRampTexture.bind(gl.LINEAR, gl.CLAMP_TO_EDGE);
+    painter.useProgram('heatmapTexture').draw(context, gl.TRIANGLES, DepthMode.disabled, StencilMode.disabled, painter.colorModeForRenderPass(), CullFaceMode.disabled, heatmapTextureUniformValues(painter, layer, 0, 1), null, layer.id, painter.rasterBoundsBuffer, painter.quadTriangleIndexBuffer, painter.rasterBoundsSegments, layer.paint, painter.transform.zoom);
+    // destroy the FBO after rendering
+    fbo.destroy();
+    layer.heatmapFbos.delete(tileKey);
 }
 function bindFramebuffer(context, painter, layer) {
     const gl = context.gl;
     context.activeTexture.set(gl.TEXTURE1);
     // Use a 4x downscaled screen texture for better performance
     context.viewport.set([0, 0, painter.width / 4, painter.height / 4]);
-    let fbo = layer.heatmapFbo;
+    let fbo = layer.heatmapFbos.get(HEATMAP_FULL_RENDER_FBO_KEY);
     if (!fbo) {
-        const texture = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        fbo = layer.heatmapFbo = context.createFramebuffer(painter.width / 4, painter.height / 4, false, false);
-        bindTextureToFramebuffer(context, painter, texture, fbo);
+        fbo = createHeatmapFbo(context, painter.width / 4, painter.height / 4);
+        layer.heatmapFbos.set(HEATMAP_FULL_RENDER_FBO_KEY, fbo);
     }
     else {
         gl.bindTexture(gl.TEXTURE_2D, fbo.colorAttachment.get());
         context.bindFramebuffer.set(fbo.framebuffer);
     }
 }
-function bindTextureToFramebuffer(context, painter, texture, fbo) {
+function createHeatmapFbo(context, width, height) {
     var _a, _b;
     const gl = context.gl;
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     // Use the higher precision half-float texture where available (producing much smoother looking heatmaps);
     // Otherwise, fall back to a low precision texture
     const numType = (_a = context.HALF_FLOAT) !== null && _a !== void 0 ? _a : gl.UNSIGNED_BYTE;
     const internalFormat = (_b = context.RGBA16F) !== null && _b !== void 0 ? _b : gl.RGBA;
-    gl.texImage2D(gl.TEXTURE_2D, 0, internalFormat, painter.width / 4, painter.height / 4, 0, gl.RGBA, numType, null);
+    gl.texImage2D(gl.TEXTURE_2D, 0, internalFormat, width, height, 0, gl.RGBA, numType, null);
+    const fbo = context.createFramebuffer(width, height, false, false);
     fbo.colorAttachment.set(texture);
+    return fbo;
 }
-function renderTextureToMap(painter, layer) {
-    const context = painter.context;
-    const gl = context.gl;
-    // Here we bind two different textures from which we'll sample in drawing
-    // heatmaps: the kernel texture, prepared in the offscreen pass, and a
-    // color ramp texture.
-    const fbo = layer.heatmapFbo;
-    if (!fbo)
-        return;
-    context.activeTexture.set(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, fbo.colorAttachment.get());
-    context.activeTexture.set(gl.TEXTURE1);
-    let colorRampTexture = layer.colorRampTexture;
-    if (!colorRampTexture) {
-        colorRampTexture = layer.colorRampTexture = new Texture(context, layer.colorRamp, gl.RGBA);
+function getColorRampTexture(context, layer) {
+    if (!layer.colorRampTexture) {
+        layer.colorRampTexture = new Texture(context, layer.colorRamp, context.gl.RGBA);
     }
-    colorRampTexture.bind(gl.LINEAR, gl.CLAMP_TO_EDGE);
-    painter.useProgram('heatmapTexture').draw(context, gl.TRIANGLES, DepthMode.disabled, StencilMode.disabled, painter.colorModeForRenderPass(), CullFaceMode.disabled, heatmapTextureUniformValues(painter, layer, 0, 1), null, layer.id, painter.viewportBuffer, painter.quadTriangleIndexBuffer, painter.viewportSegments, layer.paint, painter.transform.zoom);
+    return layer.colorRampTexture;
 }
 
 function drawLine(painter, sourceCache, layer, coords) {
@@ -45673,6 +45918,11 @@ function drawRaster(painter, sourceCache, layer, tileIDs) {
         }
         else {
             tile.texture.bind(textureFilter, gl.CLAMP_TO_EDGE, gl.LINEAR_MIPMAP_NEAREST);
+        }
+        // Enable anisotropic filtering only when the pitch is greater than 20 degrees
+        // to preserve image sharpness on flat or slightly tilted maps.
+        if (tile.texture.useMipmap && context.extTextureFilterAnisotropic && painter.transform.pitch > 20) {
+            gl.texParameterf(gl.TEXTURE_2D, context.extTextureFilterAnisotropic.TEXTURE_MAX_ANISOTROPY_EXT, context.extTextureFilterAnisotropicMax);
         }
         const terrainData = painter.style.map.terrain && painter.style.map.terrain.getTerrainData(coord);
         const terrainCoord = terrainData ? coord : null;
@@ -46212,7 +46462,6 @@ class Painter {
         return this.currentLayer < this.opaquePassCutoff;
     }
     render(style, options) {
-        var _a;
         this.style = style;
         this.options = options;
         this.lineAtlas = style.lineAtlas;
@@ -46268,7 +46517,7 @@ class Painter {
         this.context.clear({ color: options.showOverdrawInspector ? Color.black : Color.transparent, depth: 1 });
         this.clearStencil();
         // draw sky first to not overwrite symbols
-        if ((_a = this.style.stylesheet) === null || _a === void 0 ? void 0 : _a.sky)
+        if (this.style.sky)
             drawSky(this, this.style.sky);
         this._showOverdrawInspector = options.showOverdrawInspector;
         this.depthRangeFor3D = [0, 1 - ((style._order.length + 2) * this.numSublayers * this.depthEpsilon)];
@@ -46721,6 +46970,7 @@ class Transform {
     apply(that) {
         this.tileSize = that.tileSize;
         this.latRange = that.latRange;
+        this.lngRange = that.lngRange;
         this.width = that.width;
         this.height = that.height;
         this._center = that._center;
@@ -48048,8 +48298,9 @@ class BlockableMapEventHandler {
 /**
  * @internal
  * Shared utilities for the Handler classes to access the correct camera state.
- * If Camera.transformCameraUpdate is specified, the "desired state" of camera may differ from the state used for rendering.
- * The handlers need the "desired state" to track accumulated changes.
+ * If Camera.transformCameraUpdate is specified or terrain is enabled, the
+ * "desired state" of camera may differ from the state used for rendering. The
+ * handlers need the "desired state" to track accumulated changes.
  */
 class TransformProvider {
     constructor(map) {
@@ -48601,21 +48852,26 @@ class TouchPanHandler {
         this._touches = {};
         this._sum = new Point$2(0, 0);
     }
-    minTouchs() {
-        return this._map.cooperativeGestures.isEnabled() ? 2 : 1;
+    _shouldBePrevented(touchesCount) {
+        const minTouches = this._map.cooperativeGestures.isEnabled() ? 2 : 1;
+        return touchesCount < minTouches;
     }
     touchstart(e, points, mapTouches) {
         return this._calculateTransform(e, points, mapTouches);
     }
     touchmove(e, points, mapTouches) {
-        if (!this._active || mapTouches.length < this.minTouchs())
+        if (!this._active)
             return;
+        if (this._shouldBePrevented(mapTouches.length)) {
+            this._map.cooperativeGestures.notifyGestureBlocked('touch_pan', e);
+            return;
+        }
         e.preventDefault();
         return this._calculateTransform(e, points, mapTouches);
     }
     touchend(e, points, mapTouches) {
         this._calculateTransform(e, points, mapTouches);
-        if (this._active && mapTouches.length < this.minTouchs()) {
+        if (this._active && this._shouldBePrevented(mapTouches.length)) {
             this.reset();
         }
     }
@@ -48640,7 +48896,7 @@ class TouchPanHandler {
             }
         }
         this._touches = touches;
-        if (touchDeltaCount < this.minTouchs() || !touchDeltaSum.mag())
+        if (this._shouldBePrevented(touchDeltaCount) || !touchDeltaSum.mag())
             return;
         const panDelta = touchDeltaSum.div(touchDeltaCount);
         this._sum._add(panDelta);
@@ -49213,10 +49469,22 @@ class ScrollZoomHandler {
             return;
         this._enabled = false;
     }
+    /**
+     * Determines whether or not the gesture is blocked due to cooperativeGestures.
+     */
+    _shouldBePrevented(e) {
+        if (!this._map.cooperativeGestures.isEnabled()) {
+            return false;
+        }
+        const isTrackpadPinch = e.ctrlKey;
+        const isBypassed = isTrackpadPinch || this._map.cooperativeGestures.isBypassed(e);
+        return !isBypassed;
+    }
     wheel(e) {
         if (!this.isEnabled())
             return;
-        if (this._map.cooperativeGestures.shouldPreventWheelEvent(e)) {
+        if (this._shouldBePrevented(e)) {
+            this._map.cooperativeGestures.notifyGestureBlocked('wheel_zoom', e);
             return;
         }
         let value = e.deltaMode === WheelEvent.DOM_DELTA_LINE ? e.deltaY * 40 : e.deltaY;
@@ -49795,6 +50063,8 @@ class TwoFingersTouchZoomRotateHandler {
 /**
  * A `CooperativeGestureHandler` is a control that adds cooperative gesture info when user tries to zoom in/out.
  *
+ * When the CooperativeGestureHandler blocks a gesture, it will emit a `cooperativegestureprevented` event.
+ *
  * @group Handlers
  *
  * @example
@@ -49844,7 +50114,7 @@ class CooperativeGesturesHandler {
         // Remove cooperative gesture screen from the accessibility tree since screenreaders cannot interact with the map using gestures
         this._container.setAttribute('aria-hidden', 'true');
     }
-    _destoryUI() {
+    _destroyUI() {
         if (this._container) {
             DOM.remove(this._container);
             const mapCanvasContainer = this._map.getCanvasContainer();
@@ -49858,32 +50128,19 @@ class CooperativeGesturesHandler {
     }
     disable() {
         this._enabled = false;
-        this._destoryUI();
+        this._destroyUI();
     }
     isEnabled() {
         return this._enabled;
     }
-    touchmove(e) {
-        this._onCooperativeGesture(e.touches.length === 1);
+    isBypassed(event) {
+        return event[this._bypassKey];
     }
-    wheel(e) {
-        if (!this._map.scrollZoom.isEnabled()) {
+    notifyGestureBlocked(gestureType, originalEvent) {
+        if (!this._enabled)
             return;
-        }
-        const isPrevented = this.shouldPreventWheelEvent(e);
-        this._onCooperativeGesture(isPrevented);
-    }
-    shouldPreventWheelEvent(e) {
-        if (!this.isEnabled()) {
-            return false;
-        }
-        const isTrackpadPinch = e.ctrlKey;
-        const isBypassed = e[this._bypassKey] || isTrackpadPinch;
-        return !isBypassed;
-    }
-    _onCooperativeGesture(showNotification) {
-        if (!this._enabled || !showNotification)
-            return;
+        // notify subscribers that a cooperative gesture was prevented
+        this._map.fire(new Event('cooperativegestureprevented', { gestureType, originalEvent }));
         // Alert user how to scroll/pan
         this._container.classList.add('maplibregl-show');
         setTimeout(() => {
@@ -50618,6 +50875,7 @@ class Camera extends Evented {
      * @param bounds - Calculate the center for these bounds in the viewport and use
      * the highest zoom level up to and including `Map#getMaxZoom()` that fits
      * in the viewport. LngLatBounds represent a box that is always axis-aligned with bearing 0.
+     * Bounds will be taken in [sw, ne] order. Southwest point will always be to the left of the northeast point.
      * @param options - Options object
      * @returns If map is able to fit to provided bounds, returns `center`, `zoom`, and `bearing`.
      * If map is unable to fit, method will warn and return undefined.
@@ -50630,7 +50888,7 @@ class Camera extends Evented {
      * ```
      */
     cameraForBounds(bounds, options) {
-        bounds = LngLatBounds.convert(bounds);
+        bounds = LngLatBounds.convert(bounds).adjustAntiMeridian();
         const bearing = options && options.bearing || 0;
         return this._cameraForBoxAndBearing(bounds.getNorthWest(), bounds.getSouthEast(), bearing, options);
     }
@@ -50727,6 +50985,7 @@ class Camera extends Evented {
      *
      * @param bounds - Center these bounds in the viewport and use the highest
      * zoom level up to and including `Map#getMaxZoom()` that fits them in the viewport.
+     * Bounds will be taken in [sw, ne] order. Southwest point will always be to the left of the northeast point.
      * @param options - Options supports all properties from {@link AnimationOptions} and {@link CameraOptions} in addition to the fields below.
      * @param eventData - Additional properties to be added to event objects of events triggered by this method.
      * @example
@@ -50901,12 +51160,12 @@ class Camera extends Evented {
         }, options);
         if (options.animate === false || (!options.essential && browser.prefersReducedMotion))
             options.duration = 0;
-        const tr = this._getTransformForUpdate(), startZoom = this.getZoom(), startBearing = this.getBearing(), startPitch = this.getPitch(), startPadding = this.getPadding(), bearing = 'bearing' in options ? this._normalizeBearing(options.bearing, startBearing) : startBearing, pitch = 'pitch' in options ? +options.pitch : startPitch, padding = 'padding' in options ? options.padding : tr.padding;
+        const tr = this._getTransformForUpdate(), startZoom = tr.zoom, startBearing = tr.bearing, startPitch = tr.pitch, startPadding = tr.padding, bearing = 'bearing' in options ? this._normalizeBearing(options.bearing, startBearing) : startBearing, pitch = 'pitch' in options ? +options.pitch : startPitch, padding = 'padding' in options ? options.padding : tr.padding;
         const offsetAsPoint = Point$2.convert(options.offset);
         let pointAtOffset = tr.centerPoint.add(offsetAsPoint);
         const locationAtOffset = tr.pointLocation(pointAtOffset);
         const { center, zoom } = tr.getConstrained(LngLat.convert(options.center || locationAtOffset), (_a = options.zoom) !== null && _a !== void 0 ? _a : startZoom);
-        this._normalizeCenter(center);
+        this._normalizeCenter(center, tr);
         const from = tr.project(locationAtOffset);
         const delta = tr.project(center).sub(from);
         const finalScale = tr.zoomScale(zoom - startZoom);
@@ -51008,13 +51267,14 @@ class Camera extends Evented {
     /**
      * @internal
      * Called when the camera is about to be manipulated.
-     * If `transformCameraUpdate` is specified, a copy of the current transform is created to track the accumulated changes.
+     * If `transformCameraUpdate` is specified or terrain is enabled, a copy of
+     * the current transform is created to track the accumulated changes.
      * This underlying transform represents the "desired state" proposed by input handlers / animations / UI controls.
      * It may differ from the state used for rendering (`this.transform`).
      * @returns Transform to apply changes to
      */
     _getTransformForUpdate() {
-        if (!this.transformCameraUpdate)
+        if (!this.transformCameraUpdate && !this.terrain)
             return this.transform;
         if (!this._requestedCameraState) {
             this._requestedCameraState = this.transform.clone();
@@ -51023,26 +51283,62 @@ class Camera extends Evented {
     }
     /**
      * @internal
+     * Checks the given transform for the camera being below terrain surface and
+     * returns new pitch and zoom to fix that.
+     *
+     * With the new pitch and zoom, the camera will be at the same ground
+     * position but at higher altitude. It will still point to the same spot on
+     * the map.
+     *
+     * @param tr - The transform to check.
+     */
+    _elevateCameraIfInsideTerrain(tr) {
+        const camera = tr.getCameraPosition();
+        const minAltitude = this.terrain.getElevationForLngLatZoom(camera.lngLat, tr.zoom);
+        if (camera.altitude < minAltitude) {
+            const newCamera = this.calculateCameraOptionsFromTo(camera.lngLat, minAltitude, tr.center, tr.elevation);
+            return {
+                pitch: newCamera.pitch,
+                zoom: newCamera.zoom,
+            };
+        }
+        return {};
+    }
+    /**
+     * @internal
      * Called after the camera is done being manipulated.
      * @param tr - the requested camera end state
+     * If the camera is inside terrain, it gets elevated.
      * Call `transformCameraUpdate` if present, and then apply the "approved" changes.
      */
     _applyUpdatedTransform(tr) {
-        if (!this.transformCameraUpdate)
+        const modifiers = [];
+        if (this.terrain) {
+            modifiers.push(tr => this._elevateCameraIfInsideTerrain(tr));
+        }
+        if (this.transformCameraUpdate) {
+            modifiers.push(tr => this.transformCameraUpdate(tr));
+        }
+        if (!modifiers.length) {
             return;
-        const nextTransform = tr.clone();
-        const { center, zoom, pitch, bearing, elevation } = this.transformCameraUpdate(nextTransform);
-        if (center)
-            nextTransform.center = center;
-        if (zoom !== undefined)
-            nextTransform.zoom = zoom;
-        if (pitch !== undefined)
-            nextTransform.pitch = pitch;
-        if (bearing !== undefined)
-            nextTransform.bearing = bearing;
-        if (elevation !== undefined)
-            nextTransform.elevation = elevation;
-        this.transform.apply(nextTransform);
+        }
+        const finalTransform = tr.clone();
+        for (const modifier of modifiers) {
+            const nextTransform = finalTransform.clone();
+            const { center, zoom, pitch, bearing, elevation } = modifier(nextTransform);
+            if (center)
+                nextTransform.center = center;
+            if (zoom !== undefined)
+                nextTransform.zoom = zoom;
+            if (pitch !== undefined)
+                nextTransform.pitch = pitch;
+            if (bearing !== undefined)
+                nextTransform.bearing = bearing;
+            if (elevation !== undefined)
+                nextTransform.elevation = elevation;
+            finalTransform.apply(nextTransform);
+        }
+        this.transform.apply(finalTransform);
     }
     _fireMoveEvents(eventData) {
         this.fire(new Event('move', eventData));
@@ -51138,7 +51434,7 @@ class Camera extends Evented {
             curve: 1.42,
             easing: defaultEasing
         }, options);
-        const tr = this._getTransformForUpdate(), startZoom = this.getZoom(), startBearing = this.getBearing(), startPitch = this.getPitch(), startPadding = this.getPadding();
+        const tr = this._getTransformForUpdate(), startZoom = tr.zoom, startBearing = tr.bearing, startPitch = tr.pitch, startPadding = tr.padding;
         const bearing = 'bearing' in options ? this._normalizeBearing(options.bearing, startBearing) : startBearing;
         const pitch = 'pitch' in options ? +options.pitch : startPitch;
         const padding = 'padding' in options ? options.padding : tr.padding;
@@ -51146,7 +51442,7 @@ class Camera extends Evented {
         let pointAtOffset = tr.centerPoint.add(offsetAsPoint);
         const locationAtOffset = tr.pointLocation(pointAtOffset);
         const { center, zoom } = tr.getConstrained(LngLat.convert(options.center || locationAtOffset), (_a = options.zoom) !== null && _a !== void 0 ? _a : startZoom);
-        this._normalizeCenter(center);
+        this._normalizeCenter(center, tr);
         const scale = tr.zoomScale(zoom - startZoom);
         const from = tr.project(locationAtOffset);
         const delta = tr.project(center).sub(from);
@@ -51304,8 +51600,7 @@ class Camera extends Evented {
     }
     // If a path crossing the antimeridian would be shorter, extend the final coordinate so that
     // interpolating between the two endpoints will cross it.
-    _normalizeCenter(center) {
-        const tr = this.transform;
+    _normalizeCenter(center, tr) {
         if (!tr.renderWorldCopies || tr.lngRange)
             return;
         const delta = center.lng - tr.center.lng;
@@ -51931,6 +52226,8 @@ class Terrain {
      * @returns the elevation
      */
     getElevationForLngLatZoom(lnglat, zoom) {
+        if (!isInBoundsForZoomLngLat(zoom, lnglat.wrap()))
+            return 0;
         const { tileID, mercatorX, mercatorY } = this._getOverscaledTileIDFromLngLatZoom(lnglat, zoom);
         return this.getElevation(tileID, mercatorX % EXTENT, mercatorY % EXTENT, EXTENT);
     }
@@ -52615,7 +52912,8 @@ let Map$1 = class Map extends Camera {
             let initialResizeEventCaptured = false;
             const throttledResizeCallback = throttle((entries) => {
                 if (this._trackResize && !this._removed) {
-                    this.resize(entries)._update();
+                    this.resize(entries);
+                    this.redraw();
                 }
             }, 50);
             this._resizeObserver = new ResizeObserver((entries) => {
@@ -53141,11 +53439,12 @@ let Map$1 = class Map extends Camera {
         var _a;
         return this._rotating || ((_a = this.handlers) === null || _a === void 0 ? void 0 : _a.isRotating());
     }
-    _createDelegatedListener(type, layerId, listener) {
+    _createDelegatedListener(type, layerIds, listener) {
         if (type === 'mouseenter' || type === 'mouseover') {
             let mousein = false;
             const mousemove = (e) => {
-                const features = this.getLayer(layerId) ? this.queryRenderedFeatures(e.point, { layers: [layerId] }) : [];
+                const existingLayers = layerIds.filter((layerId) => this.getLayer(layerId));
+                const features = existingLayers.length !== 0 ? this.queryRenderedFeatures(e.point, { layers: existingLayers }) : [];
                 if (!features.length) {
                     mousein = false;
                 }
@@ -53157,12 +53456,13 @@ let Map$1 = class Map extends Camera {
             const mouseout = () => {
                 mousein = false;
             };
-            return { layer: layerId, listener, delegates: { mousemove, mouseout } };
+            return { layers: layerIds, listener, delegates: { mousemove, mouseout } };
         }
         else if (type === 'mouseleave' || type === 'mouseout') {
             let mousein = false;
             const mousemove = (e) => {
-                const features = this.getLayer(layerId) ? this.queryRenderedFeatures(e.point, { layers: [layerId] }) : [];
+                const existingLayers = layerIds.filter((layerId) => this.getLayer(layerId));
+                const features = existingLayers.length !== 0 ? this.queryRenderedFeatures(e.point, { layers: existingLayers }) : [];
                 if (features.length) {
                     mousein = true;
                 }
@@ -53177,11 +53477,12 @@ let Map$1 = class Map extends Camera {
                     listener.call(this, new MapMouseEvent(type, this, e.originalEvent));
                 }
             };
-            return { layer: layerId, listener, delegates: { mousemove, mouseout } };
+            return { layers: layerIds, listener, delegates: { mousemove, mouseout } };
         }
         else {
             const delegate = (e) => {
-                const features = this.getLayer(layerId) ? this.queryRenderedFeatures(e.point, { layers: [layerId] }) : [];
+                const existingLayers = layerIds.filter((layerId) => this.getLayer(layerId));
+                const features = existingLayers.length !== 0 ? this.queryRenderedFeatures(e.point, { layers: existingLayers }) : [];
                 if (features.length) {
                     // Here we need to mutate the original event, so that preventDefault works as expected.
                     e.features = features;
@@ -53189,52 +53490,69 @@ let Map$1 = class Map extends Camera {
                     delete e.features;
                 }
             };
-            return { layer: layerId, listener, delegates: { [type]: delegate } };
+            return { layers: layerIds, listener, delegates: { [type]: delegate } };
         }
     }
-    on(type, layerIdOrListener, listener) {
-        if (listener === undefined) {
-            return super.on(type, layerIdOrListener);
-        }
-        const delegatedListener = this._createDelegatedListener(type, layerIdOrListener, listener);
+    _saveDelegatedListener(type, delegatedListener) {
         this._delegatedListeners = this._delegatedListeners || {};
         this._delegatedListeners[type] = this._delegatedListeners[type] || [];
         this._delegatedListeners[type].push(delegatedListener);
+    }
+    _removeDelegatedListener(type, layerIds, listener) {
+        if (!this._delegatedListeners || !this._delegatedListeners[type]) {
+            return;
+        }
+        const listeners = this._delegatedListeners[type];
+        for (let i = 0; i < listeners.length; i++) {
+            const delegatedListener = listeners[i];
+            if (delegatedListener.listener === listener &&
+                delegatedListener.layers.length === layerIds.length &&
+                delegatedListener.layers.every((layerId) => layerIds.includes(layerId))) {
+                for (const event in delegatedListener.delegates) {
+                    this.off(event, delegatedListener.delegates[event]);
+                }
+                listeners.splice(i, 1);
+                return;
+            }
+        }
+    }
+    on(type, layerIdsOrListener, listener) {
+        if (listener === undefined) {
+            return super.on(type, layerIdsOrListener);
+        }
+        const layerIds = typeof layerIdsOrListener === 'string' ? [layerIdsOrListener] : layerIdsOrListener;
+        const delegatedListener = this._createDelegatedListener(type, layerIds, listener);
+        this._saveDelegatedListener(type, delegatedListener);
         for (const event in delegatedListener.delegates) {
             this.on(event, delegatedListener.delegates[event]);
         }
         return this;
     }
-    once(type, layerIdOrListener, listener) {
+    once(type, layerIdsOrListener, listener) {
         if (listener === undefined) {
-            return super.once(type, layerIdOrListener);
+            return super.once(type, layerIdsOrListener);
         }
-        const delegatedListener = this._createDelegatedListener(type, layerIdOrListener, listener);
+        const layerIds = typeof layerIdsOrListener === 'string' ? [layerIdsOrListener] : layerIdsOrListener;
+        const delegatedListener = this._createDelegatedListener(type, layerIds, listener);
+        for (const key in delegatedListener.delegates) {
+            const delegate = delegatedListener.delegates[key];
+            delegatedListener.delegates[key] = (...args) => {
+                this._removeDelegatedListener(type, layerIds, listener);
+                delegate(...args);
+            };
+        }
+        this._saveDelegatedListener(type, delegatedListener);
         for (const event in delegatedListener.delegates) {
             this.once(event, delegatedListener.delegates[event]);
         }
         return this;
     }
-    off(type, layerIdOrListener, listener) {
+    off(type, layerIdsOrListener, listener) {
         if (listener === undefined) {
-            return super.off(type, layerIdOrListener);
+            return super.off(type, layerIdsOrListener);
         }
-        const removeDelegatedListener = (delegatedListeners) => {
-            const listeners = delegatedListeners[type];
-            for (let i = 0; i < listeners.length; i++) {
-                const delegatedListener = listeners[i];
-                if (delegatedListener.layer === layerIdOrListener && delegatedListener.listener === listener) {
-                    for (const event in delegatedListener.delegates) {
-                        this.off(event, delegatedListener.delegates[event]);
-                    }
-                    listeners.splice(i, 1);
-                    return this;
-                }
-            }
-        };
-        if (this._delegatedListeners && this._delegatedListeners[type]) {
-            removeDelegatedListener(this._delegatedListeners);
-        }
+        const layerIds = typeof layerIdsOrListener === 'string' ? [layerIdsOrListener] : layerIdsOrListener;
+        this._removeDelegatedListener(type, layerIds, listener);
         return this;
     }
     /**
@@ -54325,7 +54643,7 @@ let Map$1 = class Map extends Camera {
     /**
      * Loads sky and fog defined by {@link SkySpecification} onto the map.
      * Note: The fog only shows when using the terrain 3D feature.
-     * @param sky - Sky properties to set. Must conform to the [MapLibre Style Specification](https://maplibre.org/maplibre-gl-js-docs/style-spec/#sky).
+     * @param sky - Sky properties to set. Must conform to the [MapLibre Style Specification](https://maplibre.org/maplibre-style-spec/sky/).
      * @returns `this`
      * @example
      * ```ts
@@ -54340,7 +54658,11 @@ let Map$1 = class Map extends Camera {
     /**
      * Returns the value of the sky object.
      *
-     * @returns sky Sky properties of the style.
+     * @returns the sky properties of the style.
+     * @example
+     * ```ts
+     * map.getSky();
+     * ```
      */
     getSky() {
         return this.style.getSky();
