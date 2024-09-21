@@ -10,7 +10,9 @@ from datetime import datetime, timezone
 from typing import Callable, List
 
 import RNS
+import RNS.vendor.umsgpack as msgpack
 import LXMF
+from LXMF import LXMRouter
 from aiohttp import web, WSMessage, WSMsgType, WSCloseCode
 import asyncio
 import base64
@@ -20,6 +22,7 @@ from peewee import SqliteDatabase
 from serial.tools import list_ports
 
 import database
+from src.backend.announce_handler import AnnounceHandler
 from src.backend.lxmf_message_fields import LxmfImageField, LxmfFileAttachmentsField, LxmfFileAttachment, LxmfAudioField
 from src.backend.audio_call_manager import AudioCall, AudioCallManager
 
@@ -68,6 +71,7 @@ class ReticulumMeshChat:
         self.db.create_tables([
             database.Config,
             database.Announce,
+            database.CustomDestinationDisplayName,
             database.LxmfMessage,
             database.LxmfConversationReadState,
         ])
@@ -94,6 +98,7 @@ class ReticulumMeshChat:
         # lxmf messages in outbound or sending state should be marked as failed when app starts as they are no longer being processed
         (database.LxmfMessage.update(state="failed")
          .where(database.LxmfMessage.state == "outbound")
+         .orwhere((database.LxmfMessage.state == "sent") & (database.LxmfMessage.method == "opportunistic"))
          .orwhere(database.LxmfMessage.state == "sending").execute())
 
         # init reticulum
@@ -109,14 +114,26 @@ class ReticulumMeshChat:
         self.message_router.delivery_per_transfer_limit = self.config.lxmf_delivery_transfer_limit_in_bytes.get() / 1000
 
         # register lxmf identity
-        self.local_lxmf_destination = self.message_router.register_delivery_identity(self.identity)
+        self.local_lxmf_destination = self.message_router.register_delivery_identity(
+            identity=self.identity,
+            display_name=self.config.display_name.get(),
+        )
 
         # set a callback for when an lxmf message is received
         self.message_router.register_delivery_callback(self.on_lxmf_delivery)
 
-        # set a callback for when an lxmf announce is received
-        RNS.Transport.register_announce_handler(LXMFAnnounceHandler(self.on_lxmf_announce_received))
-        RNS.Transport.register_announce_handler(NomadnetworkNodeAnnounceHandler(self.on_nomadnet_node_announce_received))
+        # update active propagation node
+        self.set_active_propagation_node(self.config.lxmf_preferred_propagation_node_destination_hash.get())
+
+        # enable propagation node (we don't call with false if disabled, as no need to announce disabled state every launch)
+        if self.config.lxmf_local_propagation_node_enabled.get():
+            self.enable_local_propagation_node()
+
+        # handle received announces based on aspect
+        RNS.Transport.register_announce_handler(AnnounceHandler("call.audio", self.on_audio_call_announce_received))
+        RNS.Transport.register_announce_handler(AnnounceHandler("lxmf.delivery", self.on_lxmf_announce_received))
+        RNS.Transport.register_announce_handler(AnnounceHandler("lxmf.propagation", self.on_lxmf_propagation_announce_received))
+        RNS.Transport.register_announce_handler(AnnounceHandler("nomadnetwork.node", self.on_nomadnet_node_announce_received))
 
         # remember websocket clients
         self.websocket_clients: List[web.WebSocketResponse] = []
@@ -127,6 +144,11 @@ class ReticulumMeshChat:
 
         # start background thread for auto announce loop
         thread = threading.Thread(target=asyncio.run, args=(self.announce_loop(),))
+        thread.daemon = True
+        thread.start()
+
+        # start background thread for auto syncing propagation nodes
+        thread = threading.Thread(target=asyncio.run, args=(self.announce_sync_propagation_nodes(),))
         thread.daemon = True
         thread.start()
 
@@ -168,6 +190,77 @@ class ReticulumMeshChat:
             # wait 1 second before next loop
             await asyncio.sleep(1)
 
+    # automatically syncs propagation nodes based on user config
+    async def announce_sync_propagation_nodes(self):
+        while True:
+
+            should_sync = False
+
+            # check if auto sync is enabled
+            auto_sync_interval_seconds = self.config.lxmf_preferred_propagation_node_auto_sync_interval_seconds.get()
+            if auto_sync_interval_seconds > 0:
+
+                # check if we have synced recently
+                last_synced_at = self.config.lxmf_preferred_propagation_node_last_synced_at.get()
+                if last_synced_at is not None:
+
+                    # determine when next sync should happen
+                    next_sync_at = last_synced_at + auto_sync_interval_seconds
+
+                    # we should sync if current time has passed next sync at timestamp
+                    if time.time() > next_sync_at:
+                        should_sync = True
+
+                else:
+                    # last synced at is null, so we have never synced, lets do it now
+                    should_sync = True
+
+            # sync
+            if should_sync:
+                await self.sync_propagation_nodes()
+
+            # wait 1 second before next loop
+            await asyncio.sleep(1)
+
+    # uses the provided destination hash as the active propagation node
+    def set_active_propagation_node(self, destination_hash: str | None):
+
+        # set outbound propagation node
+        if destination_hash is not None and destination_hash != "":
+            try:
+                self.message_router.set_outbound_propagation_node(bytes.fromhex(destination_hash))
+            except:
+                # failed to set propagation node, clear it to ensure we don't use an old one by mistake
+                self.remove_active_propagation_node()
+                pass
+
+        # stop using propagation node
+        else:
+            self.remove_active_propagation_node()
+
+    # stops the in progress propagation node sync
+    def stop_propagation_node_sync(self):
+        self.message_router.cancel_propagation_node_requests()
+
+    # stops and removes the active propagation node
+    def remove_active_propagation_node(self):
+        # fixme: it's possible for internal transfer state to get stuck if we change propagation node during a sync
+        # this still happens even if we cancel the propagation node requests
+        # for now, the user can just manually cancel syncing in the ui if they think it's stuck...
+        self.stop_propagation_node_sync()
+        self.message_router.outbound_propagation_node = None
+
+    # enables or disables the local lxmf propagation node
+    def enable_local_propagation_node(self, enabled: bool = True):
+        try:
+            if enabled:
+                self.message_router.enable_propagation()
+            else:
+                self.message_router.disable_propagation()
+        except:
+            print("failed to enable or disable propagation node")
+            pass
+
     # handle receiving a new audio call
     def on_incoming_audio_call(self, audio_call: AudioCall):
         print("on_incoming_audio_call: {}".format(audio_call.link.hash.hex()))
@@ -180,12 +273,9 @@ class ReticulumMeshChat:
 
         # force close websocket clients
         for websocket_client in self.websocket_clients:
-            print("force closing websocket for shutdown")
             await websocket_client.close(code=WSCloseCode.GOING_AWAY)
-            print("force closed websocket")
 
         # stop reticulum
-        print("stopping reticulum")
         RNS.Transport.detach_interfaces()
         self.reticulum.exit_handler()
         RNS.exit()
@@ -496,7 +586,6 @@ class ReticulumMeshChat:
                     "message": "Interface has been added",
                 })
 
-
         # handle websocket clients
         @routes.get("/ws")
         async def ws(request):
@@ -540,6 +629,8 @@ class ReticulumMeshChat:
             return web.json_response({
                 "app_info": {
                     "version": self.get_app_version(),
+                    "lxmf_version": LXMF.__version__,
+                    "rns_version": RNS.__version__,
                     "storage_path": self.storage_path,
                     "database_path": self.database_path,
                     "database_file_size": os.path.getsize(self.database_path),
@@ -771,6 +862,7 @@ class ReticulumMeshChat:
 
             # get query params
             aspect = request.query.get("aspect", None)
+            identity_hash = request.query.get("identity_hash", None)
             limit = request.query.get("limit", None)
 
             # build announces database query
@@ -779,6 +871,10 @@ class ReticulumMeshChat:
             # filter by provided aspect
             if aspect is not None:
                 query = query.where(database.Announce.aspect == aspect)
+
+            # filter by provided identity hash
+            if identity_hash is not None:
+                query = query.where(database.Announce.identity_hash == identity_hash)
 
             # limit results
             if limit is not None:
@@ -794,6 +890,106 @@ class ReticulumMeshChat:
 
             return web.json_response({
                 "announces": announces,
+            })
+
+        # propagation node status
+        @routes.get("/api/v1/lxmf/propagation-node/status")
+        async def index(request):
+            return web.json_response({
+                "propagation_node_status": {
+                    "state": self.convert_propagation_node_state_to_string(self.message_router.propagation_transfer_state),
+                    "progress": self.message_router.propagation_transfer_progress * 100,  # convert to percentage
+                    "messages_received": self.message_router.propagation_transfer_last_result,
+                },
+            })
+
+        # sync propagation node
+        @routes.get("/api/v1/lxmf/propagation-node/sync")
+        async def index(request):
+
+            # ensure propagation node is configured before attempting to sync
+            if self.message_router.get_outbound_propagation_node() is None:
+                return web.json_response({
+                    "message": "A propagation node must be configured to sync messages.",
+                }, status=400)
+
+            # request messages from propagation node
+            await self.sync_propagation_nodes()
+
+            return web.json_response({
+                "message": "Sync is starting",
+            })
+
+        # stop syncing propagation node
+        @routes.get("/api/v1/lxmf/propagation-node/stop-sync")
+        async def index(request):
+
+            self.stop_propagation_node_sync()
+
+            return web.json_response({
+                "message": "Sync is stopping",
+            })
+
+        # serve propagation nodes
+        @routes.get("/api/v1/lxmf/propagation-nodes")
+        async def index(request):
+
+            # get query params
+            limit = request.query.get("limit", None)
+
+            # get lxmf.propagation announces
+            query = database.Announce.select().where(database.Announce.aspect == "lxmf.propagation")
+
+            # limit results
+            if limit is not None:
+                query = query.limit(limit)
+
+            # order announces latest to oldest
+            query_results = query.order_by(database.Announce.updated_at.desc())
+
+            # process announces
+            lxmf_propagation_nodes = []
+            for announce in query_results:
+
+                # find an lxmf.delivery announce for the same identity hash, so we can use that as an "operater by" name
+                lxmf_delivery_announce = (database.Announce.select()
+                                          .where(database.Announce.aspect == "lxmf.delivery")
+                                          .where(database.Announce.identity_hash == announce.identity_hash)
+                                          .get_or_none())
+
+                # find a nomadnetwork.node announce for the same identity hash, so we can use that as an "operated by" name
+                nomadnetwork_node_announce = (database.Announce.select()
+                                          .where(database.Announce.aspect == "nomadnetwork.node")
+                                          .where(database.Announce.identity_hash == announce.identity_hash)
+                                          .get_or_none())
+
+                # get a display name from other announces belonging to the propagation nodes identity
+                operator_display_name = None
+                if lxmf_delivery_announce is not None and lxmf_delivery_announce.app_data is not None:
+                    operator_display_name = self.parse_lxmf_display_name(lxmf_delivery_announce.app_data, None)
+                elif nomadnetwork_node_announce is not None and nomadnetwork_node_announce.app_data is not None:
+                    operator_display_name = self.parse_nomadnetwork_node_display_name(nomadnetwork_node_announce.app_data, None)
+
+                # parse app_data so we can see if propagation is enabled or disabled for this node
+                is_propagation_enabled = None
+                per_transfer_limit = None
+                propagation_node_data = self.parse_lxmf_propagation_node_app_data(announce.app_data)
+                if propagation_node_data is not None:
+                    is_propagation_enabled = propagation_node_data["enabled"]
+                    per_transfer_limit = propagation_node_data["per_transfer_limit"]
+
+                lxmf_propagation_nodes.append({
+                    "destination_hash": announce.destination_hash,
+                    "identity_hash": announce.identity_hash,
+                    "operator_display_name": operator_display_name,
+                    "is_propagation_enabled": is_propagation_enabled,
+                    "per_transfer_limit": per_transfer_limit,
+                    "created_at": announce.created_at,
+                    "updated_at": announce.updated_at,
+                })
+
+            return web.json_response({
+                "lxmf_propagation_nodes": lxmf_propagation_nodes,
             })
 
         # get path to destination
@@ -849,6 +1045,42 @@ class ReticulumMeshChat:
                     "next_hop_interface": next_hop_interface,
                 },
             })
+
+        # get custom destination display name
+        @routes.get("/api/v1/destination/{destination_hash}/custom-display-name")
+        async def index(request):
+
+            # get path params
+            destination_hash = request.match_info.get("destination_hash", "")
+
+            return web.json_response({
+                "custom_display_name": self.get_custom_destination_display_name(destination_hash),
+            })
+
+        # set custom destination display name
+        @routes.post("/api/v1/destination/{destination_hash}/custom-display-name/update")
+        async def index(request):
+
+            # get path params
+            destination_hash = request.match_info.get("destination_hash", "")
+
+            # get request data
+            data = await request.json()
+            display_name = data.get('display_name')
+
+            # update display name if provided
+            if len(display_name) > 0:
+                self.db_upsert_custom_destination_display_name(destination_hash, display_name)
+                return web.json_response({
+                    "message": "Custom display name has been updated",
+                })
+
+            # otherwise remove display name
+            else:
+                database.CustomDestinationDisplayName.delete().where(database.CustomDestinationDisplayName.destination_hash == destination_hash).execute()
+                return web.json_response({
+                    "message": "Custom display name has been removed",
+                })
 
         # get interface stats
         @routes.get("/api/v1/interface-stats")
@@ -939,10 +1171,13 @@ class ReticulumMeshChat:
             try:
 
                 # send lxmf message to destination
-                lxmf_message = await self.send_message(destination_hash, content,
-                                        image_field=image_field,
-                                        audio_field=audio_field,
-                                        file_attachments_field=file_attachments_field)
+                lxmf_message = await self.send_message(
+                    destination_hash=destination_hash,
+                    content=content,
+                    image_field=image_field,
+                    audio_field=audio_field,
+                    file_attachments_field=file_attachments_field
+                )
 
                 return web.json_response({
                     "lxmf_message": self.convert_lxmf_message_to_dict(lxmf_message),
@@ -1006,26 +1241,7 @@ class ReticulumMeshChat:
             # convert to response json
             lxmf_messages = []
             for db_lxmf_message in db_lxmf_messages:
-                lxmf_messages.append({
-                    "id": db_lxmf_message.id,
-                    "hash": db_lxmf_message.hash,
-                    "source_hash": db_lxmf_message.source_hash,
-                    "destination_hash": db_lxmf_message.destination_hash,
-                    "is_incoming": db_lxmf_message.is_incoming,
-                    "state": db_lxmf_message.state,
-                    "progress": db_lxmf_message.progress,
-                    "delivery_attempts": db_lxmf_message.delivery_attempts,
-                    "next_delivery_attempt_at": db_lxmf_message.next_delivery_attempt_at,
-                    "title": db_lxmf_message.title,
-                    "content": db_lxmf_message.content,
-                    "fields": json.loads(db_lxmf_message.fields),
-                    "timestamp": db_lxmf_message.timestamp,
-                    "rssi": db_lxmf_message.rssi,
-                    "snr": db_lxmf_message.snr,
-                    "quality": db_lxmf_message.quality,
-                    "created_at": db_lxmf_message.created_at,
-                    "updated_at": db_lxmf_message.updated_at,
-                })
+                lxmf_messages.append(self.convert_db_lxmf_message_to_dict(db_lxmf_message))
 
             return web.json_response({
                 "lxmf_messages": lxmf_messages,
@@ -1093,7 +1309,8 @@ class ReticulumMeshChat:
 
                 # add to conversations
                 conversations.append({
-                    "name": self.get_lxmf_conversation_name(other_user_hash),
+                    "display_name": self.get_lxmf_conversation_name(other_user_hash),
+                    "custom_display_name": self.get_custom_destination_display_name(other_user_hash),
                     "destination_hash": other_user_hash,
                     "is_unread": self.is_lxmf_conversation_unread(other_user_hash),
                     "failed_messages_count": self.lxmf_conversation_failed_messages_count(other_user_hash),
@@ -1144,14 +1361,31 @@ class ReticulumMeshChat:
         # update last announced at timestamp
         self.config.last_announced_at.set(int(time.time()))
 
-        # send announce for lxmf
-        self.local_lxmf_destination.announce(app_data=self.config.display_name.get().encode("utf-8"))
+        # send announce for lxmf (ensuring name is updated before announcing)
+        self.local_lxmf_destination.display_name = self.config.display_name.get()
+        self.message_router.announce(destination_hash=self.local_lxmf_destination.hash)
+
+        # send announce for local propagation node (if enabled)
+        if self.config.lxmf_local_propagation_node_enabled.get():
+            self.message_router.announce_propagation_node()
 
         # send announce for audio call
         self.audio_call_manager.announce(app_data=self.config.display_name.get().encode("utf-8"))
 
         # tell websocket clients we just announced
         await self.send_announced_to_websocket_clients()
+
+    # handle syncing propagation nodes
+    async def sync_propagation_nodes(self):
+
+        # update last synced at timestamp
+        self.config.lxmf_preferred_propagation_node_last_synced_at.set(int(time.time()))
+
+        # request messages from propagation node
+        self.message_router.request_messages_from_propagation_node(self.identity)
+
+        # send config to websocket clients (used to tell ui last synced at)
+        await self.send_config_to_websocket_clients()
 
     async def update_config(self, data):
 
@@ -1180,9 +1414,36 @@ class ReticulumMeshChat:
             value = bool(data["allow_auto_resending_failed_messages_with_attachments"])
             self.config.allow_auto_resending_failed_messages_with_attachments.set(value)
 
+        if "auto_send_failed_messages_to_propagation_node" in data:
+            value = bool(data["auto_send_failed_messages_to_propagation_node"])
+            self.config.auto_send_failed_messages_to_propagation_node.set(value)
+
         if "show_suggested_community_interfaces" in data:
             value = bool(data["show_suggested_community_interfaces"])
             self.config.show_suggested_community_interfaces.set(value)
+
+        if "lxmf_preferred_propagation_node_destination_hash" in data:
+
+            # update config value
+            value = data["lxmf_preferred_propagation_node_destination_hash"]
+            self.config.lxmf_preferred_propagation_node_destination_hash.set(value)
+
+            # update active propagation node
+            self.set_active_propagation_node(value)
+
+        # update auto sync interval
+        if "lxmf_preferred_propagation_node_auto_sync_interval_seconds" in data:
+            value = int(data["lxmf_preferred_propagation_node_auto_sync_interval_seconds"])
+            self.config.lxmf_preferred_propagation_node_auto_sync_interval_seconds.set(value)
+
+        if "lxmf_local_propagation_node_enabled" in data:
+
+            # update config value
+            value = bool(data["lxmf_local_propagation_node_enabled"])
+            self.config.lxmf_local_propagation_node_enabled.set(value)
+
+            # enable or disable local propagation node
+            self.enable_local_propagation_node(value)
 
         # send config to websocket clients
         await self.send_config_to_websocket_clients()
@@ -1345,7 +1606,13 @@ class ReticulumMeshChat:
             "last_announced_at": self.config.last_announced_at.get(),
             "auto_resend_failed_messages_when_announce_received": self.config.auto_resend_failed_messages_when_announce_received.get(),
             "allow_auto_resending_failed_messages_with_attachments": self.config.allow_auto_resending_failed_messages_with_attachments.get(),
+            "auto_send_failed_messages_to_propagation_node": self.config.auto_send_failed_messages_to_propagation_node.get(),
             "show_suggested_community_interfaces": self.config.show_suggested_community_interfaces.get(),
+            "lxmf_local_propagation_node_enabled": self.config.lxmf_local_propagation_node_enabled.get(),
+            "lxmf_local_propagation_node_address_hash": self.message_router.propagation_destination.hexhash,
+            "lxmf_preferred_propagation_node_destination_hash": self.config.lxmf_preferred_propagation_node_destination_hash.get(),
+            "lxmf_preferred_propagation_node_auto_sync_interval_seconds": self.config.lxmf_preferred_propagation_node_auto_sync_interval_seconds.get(),
+            "lxmf_preferred_propagation_node_last_synced_at": self.config.lxmf_preferred_propagation_node_last_synced_at.get(),
         }
 
     # convert audio call to dict
@@ -1391,20 +1658,6 @@ class ReticulumMeshChat:
             "is_outbound": audio_call.is_outbound,
             "path": path,
         }
-
-    # convert app data to string, or return none unable to do so
-    def convert_app_data_to_string(self, app_data):
-
-        # attempt to convert to utf-8 string
-        if app_data is not None:
-            try:
-                return app_data.decode("utf-8")
-            except:
-                # ignore failure to convert to string
-                pass
-
-        # unable to convert to string
-        return None
 
     # convert an lxmf message to a dictionary, for sending over websocket
     def convert_lxmf_message_to_dict(self, lxmf_message: LXMF.LXMessage):
@@ -1475,6 +1728,7 @@ class ReticulumMeshChat:
             "is_incoming": lxmf_message.incoming,
             "state": self.convert_lxmf_state_to_string(lxmf_message),
             "progress": progress_percentage,
+            "method": self.convert_lxmf_method_to_string(lxmf_message),
             "delivery_attempts": lxmf_message.delivery_attempts,
             "next_delivery_attempt_at": getattr(lxmf_message, "next_delivery_attempt", None),  # attribute may not exist yet
             "title": lxmf_message.title.decode('utf-8'),
@@ -1491,8 +1745,8 @@ class ReticulumMeshChat:
 
         # convert state to string
         lxmf_message_state = "unknown"
-        if lxmf_message.state == LXMF.LXMessage.DRAFT:
-            lxmf_message_state = "draft"
+        if lxmf_message.state == LXMF.LXMessage.GENERATING:
+            lxmf_message_state = "generating"
         elif lxmf_message.state == LXMF.LXMessage.OUTBOUND:
             lxmf_message_state = "outbound"
         elif lxmf_message.state == LXMF.LXMessage.SENDING:
@@ -1506,8 +1760,58 @@ class ReticulumMeshChat:
 
         return lxmf_message_state
 
+    # convert lxmf method to a human friendly string
+    def convert_lxmf_method_to_string(self, lxmf_message: LXMF.LXMessage):
+
+        # convert method to string
+        lxmf_message_method = "unknown"
+        if lxmf_message.method == LXMF.LXMessage.OPPORTUNISTIC:
+            lxmf_message_method = "opportunistic"
+        elif lxmf_message.method == LXMF.LXMessage.DIRECT:
+            lxmf_message_method = "direct"
+        elif lxmf_message.method == LXMF.LXMessage.PROPAGATED:
+            lxmf_message_method = "propagated"
+        elif lxmf_message.method == LXMF.LXMessage.PAPER:
+            lxmf_message_method = "paper"
+
+        return lxmf_message_method
+
+    def convert_propagation_node_state_to_string(self, state):
+
+        # map states to strings
+        state_map = {
+            LXMRouter.PR_IDLE: "idle",
+            LXMRouter.PR_PATH_REQUESTED: "path_requested",
+            LXMRouter.PR_LINK_ESTABLISHING: "link_establishing",
+            LXMRouter.PR_LINK_ESTABLISHED: "link_established",
+            LXMRouter.PR_REQUEST_SENT: "request_sent",
+            LXMRouter.PR_RECEIVING: "receiving",
+            LXMRouter.PR_RESPONSE_RECEIVED: "response_received",
+            LXMRouter.PR_COMPLETE: "complete",
+            LXMRouter.PR_NO_PATH: "no_path",
+            LXMRouter.PR_LINK_FAILED: "link_failed",
+            LXMRouter.PR_TRANSFER_FAILED: "transfer_failed",
+            LXMRouter.PR_NO_IDENTITY_RCVD: "no_identity_received",
+            LXMRouter.PR_NO_ACCESS: "no_access",
+            LXMRouter.PR_FAILED: "failed",
+        }
+
+        # return string for state, or fallback to unknown
+        if state in state_map:
+            return state_map[state]
+        else:
+            return "unknown"
+
     # convert database announce to a dictionary
     def convert_db_announce_to_dict(self, announce: database.Announce):
+
+        # parse display name from announce
+        display_name = None
+        if announce.aspect == "lxmf.delivery":
+            display_name = self.parse_lxmf_display_name(announce.app_data)
+        elif announce.aspect == "nomadnetwork.node":
+            display_name = self.parse_nomadnetwork_node_display_name(announce.app_data)
+
         return {
             "id": announce.id,
             "destination_hash": announce.destination_hash,
@@ -1515,8 +1819,35 @@ class ReticulumMeshChat:
             "identity_hash": announce.identity_hash,
             "identity_public_key": announce.identity_public_key,
             "app_data": announce.app_data,
+            "display_name": display_name,
+            "custom_display_name": self.get_custom_destination_display_name(announce.destination_hash),
             "created_at": announce.created_at,
             "updated_at": announce.updated_at,
+        }
+
+    # convert database lxmf message to a dictionary
+    def convert_db_lxmf_message_to_dict(self, db_lxmf_message: database.LxmfMessage):
+
+        return {
+            "id": db_lxmf_message.id,
+            "hash": db_lxmf_message.hash,
+            "source_hash": db_lxmf_message.source_hash,
+            "destination_hash": db_lxmf_message.destination_hash,
+            "is_incoming": db_lxmf_message.is_incoming,
+            "state": db_lxmf_message.state,
+            "progress": db_lxmf_message.progress,
+            "method": db_lxmf_message.method,
+            "delivery_attempts": db_lxmf_message.delivery_attempts,
+            "next_delivery_attempt_at": db_lxmf_message.next_delivery_attempt_at,
+            "title": db_lxmf_message.title,
+            "content": db_lxmf_message.content,
+            "fields": json.loads(db_lxmf_message.fields),
+            "timestamp": db_lxmf_message.timestamp,
+            "rssi": db_lxmf_message.rssi,
+            "snr": db_lxmf_message.snr,
+            "quality": db_lxmf_message.quality,
+            "created_at": db_lxmf_message.created_at,
+            "updated_at": db_lxmf_message.updated_at,
         }
 
     # handle an lxmf delivery from reticulum
@@ -1527,10 +1858,15 @@ class ReticulumMeshChat:
             # upsert lxmf message to database
             self.db_upsert_lxmf_message(lxmf_message)
 
+            # find message from database
+            db_lxmf_message = database.LxmfMessage.get_or_none(database.LxmfMessage.hash == lxmf_message.hash.hex())
+            if db_lxmf_message is None:
+                return
+
             # send received lxmf message data to all websocket clients
             asyncio.run(self.websocket_broadcast(json.dumps({
                 "type": "lxmf.delivery",
-                "lxmf_message": self.convert_lxmf_message_to_dict(lxmf_message),
+                "lxmf_message": self.convert_db_lxmf_message_to_dict(db_lxmf_message),
             })))
 
         except Exception as e:
@@ -1551,8 +1887,29 @@ class ReticulumMeshChat:
 
     # handle delivery failed for an outbound lxmf message
     def on_lxmf_sending_failed(self, lxmf_message):
-        # just pass this on, we don't need to do anything special
+
+        # check if this failed message should fall back to sending via a propagation node
+        if lxmf_message.state == LXMF.LXMessage.FAILED and hasattr(lxmf_message, "try_propagation_on_fail") and lxmf_message.try_propagation_on_fail:
+            self.send_failed_message_via_propagation_node(lxmf_message)
+
+        # update state
         self.on_lxmf_sending_state_updated(lxmf_message)
+
+    # sends a previously failed message via a propagation node
+    def send_failed_message_via_propagation_node(self, lxmf_message: LXMF.LXMessage):
+
+        # reset internal message state
+        lxmf_message.packed = None
+        lxmf_message.delivery_attempts = 0
+        if hasattr(lxmf_message, "next_delivery_attempt"):
+            del lxmf_message.next_delivery_attempt
+
+        # this message should now be sent via a propagation node
+        lxmf_message.desired_method = LXMF.LXMessage.PROPAGATED
+        lxmf_message.try_propagation_on_fail = False
+
+        # resend message
+        self.message_router.handle_outbound(lxmf_message)
 
     # upserts the provided lxmf message to the database
     def db_upsert_lxmf_message(self, lxmf_message: LXMF.LXMessage):
@@ -1568,6 +1925,7 @@ class ReticulumMeshChat:
             "is_incoming": lxmf_message_dict["is_incoming"],
             "state": lxmf_message_dict["state"],
             "progress": lxmf_message_dict["progress"],
+            "method": lxmf_message_dict["method"],
             "delivery_attempts": lxmf_message_dict["delivery_attempts"],
             "next_delivery_attempt_at": lxmf_message_dict["next_delivery_attempt_at"],
             "title": lxmf_message_dict["title"],
@@ -1605,6 +1963,21 @@ class ReticulumMeshChat:
         # upsert to database
         query = database.Announce.insert(data)
         query = query.on_conflict(conflict_target=[database.Announce.destination_hash], update=data)
+        query.execute()
+
+    # upserts a custom destination display name to the database
+    def db_upsert_custom_destination_display_name(self, destination_hash: str, display_name: str):
+
+        # prepare data to insert or update
+        data = {
+            "destination_hash": destination_hash,
+            "display_name": display_name,
+            "updated_at": datetime.now(timezone.utc),
+        }
+
+        # upsert to database
+        query = database.CustomDestinationDisplayName.insert(data)
+        query = query.on_conflict(conflict_target=[database.CustomDestinationDisplayName.destination_hash], update=data)
         query.execute()
 
     # upserts lxmf conversation read state to the database
@@ -1654,9 +2027,18 @@ class ReticulumMeshChat:
         # create destination for recipients lxmf delivery address
         lxmf_destination = RNS.Destination(destination_identity, RNS.Destination.OUT, RNS.Destination.SINGLE, "lxmf", "delivery")
 
+        # send messages over a direct link by default
+        desired_delivery_method = LXMF.LXMessage.DIRECT
+        if not self.message_router.delivery_link_available(destination_hash) and RNS.Identity.current_ratchet_id(destination_hash) != None:
+            # since there's no link established to the destination, it's faster to send opportunistically
+            # this is because it takes several packets to establish a link, and then we still have to send the message over it
+            # oppotunistic mode will send the message in a single packet (if the message is small enough, otherwise it falls back to a direct link)
+            # we will only do this if an encryption ratchet is available, so single packet delivery is more secure
+            desired_delivery_method = LXMF.LXMessage.OPPORTUNISTIC
+
         # create lxmf message
-        lxmf_message = LXMF.LXMessage(lxmf_destination, self.local_lxmf_destination, content, desired_method=LXMF.LXMessage.DIRECT)
-        lxmf_message.try_propagation_on_fail = True
+        lxmf_message = LXMF.LXMessage(lxmf_destination, self.local_lxmf_destination, content, desired_method=desired_delivery_method)
+        lxmf_message.try_propagation_on_fail = self.config.auto_send_failed_messages_to_propagation_node.get()
 
         lxmf_message.fields = {}
 
@@ -1711,9 +2093,10 @@ class ReticulumMeshChat:
     # updates lxmf message in database and broadcasts to websocket until it's delivered, or it fails
     async def handle_lxmf_message_progress(self, lxmf_message):
 
-        # FIXME: there's no register_progress_callback on the lxmf message, so manually send progress until delivered or failed
+        # FIXME: there's no register_progress_callback on the lxmf message, so manually send progress until delivered, propagated or failed
         # we also can't use on_lxmf_sending_state_updated method to do this, because of async/await issues...
-        while lxmf_message.state != LXMF.LXMessage.DELIVERED and lxmf_message.state != LXMF.LXMessage.FAILED:
+        should_update_message = True
+        while should_update_message:
 
             # wait 1 second between sending updates
             await asyncio.sleep(1)
@@ -1727,16 +2110,45 @@ class ReticulumMeshChat:
                 "lxmf_message": self.convert_lxmf_message_to_dict(lxmf_message),
             }))
 
+            # check message state
+            has_delivered = lxmf_message.state == LXMF.LXMessage.DELIVERED
+            has_propagated = lxmf_message.state == LXMF.LXMessage.SENT and lxmf_message.method == LXMF.LXMessage.PROPAGATED
+            has_failed = lxmf_message.state == LXMF.LXMessage.FAILED
+
+            # check if we should stop updating
+            if has_delivered or has_propagated or has_failed:
+                should_update_message = False
+
+    # handle an announce received from reticulum, for an audio call address
+    # NOTE: cant be async, as Reticulum doesn't await it
+    def on_audio_call_announce_received(self, aspect, destination_hash, announced_identity, app_data):
+
+        # log received announce
+        print("Received an announce from " + RNS.prettyhexrep(destination_hash) + " for [call.audio]")
+
+        # upsert announce to database
+        self.db_upsert_announce(announced_identity, destination_hash, aspect, app_data)
+
+        # find announce from database
+        announce = database.Announce.get_or_none(database.Announce.destination_hash == destination_hash.hex())
+        if announce is None:
+            return
+
+        # send database announce to all websocket clients
+        asyncio.run(self.websocket_broadcast(json.dumps({
+            "type": "announce",
+            "announce": self.convert_db_announce_to_dict(announce),
+        })))
 
     # handle an announce received from reticulum, for an lxmf address
     # NOTE: cant be async, as Reticulum doesn't await it
-    def on_lxmf_announce_received(self, destination_hash, announced_identity, app_data):
+    def on_lxmf_announce_received(self, aspect, destination_hash, announced_identity, app_data):
 
         # log received announce
         print("Received an announce from " + RNS.prettyhexrep(destination_hash) + " for [lxmf.delivery]")
 
         # upsert announce to database
-        self.db_upsert_announce(announced_identity, destination_hash, "lxmf.delivery", app_data)
+        self.db_upsert_announce(announced_identity, destination_hash, aspect, app_data)
 
         # find announce from database
         announce = database.Announce.get_or_none(database.Announce.destination_hash == destination_hash.hex())
@@ -1752,6 +2164,27 @@ class ReticulumMeshChat:
         # resend all failed messages that were intended for this destination
         if self.config.auto_resend_failed_messages_when_announce_received.get():
             asyncio.run(self.resend_failed_messages_for_destination(destination_hash.hex()))
+
+    # handle an announce received from reticulum, for an lxmf propagation node address
+    # NOTE: cant be async, as Reticulum doesn't await it
+    def on_lxmf_propagation_announce_received(self, aspect, destination_hash, announced_identity, app_data):
+
+        # log received announce
+        print("Received an announce from " + RNS.prettyhexrep(destination_hash) + " for [lxmf.propagation]")
+
+        # upsert announce to database
+        self.db_upsert_announce(announced_identity, destination_hash, aspect, app_data)
+
+        # find announce from database
+        announce = database.Announce.get_or_none(database.Announce.destination_hash == destination_hash.hex())
+        if announce is None:
+            return
+
+        # send database announce to all websocket clients
+        asyncio.run(self.websocket_broadcast(json.dumps({
+            "type": "announce",
+            "announce": self.convert_db_announce_to_dict(announce),
+        })))
 
     # resends all messages that previously failed to send to the provided destination hash
     async def resend_failed_messages_for_destination(self, destination_hash: str):
@@ -1818,13 +2251,13 @@ class ReticulumMeshChat:
 
     # handle an announce received from reticulum, for a nomadnet node
     # NOTE: cant be async, as Reticulum doesn't await it
-    def on_nomadnet_node_announce_received(self, destination_hash, announced_identity, app_data):
+    def on_nomadnet_node_announce_received(self, aspect, destination_hash, announced_identity, app_data):
 
         # log received announce
         print("Received an announce from " + RNS.prettyhexrep(destination_hash) + " for [nomadnetwork.node]")
 
         # upsert announce to database
-        self.db_upsert_announce(announced_identity, destination_hash, "nomadnetwork.node", app_data)
+        self.db_upsert_announce(announced_identity, destination_hash, aspect, app_data)
 
         # find announce from database
         announce = database.Announce.get_or_none(database.Announce.destination_hash == destination_hash.hex())
@@ -1836,6 +2269,16 @@ class ReticulumMeshChat:
             "type": "announce",
             "announce": self.convert_db_announce_to_dict(announce),
         })))
+
+    # gets the custom display name a user has set for the provided destination hash
+    def get_custom_destination_display_name(self, destination_hash: str):
+
+        # get display name from database
+        db_destination_display_name = database.CustomDestinationDisplayName.get_or_none(database.CustomDestinationDisplayName.destination_hash == destination_hash)
+        if db_destination_display_name is not None:
+            return db_destination_display_name.display_name
+
+        return None
 
     # get name to show for an lxmf conversation
     # currently, this will use the app data from the most recent announce
@@ -1849,14 +2292,41 @@ class ReticulumMeshChat:
                          .get_or_none())
 
         # if app data is available in database, it should be base64 encoded text that was announced
-        # we will return this as the conversation name
+        # we will return the parsed lxmf display name as the conversation name
         if lxmf_announce is not None and lxmf_announce.app_data is not None:
-            try:
-                return base64.b64decode(lxmf_announce.app_data).decode("utf-8")
-            except:
-                pass
+            return self.parse_lxmf_display_name(app_data_base64=lxmf_announce.app_data)
 
-        return "Unknown"
+        # announce did not have app data, so provide a fallback name
+        return "Anonymous Peer"
+
+    # reads the lxmf display name from the provided base64 app data
+    def parse_lxmf_display_name(self, app_data_base64: str, default_value: str | None = "Anonymous Peer"):
+        try:
+            app_data_bytes = base64.b64decode(app_data_base64)
+            return LXMF.display_name_from_app_data(app_data_bytes)
+        except:
+            return default_value
+
+    # reads the nomadnetwork node display name from the provided base64 app data
+    def parse_nomadnetwork_node_display_name(self, app_data_base64: str, default_value: str | None = "Anonymous Node"):
+        try:
+            app_data_bytes = base64.b64decode(app_data_base64)
+            return app_data_bytes.decode("utf-8")
+        except:
+            return default_value
+
+    # parses lxmf propagation node app data
+    def parse_lxmf_propagation_node_app_data(self, app_data_base64: str):
+        try:
+            app_data_bytes = base64.b64decode(app_data_base64)
+            data = msgpack.unpackb(app_data_bytes)
+            return {
+                "enabled": bool(data[0]),
+                "timebase": int(data[1]),
+                "per_transfer_limit": int(data[2]),
+            }
+        except:
+            return None
 
     # returns true if the conversation has messages newer than the last read at timestamp
     def is_lxmf_conversation_unread(self, destination_hash):
@@ -1918,7 +2388,12 @@ class Config:
         return default_value
 
     @staticmethod
-    def set(key: str, value: str):
+    def set(key: str, value: str | None):
+
+        # if none, delete the config entry
+        if value is None:
+            database.Config.delete().where(database.Config.key == key).execute()
+            return
 
         # prepare data to insert or update
         data = {
@@ -1935,7 +2410,7 @@ class Config:
     # handle config values that should be strings
     class StringConfig:
 
-        def __init__(self, key: str, default_value: str = None):
+        def __init__(self, key: str, default_value: str | None = None):
             self.key = key
             self.default_value = default_value
 
@@ -1943,7 +2418,7 @@ class Config:
             _default_value = default_value or self.default_value
             return Config.get(self.key, default_value=_default_value)
 
-        def set(self, value: str):
+        def set(self, value: str | None):
             Config.set(self.key, value)
 
     # handle config values that should be bools
@@ -1999,42 +2474,13 @@ class Config:
     last_announced_at = IntConfig("last_announced_at", None)
     auto_resend_failed_messages_when_announce_received = BoolConfig("auto_resend_failed_messages_when_announce_received", True)
     allow_auto_resending_failed_messages_with_attachments = BoolConfig("allow_auto_resending_failed_messages_with_attachments", False)
+    auto_send_failed_messages_to_propagation_node = BoolConfig("auto_send_failed_messages_to_propagation_node", False)
     show_suggested_community_interfaces = BoolConfig("show_suggested_community_interfaces", True)
     lxmf_delivery_transfer_limit_in_bytes = IntConfig("lxmf_delivery_transfer_limit_in_bytes", 1000 * 1000 * 10)  # 10MB
-
-
-# an announce handler for lxmf.delivery aspect that just forwards to a provided callback
-class LXMFAnnounceHandler:
-
-    def __init__(self, received_announce_callback):
-        self.aspect_filter = "lxmf.delivery"
-        self.received_announce_callback = received_announce_callback
-
-    # we will just pass the received announce back to the provided callback
-    def received_announce(self, destination_hash, announced_identity, app_data):
-        try:
-            # handle received announce
-            self.received_announce_callback(destination_hash, announced_identity, app_data)
-        except:
-            # ignore failure to handle received announce
-            pass
-
-
-# an announce handler for nomadnetwork.node aspect that just forwards to a provided callback
-class NomadnetworkNodeAnnounceHandler:
-
-    def __init__(self, received_announce_callback):
-        self.aspect_filter = "nomadnetwork.node"
-        self.received_announce_callback = received_announce_callback
-
-    # we will just pass the received announce back to the provided callback
-    def received_announce(self, destination_hash, announced_identity, app_data):
-        try:
-            # handle received announce
-            self.received_announce_callback(destination_hash, announced_identity, app_data)
-        except:
-            # ignore failure to handle received announce
-            pass
+    lxmf_preferred_propagation_node_destination_hash = StringConfig("lxmf_preferred_propagation_node_destination_hash", None)
+    lxmf_preferred_propagation_node_auto_sync_interval_seconds = IntConfig("lxmf_preferred_propagation_node_auto_sync_interval_seconds", 0)
+    lxmf_preferred_propagation_node_last_synced_at = IntConfig("lxmf_preferred_propagation_node_last_synced_at", None)
+    lxmf_local_propagation_node_enabled = BoolConfig("lxmf_local_propagation_node_enabled", False)
 
 
 class NomadnetDownloader:

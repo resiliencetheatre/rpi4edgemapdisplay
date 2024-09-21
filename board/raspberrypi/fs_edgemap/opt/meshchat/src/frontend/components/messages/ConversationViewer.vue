@@ -8,7 +8,15 @@
 
             <!-- peer info -->
             <div>
-                <div class="font-semibold">{{ selectedPeer.name }}</div>
+                <div @click="updateCustomDisplayName" class="flex cursor-pointer">
+                    <div v-if="selectedPeer.custom_display_name != null" class="my-auto mr-1" title="Custom Display Name">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z" />
+                        </svg>
+                    </div>
+                    <div class="my-auto font-semibold" :title="selectedPeer.display_name">{{ selectedPeer.custom_display_name ?? selectedPeer.display_name }}</div>
+                </div>
                 <div class="text-sm"><{{ selectedPeer.destination_hash }}> <span v-if="selectedPeerPath" @click="onDestinationPathClick(selectedPeerPath)" class="cursor-pointer">{{ selectedPeerPath.hops }} {{ selectedPeerPath.hops === 1 ? 'hop' : 'hops' }} away</span></div>
             </div>
 
@@ -139,11 +147,15 @@
                         <div class="flex ml-auto space-x-1">
 
                             <!-- state label -->
-                            <div class="my-auto space-x-1">
-                                <span>{{ chatItem.lxmf_message.state }}</span>
-                                <span v-if="chatItem.lxmf_message.state === 'outbound' && chatItem.lxmf_message.delivery_attempts >= 1">(attempt {{ chatItem.lxmf_message.delivery_attempts + 1 }})</span>
-                                <span v-if="chatItem.lxmf_message.state === 'sending'">{{ chatItem.lxmf_message.progress.toFixed(0) }}%</span>
-                                <a v-if="chatItem.lxmf_message.state === 'failed'" @click="retrySendingMessage(chatItem)" class="cursor-pointer underline text-blue-500">retry?</a>
+                            <div class="my-auto">
+                                <span @click="showSentMessageInfo(chatItem.lxmf_message)" class="space-x-1 cursor-pointer">
+                                    <span>{{ chatItem.lxmf_message.state }}</span>
+                                    <span v-if="chatItem.lxmf_message.state === 'outbound' && chatItem.lxmf_message.delivery_attempts >= 1">(attempt {{ chatItem.lxmf_message.delivery_attempts + 1 }})</span>
+                                    <span v-if="chatItem.lxmf_message.state === 'sent' && chatItem.lxmf_message.method === 'opportunistic' && chatItem.lxmf_message.delivery_attempts >= 1">(attempt {{ chatItem.lxmf_message.delivery_attempts }})</span>
+                                    <span v-if="chatItem.lxmf_message.state === 'sent' && chatItem.lxmf_message.method === 'propagated'">to propagation node</span>
+                                    <span v-if="chatItem.lxmf_message.state === 'sending'">{{ chatItem.lxmf_message.progress.toFixed(0) }}%</span>
+                                </span>
+                                <a v-if="chatItem.lxmf_message.state === 'failed'" @click="retrySendingMessage(chatItem)" class="ml-1 cursor-pointer underline text-blue-500">retry?</a>
                             </div>
 
                             <!-- delivered icon -->
@@ -173,11 +185,8 @@
                     <!-- inbound message info -->
                     <div v-if="!chatItem.is_outbound" class="text-xs text-gray-500 mt-0.5 flex flex-col">
 
-                        <!-- signal info -->
-                        <span v-if="chatItem.is_actions_expanded && chatItem.lxmf_message.quality && chatItem.lxmf_message.rssi && chatItem.lxmf_message.snr">Signal {{ chatItem.lxmf_message.quality }}% • RSSI {{ chatItem.lxmf_message.rssi }} • SNR {{ chatItem.lxmf_message.snr }}</span>
-
                         <!-- received timestamp -->
-                        <span>{{ formatSecondsAgo(chatItem.lxmf_message.timestamp) }}</span>
+                        <span @click="showReceivedMessageInfo(chatItem.lxmf_message)" class="cursor-pointer">{{ formatTimeAgo(chatItem.lxmf_message.created_at) }}</span>
 
                     </div>
 
@@ -637,6 +646,53 @@ export default {
         isLxmfMessageInUi: function(hash) {
             return this.chatItems.findIndex((chatItem) => chatItem.lxmf_message?.hash === hash) !== -1;
         },
+        async getCustomDisplayName() {
+            if(this.selectedPeer){
+                try {
+
+                    // get custom display name
+                    const response = await window.axios.get(`/api/v1/destination/${this.selectedPeer.destination_hash}/custom-display-name`);
+
+                    // update ui
+                    this.selectedPeer.custom_display_name = response.data.custom_display_name;
+
+                } catch(e) {
+                    console.log(e);
+                }
+            }
+        },
+        async updateCustomDisplayName() {
+
+            // do nothing if no peer selected
+            if(!this.selectedPeer){
+                return;
+            }
+
+            // ask user for new display name
+            const displayName = await DialogUtils.prompt("Enter a custom display name");
+            if(displayName == null){
+                return;
+            }
+
+            try {
+
+                // update display name on server
+                await axios.post(`/api/v1/destination/${this.selectedPeer.destination_hash}/custom-display-name/update`, {
+                    display_name: displayName,
+                });
+
+                // update display name in ui
+                await this.getCustomDisplayName();
+
+                // reload conversations (so conversations list updates name)
+                this.$emit("reload-conversations");
+
+            } catch(e) {
+                console.log(e);
+                DialogUtils.alert("Failed to update display name");
+            }
+
+        },
         async deleteConversation() {
 
             // do nothing if no peer selected
@@ -973,8 +1029,8 @@ export default {
             }
 
         },
-        formatSecondsAgo: function(seconds) {
-            return Utils.formatSecondsAgo(seconds);
+        formatTimeAgo: function(datetimeString) {
+            return Utils.formatTimeAgo(datetimeString);
         },
         formatBytes: function(bytes) {
             return Utils.formatBytes(bytes);
@@ -1173,6 +1229,40 @@ export default {
 
             // reload conversations
             this.$emit("reload-conversations");
+
+        },
+        showSentMessageInfo: function(lxmfMessage) {
+            DialogUtils.alert([
+                `Created: ${Utils.convertUnixMillisToLocalDateTimeString(lxmfMessage.timestamp * 1000)}`,
+                `Method: ${lxmfMessage.method ?? "unknown"}`,
+            ].join("\n"));
+        },
+        showReceivedMessageInfo: function(lxmfMessage) {
+
+            // basic info
+            const info = [
+                `Sent: ${Utils.convertUnixMillisToLocalDateTimeString(lxmfMessage.timestamp * 1000)}`,
+                `Received: ${Utils.convertDateTimeToLocalDateTimeString(new Date(lxmfMessage.created_at))}`,
+                `Method: ${lxmfMessage.method ?? "unknown"}`,
+            ];
+
+            // add signal quality if available
+            if(lxmfMessage.quality != null){
+                info.push(`Signal Quality: ${lxmfMessage.quality}%`);
+            }
+
+            // add rssi if available
+            if(lxmfMessage.rssi != null){
+                info.push(`RSSI: ${lxmfMessage.rssi}dBm`);
+            }
+
+            // add snr if available
+            if(lxmfMessage.snr != null){
+                info.push(`SNR: ${lxmfMessage.snr}dB`);
+            }
+
+            // show message info
+            DialogUtils.alert(info.join("\n"));
 
         },
     },

@@ -301,6 +301,12 @@ export default {
                     continue;
                 }
 
+                // skip announces if we don't want to show them
+                const aspectsToShow = ["lxmf.delivery", "nomadnetwork.node"];
+                if(!aspectsToShow.includes(announce.aspect)){
+                    continue;
+                }
+
                 const node = {
                     id: entry.hash,
                     group: "announce",
@@ -309,7 +315,7 @@ export default {
 
                 if(announce.aspect === "lxmf.delivery"){
 
-                    const name = announce.app_data ? atob(announce.app_data) : "Anonymous Peer";
+                    const name = announce.display_name;
 
                     node.shape = "circularImage";
                     node.image = entry.hops === 1 ? "/assets/images/network-visualiser/user_1hop.png" : "/assets/images/network-visualiser/user.png";
@@ -328,7 +334,7 @@ export default {
 
                 if(announce.aspect === "nomadnetwork.node"){
 
-                    const name = announce.app_data ? atob(announce.app_data) : "Anonymous Node";
+                    const name = announce.display_name;
 
                     node.shape = "circularImage";
                     node.image = entry.hops === 1 ? "/assets/images/network-visualiser/server_1hop.png" : "/assets/images/network-visualiser/server.png";

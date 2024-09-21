@@ -101,7 +101,7 @@ export default {
 
             // we didn't find an existing peer, so just use an unknown name
             this.onPeerClick({
-                name: "Unknown Peer",
+                display_name: "Unknown Peer",
                 destination_hash: destinationHash,
             });
 
@@ -167,20 +167,8 @@ export default {
                 console.log(e);
             }
         },
-        getPeerNameFromAppData: function(appData) {
-            try {
-                // app data should be peer name, and our server provides it base64 encoded
-                return Utils.decodeBase64ToUtf8String(appData);
-            } catch(e){
-                return "Anonymous Peer";
-            }
-        },
         updatePeerFromAnnounce: function(announce) {
-            this.peers[announce.destination_hash] = {
-                ...announce,
-                // helper property for easily grabbing peer name from app data
-                name: this.getPeerNameFromAppData(announce.app_data),
-            };
+            this.peers[announce.destination_hash] = announce;
         },
         onPeerClick: function(peer) {
             this.selectedPeer = peer;
