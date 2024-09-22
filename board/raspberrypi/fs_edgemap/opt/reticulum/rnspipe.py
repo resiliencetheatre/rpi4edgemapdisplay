@@ -18,8 +18,9 @@
 #
 #
 
-import LXMF
 import RNS
+import RNS.vendor.umsgpack as msgpack
+import LXMF
 import time
 import random
 import os
@@ -30,9 +31,13 @@ import threading
 import stat, os
 from threading import Thread
 from random import randrange, uniform
+from urllib.parse import unquote
 
 global lxmf_source
 global announce_count
+
+required_stamp_cost = 8
+enforce_stamps = False
 
 db_file = "/tmp/rns.db"
 random_titles = ["m1", "m2", "m3"]
@@ -54,10 +59,11 @@ if ( os.path.isfile("/opt/edgemap-persist/callsign.txt") ):
     callsign = callsign_file.readline()
     callsign_file.close()
     callsign=callsign[:-1]
+    # callsign=callsign.encode("utf-8")
 else:
     callsign = "no-callsign"
 
-RNS.log("Callsign: " + callsign)
+RNS.log("Callsign: " + str(callsign) )
 
 # Load identity
 path="rns-edgemap"
@@ -93,7 +99,7 @@ else:
 # Receive
 # We will need to define an announce handler class that
 # Reticulum can message when an announce arrives.
-class ExampleAnnounceHandler:
+class AnnounceHandler:
     # The initialisation method takes the optional
     # aspect_filter argument. If aspect_filter is set to
     # None, all announces will be passed to the instance.
@@ -101,20 +107,19 @@ class ExampleAnnounceHandler:
     # an aspect string.
     def __init__(self, aspect_filter=None):
         self.aspect_filter = aspect_filter
-
     # This method will be called by Reticulums Transport
     # system when an announce arrives that matches the
     # configured aspect filter. Filters must be specific,
     # and cannot use wildcards.
-    
     def received_announce(self, destination_hash, announced_identity, app_data):
+        
         # RNS.log("*** Announce: " + RNS.prettyhexrep(destination_hash))
         # We split app_data and check if announce has edgemap.[callsign] format
         # This is simple naming convention to separate edgemap announcements to our DB
         # Understanding lxmf better would be nicer, but it lacks documentation?
-        if app_data:
-            
-            callsign_split_string = str(app_data.decode("utf-8"))
+        if app_data is not None:
+            # LXMF.display_name_from_app_data() was new thing
+            callsign_split_string = LXMF.display_name_from_app_data( app_data )
             callsign_split_array = callsign_split_string.split('.')
             if len(callsign_split_array) == 2:
                 insert_callsign = callsign_split_array[1]             
@@ -125,15 +130,6 @@ class ExampleAnnounceHandler:
                     insert_destination_hex = insert_destination_hex.replace(":", "")
                     insert_destination_hex = str(insert_destination_hex)
                     reticulumDbUpdate( insert_callsign,insert_destination_hex )
-                    
-                    # TODO: Think about AGE !?!?! reticulumDbReadNodeAge
-                    # Not good here, because "on update" age is always 0 :)
-                    # peer_age = reticulumDbReadNodeAge(insert_callsign)
-                    # message_content = "reticulumnode," + insert_callsign + "," + str(peer_age) + "," + insert_destination_hex
-                    # fifo_write = open('/tmp/reticulumstatusin', 'w')
-                    # fifo_write.write(message_content)
-                    # fifo_write.flush()
-                    
                 else:
                     RNS.log("Received non-edgemap announce: " + RNS.prettyhexrep(destination_hash) + " " + callsign_split_string )
             else:
@@ -175,8 +171,8 @@ async def announce_loop():
     global lxmf_source
     
     while True:
-        # announce
-        lxmf_router.announce(lxmf_source.hash)
+        # Announce
+        lxmf_router.announce(destination_hash=lxmf_source.hash)
         if announce_count < 1:
             sleep_time = randrange(10, 30)
             announce_count = announce_count +1
@@ -296,7 +292,12 @@ def delivery_callback(message):
             signature_string = "Invalid signature"
         if message.unverified_reason == LXMF.LXMessage.SOURCE_UNKNOWN:
             signature_string = "Cannot verify, source is unknown"
-
+    
+    if message.stamp_valid:
+        stamp_string = "Validated"
+    else:
+        stamp_string = "Invalid"
+    
     RNS.log("\t+--- LXMF Delivery ---------------------------------------------")
     RNS.log("\t| Source hash            : "+RNS.prettyhexrep(message.source_hash))
     RNS.log("\t| Source instance        : "+str(message.get_source()))
@@ -352,7 +353,7 @@ async def handle_message_delivery(peer_hash,lxmf_message,peer_callsign):
     write_msg_fifo(delivery_message)
     return return_value
 
-# database
+# Database
 reticulumDbCreate()
 
 # Use configuration under /opt/meshchat
@@ -364,23 +365,19 @@ else:
     r = RNS.Reticulum()
 
 
-# We create an announce handler and configure it to only ask for
-# announces from "example_utilities.announcesample.fruits".
-# Try changing the filter and see what happens.
 announce_count=0
-announce_handler = ExampleAnnounceHandler(
+announce_handler = AnnounceHandler(
     aspect_filter="lxmf.delivery"
 )
-
 RNS.Transport.register_announce_handler(announce_handler)
 
 # LXMF Router
-lxmf_router = LXMF.LXMRouter(storagepath="rns-send-storage")
-lxmf_router.register_delivery_callback(delivery_callback) # incoming messages
+lxmf_router = LXMF.LXMRouter(storagepath="rns-send-storage", enforce_stamps=enforce_stamps)
+lxmf_router.register_delivery_callback(delivery_callback) # incoming messages 
 
-# Form appdata as edgemap.[callsign]
-lxmf_source_callsign="edgemap." + callsign
-lxmf_source = lxmf_router.register_delivery_identity(ident,lxmf_source_callsign)
+# Form appdata as edgemap.[callsign] * BUG Fixing * ??  lxmf_source_callsign,
+lxmf_source_callsign = str("edgemap." + str(callsign))
+lxmf_source = lxmf_router.register_delivery_identity(identity=ident,display_name=lxmf_source_callsign,stamp_cost=required_stamp_cost)
 lxmf_source.PROCESSING_INTERVAL = 1
 
 # Thread to announce periodically
