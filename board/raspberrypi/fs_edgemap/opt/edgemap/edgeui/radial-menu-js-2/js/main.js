@@ -94,6 +94,22 @@ var menuItems = [
                 title: 'About',
                 icon: '#svg-icon-about'
             },
+            {
+                id   : 'distress',
+                title: 'Distress',
+                icon: '#svg-icon-distress'
+            },
+            {
+                id   : 'wipe',
+                title: 'Wipe',
+                icon: '#svg-icon-wipe'
+            },
+            {
+                id   : 'poweroff',
+                title: 'Power off',
+                icon: '#svg-icon-poweroff'
+            },
+            
             
         ]
     },
@@ -148,7 +164,6 @@ window.onload = function ()
                  clickSendImageForm();
             }
             
-            
             if ( item.id == "language-en" ) {
                  changeLanguage('en');
             }
@@ -177,7 +192,15 @@ window.onload = function ()
                  changeLanguage('he');
             } 
             
-            
+            if ( item.id == "wipe" ) {
+                systemControl("wipe");
+            }
+            if ( item.id == "distress" ) {
+                systemControl("distress");
+            }
+            if ( item.id == "poweroff" ) {
+                systemControl("poweroff");
+            }
             
             
 		}
