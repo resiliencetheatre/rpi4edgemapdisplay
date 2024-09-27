@@ -322,9 +322,15 @@ function toggleReticulumList() {
 }
 
 
-function sendMessage(messagepayload) {
-    if ( msgSocketConnected ) {
-        msgSocket.send( messagepayload );
+// 
+// Send to both bearers ( reticulum & meshtastic ) if they are connected
+// 
+function sendRetiCulumAndMeshtasticMessage(messagepayload) {
+    if ( reticulumMsgSocketConnected ) {
+        reticulumMsgSocket.send( messagepayload );
+    }
+    if ( meshtasticMsgSocketConnected ) {
+        meshtasticMsgSocket.send( messagepayload );
     }
 }
 
@@ -354,6 +360,7 @@ function checkPeerExpiry() {
 }*/
 
 // Remove radios if unheard over 300 s
+// TODO: Uncaught ReferenceError: peerLoop is not defined (BUG) 
 function checkRadioExpiry() {
     let currentTime = Math.round(+new Date()/1000);
     for ( radioLoop = 0; radioLoop < radiosOnSystem.getSize(); radioLoop++) {
@@ -400,7 +407,11 @@ function submitImage() {
             notifyMessagePayload = notifyMessagePayload + " with location";
             // Send imageMarker if we have location available
             var imgMsg = callSign + `|imageMarker|[`+lastKnownCoordinates.latitude+`,`+lastKnownCoordinates.longitude+`]|`+ payload + '\n';
-            msgSocket.send( imgMsg );
+            
+            // TODO: Handle meshtasticMsgSocket.send( );
+            // reticulumMsgSocket.send( imgMsg );
+            sendRetiCulumAndMeshtasticMessage(imgMsg);
+            
             }
             notifyMessage(notifyMessagePayload, 5000);
        }
@@ -708,7 +719,7 @@ function animateLocalGpsMarker(timestamp) {
 function sendMyGpsLocation() {
     var lat = document.getElementById('lat_localgps').innerHTML;
     var lon = document.getElementById('lon_localgps').innerHTML; 
-    sendMessage ( callSign + `|trackMarker|` + lat + `,` + lon + `|GPS-snapshot` + '\n' );
+    sendRetiCulumAndMeshtasticMessage ( callSign + `|trackMarker|` + lat + `,` + lon + `|GPS-snapshot` + '\n' );
     notifyMessage("Local GPS position sent as track marker", 5000);
 }
 
@@ -1423,7 +1434,8 @@ function onDrag() {
     const lngLat = dragMarker.getLngLat();
     var dragLocationPayload = callSign + `|dragMarker|${lngLat.lng},${lngLat.lat}|dragged` + '\n';
     // NOTE: On meshtastic branch, we disable drag delivery over messaging channel
-    // msgSocket.send( dragLocationPayload ); 
+    // reticulumMsgSocket.send( dragLocationPayload ); 
+    // TODO: Handle meshtasticMsgSocket.send( );
 }
     
 function onDragEnd() {
@@ -1431,7 +1443,8 @@ function onDragEnd() {
     var dragLocationPayload = callSign + `|dragMarker|${lngLat.lng},${lngLat.lat}|released` + '\n';
     // NOTE: On meshtastic  & reticulum branch, we disable drag delivery over messaging channel
     // console.log("Drag: ", dragLocationPayload);
-    // msgSocket.send( dragLocationPayload );
+    // reticulumMsgSocket.send( dragLocationPayload );
+    // TODO: Handle meshtasticMsgSocket.send( );
 }
 
 //

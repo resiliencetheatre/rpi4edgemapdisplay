@@ -67,7 +67,8 @@
     <svg id="svg-icon-reticulum-topbar" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 512 512"><path fill="#0F0" d="M363.6 36.48c-22.2 0-40 17.8-40 40c0 22.23 17.8 40.02 40 40.02s40-17.79 40-40.02c0-22.2-17.8-40-40-40m-56.7 51.97c-53.2 18.95-108.7 34.95-169 45.25c1.8 4.6 2.8 9.6 2.8 14.8c0 4.8-.8 9.4-2.4 13.6c96.2 12.9 182.8 36 257.8 71.9c1.6-5.9 4.5-11.3 8.3-15.9c-71.2-34.3-152.4-57.2-241.5-70.7c53.2-10.6 102.8-25.4 150.4-42.2c-3-5.2-5.2-10.79-6.4-16.75m97.8 28.85c-4.3 4.3-9.2 8-14.6 10.8c15.3 24.8 26 50.6 31.8 77.8c4.3-1.5 9-2.4 13.8-2.4c1.4 0 2.8.1 4.1.2c-6.3-30.3-18.2-59.1-35.1-86.4m-305 8.2c-12.81 0-23 10.2-23 23s10.19 23 23 23c12.8 0 23-10.2 23-23s-10.2-23-23-23m34.7 44.6c-3.2 5.2-7.5 9.6-12.6 12.9c32.1 32.6 66.1 65.9 120.6 80.4c0-.9-.1-1.9-.1-2.8c0-5.3 1.3-10.3 3.5-14.8c-49.5-13.5-80-43.8-111.4-75.7m-57 12.7c-21.76 67.8-27.12 137.2-32.29 206c2.13-.5 4.34-.7 6.6-.7c3.99 0 7.81.7 11.35 2.1c5.19-68.4 10.57-136 31.29-201.1c-6.18-.8-11.94-3-16.95-6.3m358.3 38.7c-12.8 0-23 10.2-23 23s10.2 23 23 23s23-10.2 23-23s-10.2-23-23-23m-41 22.2c-28.4 5.8-56.6 10.8-86 10.5c.4 2.1.6 4.2.6 6.4c0 4-.7 7.9-2.1 11.5c32 .6 62-4.7 91.2-10.8c-2.4-5.1-3.7-10.8-3.7-16.8zm-118.9 1.4c-8.7 0-15.5 6.8-15.5 15.5s6.8 15.5 15.5 15.5s15.5-6.8 15.5-15.5s-6.8-15.5-15.5-15.5M399 262.7c-55.6 45.9-106.6 94.4-143.1 150.7c5.9 1.8 11.2 5 15.6 9.1c34.9-53.5 84.2-100.8 138.8-145.9c-4.7-3.7-8.6-8.5-11.3-13.9m-152 15c-47.9 46.4-109.6 83.2-172.85 119.5c4.36 4.2 7.56 9.6 9.05 15.6C146.8 376.4 210 338.9 260 290.1c-5.4-2.9-9.9-7.2-13-12.4m179.4 6.7c1.3 28.8 6 57.3 14.3 85.2c4.8-3.4 10.7-5.6 17-6c-7.6-26-11.9-52.3-13.2-79.1c-2.9.7-5.8 1-8.8 1c-3.2 0-6.3-.4-9.3-1.1m33.3 97.1c-8.4 0-15 6.6-15 15s6.6 15 15 15s15-6.6 15-15s-6.6-15-15-15M51.71 406.1c-8.07 0-14.42 6.4-14.42 14.4c0 8.1 6.35 14.5 14.42 14.5s14.42-6.4 14.42-14.5c0-8-6.35-14.4-14.42-14.4m376.49.3c-44.7 24.5-93.8 32.6-144.9 35.6c.9 3.4 1.4 6.9 1.4 10.5c0 2.6-.3 5.1-.7 7.5c53.1-3.1 105.8-11.6 154.3-38.5c-4.7-4-8.2-9.2-10.1-15.1M83.91 416.8c.14 1.2.22 2.4.22 3.7c0 5-1.15 9.7-3.19 14l121.86 20.3c-.1-.8-.1-1.5-.1-2.3c0-5.4 1.1-10.6 3-15.4zm159.79 12.7c-12.8 0-23 10.2-23 23s10.2 23 23 23s23-10.2 23-23s-10.2-23-23-23"/></svg>
     <svg id="svg-icon-gnss-topbar" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 100 100"><path fill="#0F0" d="M41.979 0C29.724.005 19.283 4.451 17.322 10.5h49.356C64.716 4.447 54.263 0 42 0ZM17.322 14.5c1.752 5.405 10.335 9.61 21.178 10.377V100h7v-2.828c5.832-.264 9.863-.495 11.822-2.14c1.96-1.647 5.939-2.275 8.998-2.198v5.486c0 .928.752 1.68 1.68 1.68h7.71v-1.68h14.9V100h7.71a1.68 1.68 0 0 0 1.68-1.68v-6.693h-1.68v-30.04H100V53.68A1.68 1.68 0 0 0 98.32 52H68a1.68 1.68 0 0 0-1.68 1.68v7.908H68v27.238c-7.951.135-10.084.933-12.951 2.914s-4.684 1.31-9.549 1.469V24.877c10.843-.767 19.426-4.972 21.178-10.377ZM72.4 58.08h21.52v35.84H72.4Zm2.628 3.473v13.56h16.32v-13.56Zm8.16 16.67a5.4 5.4 0 1 0 0 10.801a5.4 5.4 0 0 0 0-10.801" color="currentColor"/></svg>
     <svg id="svg-icon-ptt-topbar" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 24 24"><path fill="#0F0" d="M9 2a1 1 0 0 0-1 1v17c0 1.11.89 2 2 2h5c1.11 0 2-.89 2-2V9c0-1.11-.89-2-2-2h-5V3a1 1 0 0 0-1-1m1 7h5v4h-5z"/></svg>
-    <svg id="svg-icon-msgsocket-topbar" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 24 24"><path fill="#0F0" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2m0 14H5.2L4 17.2V4h16zm-9.53-2L7 10.5l1.4-1.41l2.07 2.08L15.6 6L17 7.41z"/></svg>
+    <svg id="svg-icon-meshtasticMsgsocket-topbar" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9h8m-8 4h6m-1 5l-5 3v-3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v5.5M19 16l-2 3h4l-2 3"/></svg>
+    <svg id="svg-icon-reticulumMsgsocket-topbar" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 24 24"><path fill="none" stroke="#0F0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9h8m-8 4h6m-2.988 6.193L8 21v-3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v6m-1 8l2-2l-2-2m-3 0l-2 2l2 2"/></svg>    
     <svg id="svg-icon-highrate-topbar" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="2em" viewBox="0 0 20 25"><path fill="#0F0" d="M22 11h-1l-1-2h-6.25L16 12.5h-2L10.75 9H4c-.55 0-2-.45-2-1s1.5-2.5 3.5-2.5S7.67 6.5 9 7h12a1 1 0 0 1 1 1zM10.75 6.5L14 3h2l-2.25 3.5zM18 11V9.5h1.75L19 11zM3 19a1 1 0 0 1-1-1a1 1 0 0 1 1-1a4 4 0 0 1 4 4a1 1 0 0 1-1 1a1 1 0 0 1-1-1a2 2 0 0 0-2-2m8 2a1 1 0 0 1-1 1a1 1 0 0 1-1-1a6 6 0 0 0-6-6a1 1 0 0 1-1-1a1 1 0 0 1 1-1a8 8 0 0 1 8 8"/></svg>
     <svg id="svg-icon-tracking-topbar" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="2em" viewBox="0 0 20 25"><path fill="#0F0" d="m20 6l-1-1l-1.5 1.5L16 5l-1 1l1.5 1.5L15 9l1 1l1.5-1.5L19 10l1-1l-1.5-1.5z"/><circle cx="7.5" cy="14.5" r="3.5" fill="currentColor"/><circle cx="7" cy="3" r="2" fill="currentColor"/><circle cx="13" cy="7" r="1" fill="currentColor"/><circle cx="10" cy="6" r="1" fill="currentColor"/><circle cx="3" cy="3" r="1" fill="currentColor"/><circle cx="1" cy="6" r="1" fill="currentColor"/><circle cx="1" cy="9" r="1" fill="currentColor"/><circle cx="3" cy="12" r="1" fill="currentColor"/></svg>    
     <svg id="svg-icon-msgsocket-red-topbar" xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 24 24"><path fill="#F00" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2m0 14H5.2L4 17.2V4h16zm-9.53-2L7 10.5l1.4-1.41l2.07 2.08L15.6 6L17 7.41z"/></svg>
@@ -108,11 +109,17 @@
     <div class="map-top-status-icon-overlay">
     <center>
         <div class="icon-container">
-                <svg id="msgSocketStatus">
-                  <use href="#svg-icon-msgsocket-topbar"></use>
+                <svg id="reticulumMsgSocketStatus">
+                  <use href="#svg-icon-reticulumMsgsocket-topbar"></use>
                 </svg>
-                <svg id="msgSocketStatusRed">
-                  <use href="#svg-icon-msgsocket-red-topbar"></use>
+                <svg id="reticulumMsgSocketStatusRed">
+                  <use href="#svg-icon-reticulumMsgsocket-red-topbar"></use>
+                </svg>
+                <svg id="meshtasticMsgSocketStatus">
+                  <use href="#svg-icon-meshtasticMsgsocket-topbar"></use>
+                </svg>
+                <svg id="meshtasticMsgSocketStatusRed">
+                  <use href="#svg-icon-meshtasticMsgsocket-red-topbar"></use>
                 </svg>
                 <svg id="securePttStatus"   >
                   <use href="#svg-icon-ptt-topbar"></use>
@@ -379,7 +386,7 @@
     
     
     <div class="radiolistblock" id="radiolistblock" style="display: none;">
-        <div id="logo" class="toprightlogoradiolistblock"><img src="img/meshtastic-logo.png" width=20px; ></img></div>
+        <div id="logo" class="toprightlogoradiolistblock"><img src="img/meshtastic-logo.png" width=35px; ></img></div>
         <div id="radiolist"></div>
     </div>
     
@@ -540,8 +547,7 @@
     // positioning reports (or capability to use GPS) since it's an OPSEC
     // issue.
     let radiosOnSystem = new radioList;
-    
-    let reticulumNodesOnSystem = new reticulumList; // DEV class
+    let reticulumNodesOnSystem = new reticulumList; 
     
     // Milsymbol for trackMessage
     const trackMessageMarkerGraph = new ms.Symbol("SFGPUCR-----", { size:20,
@@ -577,13 +583,17 @@
     // 
     // TODO: Check highrate busy connect
     //
-    var msgSocket;
+    var reticulumMsgSocket;
+    var reticulumMsgSocketConnected=false;
+    var meshtasticMsgSocket;
+    var meshtasticMsgSocketConnected=false;
+    
     var highrateSocket;
     var gpsSocket;
-    var msgSocketConnected=false;
     var highrateSocketConnected=false;
     var gpsSocketConnected=false;
     var wsProtocol = null;
+    
     if(window.location.protocol === 'http:')
             wsProtocol = "ws://";
     else
@@ -594,13 +604,14 @@
     Since WebRTC requires TLS connection, our web sockets must be 
     served with security. There are two different set of systemd
     services for this to happen. Here is summary of used ports.
-    Function            Plain   With SSL
-    Local GPS           7790    8790
-    Highrate marker     7890    8890
-    Messaging           7990    8990
-    Meshtastic status   7995    8995
-    SecurePTT status    7996    8996
-    Reticulum status    7997    8997
+    Function                Plain   With SSL
+    Local GPS               7790    8790
+    Highrate marker         7890    8890
+    reticulum messaging     7990    8990 
+    meshtastic messaging    7991    8991
+    Meshtastic status       7995    8995
+    SecurePTT status        7996    8996
+    Reticulum status        7997    8997
     */
 
     // Websocket for locally attached GPS
@@ -713,162 +724,42 @@
 		};
     */
     
-    // Websocket for messaging
+    
+    
+    // ================
+    // == RETICULUM ==
+    // ================
+    
+    //
+    // reticulumMsgSocket (8990)
+    //
     if ( wsProtocol == "ws://" )
-        msgSocket = new WebSocket(wsProtocol+wsHost+':7990');
+        reticulumMsgSocket = new WebSocket(wsProtocol+wsHost+':7990');
     if ( wsProtocol == "wss://" )
-        msgSocket = new WebSocket(wsProtocol+wsHost+':8990');
+        reticulumMsgSocket = new WebSocket(wsProtocol+wsHost+':8990');
 
     //
-    // msgSocket connect
+    // reticulumMsgSocket connect (8990)
     //
-    msgSocket.onopen = function(event) {
-        document.getElementById('msgSocketStatus').style="display:block; padding-left: 5px; padding-top:5px;"; 
-        document.getElementById('msgSocketStatusRed').style="display:none;";
-        msgSocketConnected = true;
+    reticulumMsgSocket.onopen = function(event) {
+        document.getElementById('reticulumMsgSocketStatus').style="display:block; padding-left: 5px; padding-top:5px;"; 
+        document.getElementById('reticulumMsgSocketStatusRed').style="display:none;";
+        reticulumMsgSocketConnected = true;
     };
     //
-    // msgSocket disconnect
+    // reticulumMsgSocket disconnect (8990)
     //
-    msgSocket.onclose = function(event) {
-        document.getElementById('msgSocketStatus').style="display:none;";
-        document.getElementById('msgSocketStatusRed').style="display:block; padding-left: 5px; padding-top:5px;"; 
+    reticulumMsgSocket.onclose = function(event) {
+        document.getElementById('reticulumMsgSocketStatus').style="display:none;";
+        document.getElementById('reticulumMsgSocketStatusRed').style="display:block; padding-left: 5px; padding-top:5px;"; 
         notifyMessage("Message channel disconnected! Try reloading page.", 5000);
-        msgSocketConnected=false;
+        reticulumMsgSocketConnected=false;
     };
     
-    
-    // Websocket for secureptt status (/tmp/secureptt)
-    if ( wsProtocol == "ws://" )
-        securePttStatusSocket = new WebSocket(wsProtocol+wsHost+':7996');
-    if ( wsProtocol == "wss://" )
-        securePttStatusSocket = new WebSocket(wsProtocol+wsHost+':8996');
-        
-    securePttStatusSocket.onopen = function(event) {
-        document.getElementById('securePttStatus').style="display:block; padding-top:5px;";
-        document.getElementById('securePttStatusRed').style="display:none; padding-top:5px;";
-        
-        var style="font: 8px 'Helvetica Neue', Arial, Helvetica, sans-serif;padding: 1px;border: 1px solid #0E0;color: #0F0;background-color: transparent;";
-        document.getElementById('securePttTx').style = style;
-        document.getElementById('securePttRx').style = style;
-    };
-    securePttStatusSocket.onclose = function(event) {
-        document.getElementById('securePttStatus').style="display:none;";
-        document.getElementById('securePttStatusRed').style="display:block; padding-top:5px;";
-        document.getElementById('securePttTx').style = "display:none;"
-        document.getElementById('securePttRx').style = "display:none;"
-    };
-    
-    securePttStatusSocket.onmessage = function(event) {
-        var incomingMessage = event.data;
-        var trimmedString = incomingMessage.substring(0, 80);
-        if ( trimmedString === "tx-on" )
-        {
-            var style="font: 8px 'Helvetica Neue', Arial, Helvetica, sans-serif;padding: 1px;border: 1px solid #0E0;color: #0F0;background-color: #D00;";
-            document.getElementById('securePttTx').style = style;
-        }
-        if ( trimmedString === "tx-off" )
-        {
-            var style="font: 8px 'Helvetica Neue', Arial, Helvetica, sans-serif;padding: 1px;border: 1px solid #0E0;color: #0F0;background-color: transparent;";
-            document.getElementById('securePttTx').style = style;
-        }
-        if ( trimmedString === "rx-on" )
-        {
-            var style="font: 8px 'Helvetica Neue', Arial, Helvetica, sans-serif;padding: 1px;border: 1px solid #0E0;color: #0F0;background-color: #D00;";
-            document.getElementById('securePttRx').style = style;
-        }
-        if ( trimmedString === "rx-off" )
-        {
-            var style="font: 8px 'Helvetica Neue', Arial, Helvetica, sans-serif;padding: 1px;border: 1px solid #0E0;color: #0F0;background-color: transparent;";
-            document.getElementById('securePttRx').style = style;
-        }
-    };
-    
-    
-    
-    // Websocket for 'status' from meshtastic (meshpipe.py)
-    if ( wsProtocol == "ws://" )
-        meshtasticStatusSocket = new WebSocket(wsProtocol+wsHost+':7995');
-    if ( wsProtocol == "wss://" )
-        meshtasticStatusSocket = new WebSocket(wsProtocol+wsHost+':8995');
-        
-    meshtasticStatusSocket.onopen = function(event) {
-        // Menubar
-        document.getElementById('meshtasticStatus').style="display:block; padding-top:5px;"; 
-        document.getElementById('meshtasticStatusRed').style="display:none;";
-        // document.getElementById('meshtasticButton').style="display:block;";
-        fadeOut(radioNotifyDotDiv,50);
-    };
-    meshtasticStatusSocket.onclose = function(event) {
-        document.getElementById('meshtasticStatusRed').style="display:block; padding-top:5px;"; 
-        document.getElementById('meshtasticStatus').style="display:none;";
-    };
-    
-    meshtasticStatusSocket.onmessage = function(event) {
-        var incomingMessage = event.data;
-        var trimmedString = incomingMessage.substring(0, 80);
-        const nodeArray = trimmedString.split(",");
-        if ( nodeArray[0] === "mynode" )
-        {
-            document.getElementById('meshtasticStatusToolTip').textContent = "My node: " + nodeArray[1];
-            // document.getElementById('meshtasticButton').style="display:block;"; 
-        }
-        if ( nodeArray[0] === "peernode" )
-        {
-            radiosOnSystem.add( nodeArray[1], Math.round(+new Date()/1000),nodeArray[2],nodeArray[3],nodeArray[4],nodeArray[5],nodeArray[6] );
-            updateRadioListBlock(); 
-        }
-        fadeIn(radioNotifyDotDiv,200);
-        if ( ! isHidden(radiolistblockDiv) ) {
-            fadeOut(radioNotifyDotDiv,10000);
-        }
-    };
-    
-    
-    
-    // ****
-    // Websocket for reticulum status **** DEVELOPMENT ****
-    // ****
-    if ( wsProtocol == "ws://" )
-        reticulumStatusSocket = new WebSocket(wsProtocol+wsHost+':7997');
-    if ( wsProtocol == "wss://" )
-        reticulumStatusSocket = new WebSocket(wsProtocol+wsHost+':8997');
-        
-    reticulumStatusSocket.onopen = function(event) {
-        // Menubar icon
-        document.getElementById('reticulumStatus').style="display:block; padding-top:5px;"; 
-        document.getElementById('reticulumStatusRed').style="display:none;";
-        // document.getElementById('reticulumButton').style="display:block;";
-        // fadeOut(reticulumNotifyDotDiv,50);
-    };
-    reticulumStatusSocket.onclose = function(event) {
-        document.getElementById('reticulumStatusRed').style="display:block; padding-top:5px;";
-        document.getElementById('reticulumStatus').style="display:none;";
-    };
-    
-    reticulumStatusSocket.onmessage = function(event) {
-        var incomingMessage = event.data;
-        var trimmedString = incomingMessage.substring(0, 80);
-        
-        const nodeArray = trimmedString.split(",");
-        // reticulumnode,[callsign],[timestamp],[hash]
-        if ( nodeArray[0] === "reticulumnode" )
-        {
-            reticulumNodesOnSystem.add( nodeArray[1],nodeArray[2],nodeArray[3] ); 
-            updateReticulumBlock(); 
-        }
-
-        fadeIn(reticulumNotifyDotDiv,200);
-        if ( ! isHidden(reticulumListblockDiv) ) {
-            fadeOut(reticulumNotifyDotDiv,10000);
-        }
-    };
-    
-
     //
-    // msgSocket incoming
+    // reticulumMsgSocket incoming (8990)
     //
-    msgSocket.onmessage = function(event) {
+    reticulumMsgSocket.onmessage = function(event) {
         var incomingMessage = event.data;
         var trimmedString = incomingMessage.substring(0, 200);
         const msgArray=trimmedString.split("|");
@@ -881,9 +772,8 @@
             console.log("My own message detected, discarding.");
             return;
         }
-        
-        // Reticulum delivery note
-        // delivery_message="|delivery_note||+" + peer_callsign
+        // Handle reticulum delivery note
+        // delivery_message = "|delivery_note||+" + peer_callsign
         if ( msgType === "msg_delivery_ok" ) {
             console.log("Delivered: ", msgMessage)
             document.getElementById("delivery_status").innerHTML += "<span style='color:#0F0;'> "+msgMessage+"</span>";  
@@ -897,30 +787,12 @@
             document.getElementById("delivery_status").innerHTML = "Sending (" + msgMessage + "):";
             fadeIn(deliveryStatusDiv,400);
         }
-        // 
         if ( msgType === "msg_delivery_complete" ) {
             console.log("Send is complete: ", msgMessage, " ")
             document.getElementById("delivery_status").innerHTML = "<div class='vertical-center'><h2>Complete! ( " + msgMessage + " seconds ) </h2></div>";
             fadeOut(deliveryStatusDiv,5000);
         }
         
-        
-        //
-        // GPIO Sensor - work in progress demo
-        // 
-        if ( msgType === "sensor" ) {
-            const sensorMsgArray=trimmedString.split(" ");
-            
-            if ( sensorMsgArray[1] === "detected" ) {
-                loadSensor(msgFrom,0,1);
-                // return;
-            }
-            if ( sensorMsgArray[1] === "state:" ) {
-                var sensorKeepAliveState = sensorMsgArray[2];
-                loadSensor(msgFrom,1,sensorKeepAliveState);
-                // return;
-            }
-        }
         // 
         // meshpipe join (from meshtastic network)
         //
@@ -1039,11 +911,208 @@
             var scrollElement = document.getElementById('msgChannelLog');
             scrollElement.scrollTop = scrollElement.scrollHeight;
         }
-        
+    };
+    // ===============
+    // == RETICULUM ==
+    // ===============
+    
+    
+    
+    
+    // ================
+    // == MESHTASTIC ==
+    // ================
+    
+    //
+    // meshtasticMsgSocket (8991)
+    // 
+    if ( wsProtocol == "ws://" )
+        meshtasticMsgSocket = new WebSocket(wsProtocol+wsHost+':7991');
+    if ( wsProtocol == "wss://" )
+        meshtasticMsgSocket = new WebSocket(wsProtocol+wsHost+':8991');
+    
+    //
+    // meshtasticMsgSocket connect (8991)
+    //
+    meshtasticMsgSocket.onopen = function(event) {
+        document.getElementById('meshtasticMsgSocketStatus').style="display:block; padding-left: 5px; padding-top:5px;"; 
+        document.getElementById('meshtasticMsgSocketStatusRed').style="display:none;";
+        meshtasticMsgSocketConnected = true;
+    };
+    //
+    // meshtasticMsgSocket disconnect (8991)
+    //
+    meshtasticMsgSocket.onclose = function(event) {
+        document.getElementById('meshtasticMsgSocketStatus').style="display:none;";
+        document.getElementById('meshtasticMsgSocketStatusRed').style="display:block; padding-left: 5px; padding-top:5px;"; 
+        notifyMessage("Message channel disconnected! Try reloading page.", 5000);
+        meshtasticMsgSocketConnected=false;
     };
     
     //
-    // msgSocket outgoing
+    // meshtasticMsgSocket incoming (8991)
+    //
+    meshtasticMsgSocket.onmessage = function(event) {
+        var incomingMessage = event.data;
+        var trimmedString = incomingMessage.substring(0, 200);
+        const msgArray=trimmedString.split("|");
+        const msgFrom =  msgArray[0];
+        const msgType =  msgArray[1];
+        const msgLocation =  msgArray[2];
+        const msgMessage =  msgArray[3];
+        
+        if ( getElementItem('#myCallSign').value === msgFrom) {
+            console.log("My own message detected, discarding.");
+            return;
+        }
+        
+        //
+        // GPIO Sensor - work in progress demo
+        // 
+        if ( msgType === "sensor" ) {
+            const sensorMsgArray=trimmedString.split(" ");
+            
+            if ( sensorMsgArray[1] === "detected" ) {
+                loadSensor(msgFrom,0,1);
+                // return;
+            }
+            if ( sensorMsgArray[1] === "state:" ) {
+                var sensorKeepAliveState = sensorMsgArray[2];
+                loadSensor(msgFrom,1,sensorKeepAliveState);
+                // return;
+            }
+        }
+        // 
+        // meshpipe join
+        //
+        if ( msgType === "meshpipe" ) {
+           notifyMessage( "Node start: " + msgMessage, 5000);                   
+        }
+        
+        //
+        // Join message demo
+        //
+        /*
+        if ( msgType === "joinMessage" ) {
+            
+            if ( !peersOnMap.present(msgFrom) ) {
+                notifyMessage( msgFrom +" " +msgMessage, 5000);    
+            }
+            // Add (or update) peer with callsign and timestamp
+            peersOnMap.add( msgFrom, Math.round(+new Date()/1000) );
+            updatePeerListBlock(); 
+        }*/
+
+        if ( msgArray.length == 4 ) 
+        {
+            //
+            // Geolocated peer marker
+            //
+            if ( msgType === "trackMarker" ) {
+                const location = msgLocation;
+                const locationNumbers = location.replace(/[\])}[{(]/g, '');
+                const locationArray = locationNumbers.split(",");
+                createTrackMarkerFromMessage(locationArray[0], locationArray[1],msgFrom,msgMessage);
+            }
+            //
+            // Shared 'drag marker'
+            //
+            if ( msgType === "dragMarker" ) {                        
+                const location = msgLocation;
+                const locationNumbers = location.replace(/[\])}[{(]/g, '');
+                const locationArray = locationNumbers.split(",");
+                dragMarker.setLngLat([ locationArray[0], locationArray[1] ]);
+                dragMarkerPopup.setText(msgFrom + " " + msgMessage);
+                
+                if ( msgMessage.includes("dragged") ) {
+                    if ( !dragMarkerPopup.isOpen() ) {
+                        dragMarkerPopup.addTo(map);
+                    }
+                } 
+                 if ( msgMessage.includes("released") )  {
+                    if ( dragMarkerPopup.isOpen() ) {
+                        dragMarkerPopup.remove();
+                    }
+                } 
+            }
+            //
+            // Messaging 'drop in' marker
+            //
+            if ( msgType === "dropMarker" ) {
+                const location = msgLocation;
+                const locationNumbers = location.replace(/[\])}[{(]/g, '');
+                const locationArray = locationNumbers.split(",");
+                const markerText = "<b>" + msgFrom + "</b>:" + msgMessage + "<br>" + locationArray[1]+","+locationArray[0];		
+                createMarkerFromMessage(mapPinMarkerCount, locationArray[0], locationArray[1],markerText );
+                mapPinMarkerCount++;                        
+            }
+            //
+            // Sensor marker: [FROM]|sensorMarker|[LAT,LON]|[markedId],[markerStatus],[symbol code]
+            //
+            if ( msgType == "sensorMarker" ) {
+                const location = msgLocation;
+                const locationNumbers = location.replace(/[\])}[{(]/g, '');
+                const locationArray = locationNumbers.split(",");   
+                const sensorDataArray = msgMessage.split(",");
+                const sensorId = sensorDataArray[0];
+                const sensorStatus = sensorDataArray[1];
+                const sensorSymbol = sensorDataArray[2];
+                createSensorMarker(locationArray[0], locationArray[1],sensorId,sensorStatus,sensorSymbol);
+            }
+            //
+            // Image marker: [FROM]|imageMarker|[LAT,LON]|[FILENAME]
+            // 
+            // Based on: https://stackoverflow.com/questions/47798971/several-modal-images-on-page
+            //
+            if ( msgType == "imageMarker" ) {
+                const location = msgLocation;
+                const locationNumbers = location.replace(/[\])}[{(]/g, '');
+                const locationArray = locationNumbers.split(",");   
+                createImageMarker(msgFrom,locationArray[0], locationArray[1],msgMessage.slice(0,-2));
+                    var modal = document.getElementById('myModal');
+                    var images = document.getElementsByClassName('myImages');
+                    var modalImg = document.getElementById("img01");
+                    var captionText = document.getElementById("caption");
+                    for (var i = 0; i < images.length; i++) {
+                      var img = images[i];
+                      img.onclick = function(evt) {
+                        modal.style.display = "block";
+                        modalImg.src = this.alt; 
+                        captionText.innerHTML = "Full size image";
+                      }
+                    }
+                    var span = document.getElementsByClassName("close")[0];
+                    span.onclick = function() {
+                      modal.style.display = "none";
+                       modalImg.src = "";
+                    } 
+                    notifyMessage("Image received from " + msgFrom , 5000);
+            }
+        }
+        //
+        // Normal message 
+        // TODO: sanitize, validate & parse etc (this is just an demo)
+        //
+        if ( msgArray.length != 4 && msgType != "dragMarker" && msgType != "trackMarker" && msgType != "sensorMarker" && msgType != "imageMarker" && msgType != "joinMessage" && msgType != "sensor" ) {
+            openMessageEntryBox(); 
+            getElementItem('#msgChannelLog').innerHTML += trimmedString;
+            getElementItem('#msgChannelLog').innerHTML += "<br>";
+            var scrollElement = document.getElementById('msgChannelLog');
+            scrollElement.scrollTop = scrollElement.scrollHeight;
+        }
+    };
+    
+    
+    // ================
+    // == MESHTASTIC ==
+    // ================
+    
+    
+    
+    // 
+    // =================================================
+    // reticulumMsgSocket & meshtasticMsgSocket outgoing
+    // ==================================================
     //
     var input = document.getElementById("msgInput");
     input.addEventListener("keyup", function(event) {
@@ -1057,7 +1126,16 @@
         console.log("Send message debug: ", getElementItem('#myCallSign').value);
         var msgPayload = getElementItem('#myCallSign').value + '|' + getElementItem('#msgInput').value + '\n';
         console.log("Send message msgPayload: ", msgPayload);
-        msgSocket.send( msgPayload );
+        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+        
+        sendRetiCulumAndMeshtasticMessage( msgPayload );
+        
+        // Q: How we handle duplicate messages (incoming) when they arrive from both methods?
+        // meshtasticMsgSocket.send( msgPayload );
+        
+        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
         getElementItem('#msgChannelLog').innerHTML += msgPayload  + '<br>';
         getElementItem('#msgInput').value = '';
         var scrollElement = document.getElementById('msgChannelLog');
@@ -1078,6 +1156,155 @@
             }
         }
     };
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    // 
+    // Secureptt status (/tmp/secureptt)
+    // 
+    if ( wsProtocol == "ws://" )
+        securePttStatusSocket = new WebSocket(wsProtocol+wsHost+':7996');
+    if ( wsProtocol == "wss://" )
+        securePttStatusSocket = new WebSocket(wsProtocol+wsHost+':8996');
+        
+    securePttStatusSocket.onopen = function(event) {
+        document.getElementById('securePttStatus').style="display:block; padding-top:5px;";
+        document.getElementById('securePttStatusRed').style="display:none; padding-top:5px;";
+        
+        var style="font: 8px 'Helvetica Neue', Arial, Helvetica, sans-serif;padding: 1px;border: 1px solid #0E0;color: #0F0;background-color: transparent;";
+        document.getElementById('securePttTx').style = style;
+        document.getElementById('securePttRx').style = style;
+    };
+    securePttStatusSocket.onclose = function(event) {
+        document.getElementById('securePttStatus').style="display:none;";
+        document.getElementById('securePttStatusRed').style="display:block; padding-top:5px;";
+        document.getElementById('securePttTx').style = "display:none;"
+        document.getElementById('securePttRx').style = "display:none;"
+    };
+    
+    securePttStatusSocket.onmessage = function(event) {
+        var incomingMessage = event.data;
+        var trimmedString = incomingMessage.substring(0, 80);
+        if ( trimmedString === "tx-on" )
+        {
+            var style="font: 8px 'Helvetica Neue', Arial, Helvetica, sans-serif;padding: 1px;border: 1px solid #0E0;color: #0F0;background-color: #D00;";
+            document.getElementById('securePttTx').style = style;
+        }
+        if ( trimmedString === "tx-off" )
+        {
+            var style="font: 8px 'Helvetica Neue', Arial, Helvetica, sans-serif;padding: 1px;border: 1px solid #0E0;color: #0F0;background-color: transparent;";
+            document.getElementById('securePttTx').style = style;
+        }
+        if ( trimmedString === "rx-on" )
+        {
+            var style="font: 8px 'Helvetica Neue', Arial, Helvetica, sans-serif;padding: 1px;border: 1px solid #0E0;color: #0F0;background-color: #D00;";
+            document.getElementById('securePttRx').style = style;
+        }
+        if ( trimmedString === "rx-off" )
+        {
+            var style="font: 8px 'Helvetica Neue', Arial, Helvetica, sans-serif;padding: 1px;border: 1px solid #0E0;color: #0F0;background-color: transparent;";
+            document.getElementById('securePttRx').style = style;
+        }
+    };
+    
+
+    // Websocket for 'status' from meshtastic (meshpipe.py)
+    if ( wsProtocol == "ws://" )
+        meshtasticStatusSocket = new WebSocket(wsProtocol+wsHost+':7995');
+    if ( wsProtocol == "wss://" )
+        meshtasticStatusSocket = new WebSocket(wsProtocol+wsHost+':8995');
+        
+    meshtasticStatusSocket.onopen = function(event) {
+        // Menubar
+        document.getElementById('meshtasticStatus').style="display:block; padding-top:5px;"; 
+        document.getElementById('meshtasticStatusRed').style="display:none;";
+        // document.getElementById('meshtasticButton').style="display:block;";
+        fadeOut(radioNotifyDotDiv,50);
+    };
+    meshtasticStatusSocket.onclose = function(event) {
+        document.getElementById('meshtasticStatusRed').style="display:block; padding-top:5px;"; 
+        document.getElementById('meshtasticStatus').style="display:none;";
+    };
+    
+    meshtasticStatusSocket.onmessage = function(event) {
+        var incomingMessage = event.data;
+        var trimmedString = incomingMessage.substring(0, 80);
+        const nodeArray = trimmedString.split(",");
+        if ( nodeArray[0] === "mynode" )
+        {
+            document.getElementById('meshtasticStatusToolTip').textContent = "My node: " + nodeArray[1];
+            // document.getElementById('meshtasticButton').style="display:block;"; 
+        }
+        if ( nodeArray[0] === "peernode" )
+        {
+            radiosOnSystem.add( nodeArray[1], Math.round(+new Date()/1000),nodeArray[2],nodeArray[3],nodeArray[4],nodeArray[5],nodeArray[6] );
+            updateRadioListBlock(); 
+        }
+        fadeIn(radioNotifyDotDiv,200);
+        if ( ! isHidden(radiolistblockDiv) ) {
+            fadeOut(radioNotifyDotDiv,10000);
+        }
+    };
+    
+    
+    
+    //
+    // reticulumStatusSocket (8997)
+    //
+    if ( wsProtocol == "ws://" )
+        reticulumStatusSocket = new WebSocket(wsProtocol+wsHost+':7997');
+    if ( wsProtocol == "wss://" )
+        reticulumStatusSocket = new WebSocket(wsProtocol+wsHost+':8997');
+        
+    reticulumStatusSocket.onopen = function(event) {
+        // Menubar icon
+        document.getElementById('reticulumStatus').style="display:block; padding-top:5px;"; 
+        document.getElementById('reticulumStatusRed').style="display:none;";
+        // document.getElementById('reticulumButton').style="display:block;";
+        // fadeOut(reticulumNotifyDotDiv,50);
+    };
+    reticulumStatusSocket.onclose = function(event) {
+        document.getElementById('reticulumStatusRed').style="display:block; padding-top:5px;";
+        document.getElementById('reticulumStatus').style="display:none;";
+    };
+    
+    reticulumStatusSocket.onmessage = function(event) {
+        var incomingMessage = event.data;
+        var trimmedString = incomingMessage.substring(0, 80);
+        const nodeArray = trimmedString.split(",");
+        // reticulumnode,[callsign],[timestamp],[hash]
+        if ( nodeArray[0] === "reticulumnode" )
+        {
+            reticulumNodesOnSystem.add( nodeArray[1],nodeArray[2],nodeArray[3] ); 
+            updateReticulumBlock(); 
+        }
+        fadeIn(reticulumNotifyDotDiv,200);
+        if ( ! isHidden(reticulumListblockDiv) ) {
+            fadeOut(reticulumNotifyDotDiv,10000);
+        }
+    };
+    
+
+
+    
+
     
     
     
@@ -1208,7 +1435,7 @@
         if ( mapLoaded ) {
             // checkPeerExpiry();
             checkRadioExpiry();
-            // sendMessage ( callSign + `|joinMessage||periodic update` + '\n' );
+            // sendRetiCulumAndMeshtasticMessage ( callSign + `|joinMessage||periodic update` + '\n' );
             if ( gpsSocketConnected && localGpsFixStatus == 1 ) {
                 // sendMyGpsLocation(); 
             }
@@ -1329,7 +1556,7 @@
         // Load callsign if changed
         loadCallSign();
         // Send join message for a demo (without location)
-        // sendMessage ( callSign + `|joinMessage||joined to mission map` + '\n');
+        // sendRetiCulumAndMeshtasticMessage ( callSign + `|joinMessage||joined to mission map` + '\n');
         mapLoaded = true;
     });
     
@@ -1374,7 +1601,7 @@
         document.getElementById('trackingIndicatorRed').style="display:block;";
         document.getElementById('gpsStatus').innerHTML = "";      
         // NOTE: On meshtastic branch we disable sending geolocation. Bandwidth issue.
-        // sendMessage( callSign + `|trackMarker|${lastKnownCoordinates.longitude},${lastKnownCoordinates.latitude}|Stopped` + '\n' );
+        // sendRetiCulumAndMeshtasticMessage( callSign + `|trackMarker|${lastKnownCoordinates.longitude},${lastKnownCoordinates.latitude}|Stopped` + '\n' );
     });
 
     // Call back for position updates, fire 'trackMarker' message from these
@@ -1389,7 +1616,7 @@
         document.getElementById('gpsStatus').innerHTML = "GPS";
         // Create & send trackMarker message when geolocate is active
         // NOTE: On meshtastic branch we have disabled geolocation send to other memebers. Bandwidth issue.
-        // sendMessage ( callSign + `|trackMarker|${crd.longitude},${crd.latitude}|tracking` + '\n' );
+        // sendRetiCulumAndMeshtasticMessage ( callSign + `|trackMarker|${crd.longitude},${crd.latitude}|tracking` + '\n' );
     });
 
     // Sprite loading request transform, see styles/style.json
