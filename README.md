@@ -90,6 +90,11 @@ where you can pick location on map and give description. All further alarms are 
 
 Note that this implementation is still work in progress.
 
+### Highrate
+
+![highrate](https://github.com/resiliencetheatre/rpi4edgemapdisplay/blob/main/doc/highrate.png?raw=true)
+
+You can also update highrate target information to map via websocket connection. See readme in highrate/ directory.
 
 ### Reticulum
 
