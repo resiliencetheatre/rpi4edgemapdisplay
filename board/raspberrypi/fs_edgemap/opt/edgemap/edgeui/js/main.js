@@ -48,7 +48,7 @@ var menuItems = [
                     },
                     {
                         id   : 'language-ukr',
-                        title: 'Ukraine',
+                        title: 'Ukrainian',
                         icon: '#svg-icon-language-ukr'
                     },
                     {
@@ -68,12 +68,12 @@ var menuItems = [
                     },
                     {
                         id   : 'language-fr',
-                        title: 'France',
+                        title: 'French',
                         icon: '#svg-icon-language-fr'
                     },
                     {
                         id   : 'language-ru',
-                        title: 'Russia',
+                        title: 'Russian',
                         icon: '#svg-icon-language-ru'
                     },
                     {

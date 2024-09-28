@@ -10,13 +10,12 @@
     <script src="js/milsymbol.js"></script>
     <script src="js/feather.js"></script>
     <script src="js/edgemap.js"></script>
-    <link rel="stylesheet" href="radial-menu-js-2/css/main.css">
-    <link rel="stylesheet" href="radial-menu-js-2/css/RadialMenu.css">
-    <link rel="stylesheet" href="radial-menu-js-2/css/RadialMenuCustom.css">
-    <script src="radial-menu-js-2/js/RadialMenu.js"></script>
-    <script src="radial-menu-js-2/js/main.js"></script>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/RadialMenu.css">
+    <link rel="stylesheet" href="css/RadialMenuCustom.css">
+    <script src="js/RadialMenu.js"></script>
+    <script src="js/main.js"></script>
     <link href="css/edgemap.css" rel="stylesheet" />
-    
     <link rel="apple-touch-icon" sizes="57x57" href="app-icon/apple-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="app-icon/apple-icon-60x60.png">
     <link rel="apple-touch-icon" sizes="72x72" href="app-icon/apple-icon-72x72.png">
@@ -502,16 +501,18 @@
     var dragMarker;
     var dragMarkerPopup = new maplibregl.Popup({offset: 35});
 
-    // We have one highrate marker as an example
+    // We have one highrate marker as an example 
+    // staffComments: "Highrate".toUpperCase(),
 	var highrateMarker;
 	var highRateCreated=false;
-    var milSymbolHighrate = new ms.Symbol("SFGPUCR-----", { size:20,
+    var milSymbolHighrate = new ms.Symbol("30030100001203000000", { size:20,
                 dtg: "",
-                staffComments: "Highrate".toUpperCase(),
                 additionalInformation: "Highrate 20 Hz".toUpperCase(),
                 combatEffectiveness: "".toUpperCase(),
                 type: "",
-                padding: 5
+                padding: 5,
+                infoColor: "#EE0000",
+                infoBackgroundFrame: "#000000"
                 });
     var milSymHighrateMarker = milSymbolHighrate.asDOM();
     
@@ -546,7 +547,7 @@
     // Since we don't want to enforce or use meshtastic internal
     // positioning reports (or capability to use GPS) since it's an OPSEC
     // issue.
-    let radiosOnSystem = new radioList;
+    let meshtasticRadiosOnSystem = new radioList;
     let reticulumNodesOnSystem = new reticulumList; 
     
     // Milsymbol for trackMessage
@@ -681,11 +682,14 @@
     };
     
 
-    // Not enabled atm
+    // 
+    // WORK IN PROGRESS
+    //
+    
     // Websocket for highrate marker
     document.getElementById('highRateSocketStatus').style="display:none;";
     document.getElementById('highRateSocketStatusRed').style="display:block;";
-    /*
+    
     if ( wsProtocol == "ws://" )
         highrateSocket = new WebSocket(wsProtocol+wsHost+':7890');
     if ( wsProtocol == "wss://" )
@@ -701,8 +705,6 @@
         document.getElementById('highRateSocketStatusRed').style="display:block;";
         highrateSocketConnected=false;
     };
-    
-    
     highrateSocket.onmessage = function(event) {
 			var incomingMessage = event.data;
 			var trimmedString = incomingMessage.substring(0, 80);
@@ -722,7 +724,7 @@
                 highRateCreated = true;
 			}
 		};
-    */
+    
     
     
     
@@ -1254,8 +1256,8 @@
         }
         if ( nodeArray[0] === "peernode" )
         {
-            radiosOnSystem.add( nodeArray[1], Math.round(+new Date()/1000),nodeArray[2],nodeArray[3],nodeArray[4],nodeArray[5],nodeArray[6] );
-            updateRadioListBlock(); 
+            meshtasticRadiosOnSystem.add( nodeArray[1], Math.round(+new Date()/1000),nodeArray[2],nodeArray[3],nodeArray[4],nodeArray[5],nodeArray[6] );
+            updateMeshtasticRadioListBlock(); 
         }
         fadeIn(radioNotifyDotDiv,200);
         if ( ! isHidden(radiolistblockDiv) ) {
@@ -1422,28 +1424,13 @@
     //document.getElementById('debugImage').style="display:none;";
 
 
-    //
-    // Periodic send my presence and if GPS is active and fix is valid, send location as well.
-    // 
-    // NOTE: On meshtastich we disable browser based location sending with sendMyGpsLocation(). 
-    //       All locations are now sourced from locally attached GPS (gpsd->gpsreader->meshpipe-dev.py)
-    //       We also disable 'joinMessage' sending when 'meshpipe.py' sends trackMarker message 
-    //       periodically. Sending presense and location from UI code makes sense if you have
-    //       shared web service for multiple users - but not on our case (user per edgemap node)
-    // 
+    // Update meshtastic and reticulum nodes every 30 s to UI
+    // Note: updateReticulumBlock() has also age checking
     window.setInterval(function () {
-        if ( mapLoaded ) {
-            // checkPeerExpiry();
-            checkRadioExpiry();
-            // sendRetiCulumAndMeshtasticMessage ( callSign + `|joinMessage||periodic update` + '\n' );
-            if ( gpsSocketConnected && localGpsFixStatus == 1 ) {
-                // sendMyGpsLocation(); 
-            }
-        }
-    }, 60000 );
-    
-    window.setInterval(function () {
-        updateRadioListBlock();
+        checkMeshtasticRadioExpiry();
+        checkReticulumRadioExpiry();
+        updateMeshtasticRadioListBlock();
+        updateReticulumBlock(); 
     }, 30000 );
 
     //
@@ -1551,12 +1538,8 @@
             // Enable tails for targets
             showTails();
         }
-        
         console.log("Map loaded.");
-        // Load callsign if changed
         loadCallSign();
-        // Send join message for a demo (without location)
-        // sendRetiCulumAndMeshtasticMessage ( callSign + `|joinMessage||joined to mission map` + '\n');
         mapLoaded = true;
     });
     

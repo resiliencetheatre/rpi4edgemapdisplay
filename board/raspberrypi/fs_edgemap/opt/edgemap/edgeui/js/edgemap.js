@@ -187,7 +187,7 @@ class reticulumList {
 
 
 
-function updateRadioListBlock() {
+function updateMeshtasticRadioListBlock() {
     document.getElementById("radiolist").innerHTML = "";
     var radioLoop=0;
     var radioListContent = "";
@@ -195,29 +195,31 @@ function updateRadioListBlock() {
     // radioListContent = "<table width=90%><tr ><td style='border-bottom: 1px solid #0F0;' >Radio</td><td style='border-bottom: 1px solid #0F0;' >Bat</td><td style='border-bottom: 1px solid #0F0;'>Air Util</td><td style='border-bottom: 1px solid #0F0;' align='center'>Hop</td><td style='border-bottom: 1px solid #0F0;' align='center'>S/N</td><td style='border-bottom: 1px solid #0F0;' align='center'>RSSI</td><td style='border-bottom: 1px solid #0F0;' align='center'>Age</td></tr>";
     // List without hop limit
     radioListContent = "<table width=90%><tr ><td style='border-bottom: 1px solid #0F0;' >Radio</td><td style='border-bottom: 1px solid #0F0;' >Bat</td><td style='border-bottom: 1px solid #0F0;'>Air Util</td><td style='border-bottom: 1px solid #0F0;' align='center'>S/N</td><td style='border-bottom: 1px solid #0F0;' align='center'>RSSI</td><td style='border-bottom: 1px solid #0F0;' align='center' title='Age in minutes' >Age</td></tr>";
-    for ( radioLoop = 0; radioLoop < radiosOnSystem.getSize(); radioLoop++) { 
+    for ( radioLoop = 0; radioLoop < meshtasticRadiosOnSystem.getSize(); radioLoop++) { 
         // Calculate age
         let currentTime = Math.round(+new Date()/1000);
-        var ageInSeconds = parseInt ( currentTime ) - parseInt( radiosOnSystem.timestamps[radioLoop] );
+        var ageInSeconds = parseInt ( currentTime ) - parseInt( meshtasticRadiosOnSystem.timestamps[radioLoop] );
         var age = Math.round(ageInSeconds/60);        
         if ( age > 60 ) {
             age = ">60";
         }
-        // radioListContent += "<tr><td>" + radiosOnSystem.members[radioLoop] + "</td><td>" + radiosOnSystem.battery[radioLoop] + " %</td><td>" + radiosOnSystem.airUtilTx[radioLoop] + " %</td><td align='center'>" + radiosOnSystem.hopLimit[radioLoop] + "</td><td align='center'>" + radiosOnSystem.rxSnr[radioLoop] + "</td><td align='center'>" + radiosOnSystem.rxRssi[radioLoop] + "</td><td align='center'>" + age + "</td></tr>";
-        radioListContent += "<tr><td>" + radiosOnSystem.members[radioLoop] + "</td><td>" + radiosOnSystem.battery[radioLoop] + " %</td><td>" + radiosOnSystem.airUtilTx[radioLoop] + " %</td><td align='center'>" + radiosOnSystem.rxSnr[radioLoop] + "</td><td align='center'>" + radiosOnSystem.rxRssi[radioLoop] + "</td><td align='center'>" + age + "</td></tr>";
+        // radioListContent += "<tr><td>" + meshtasticRadiosOnSystem.members[radioLoop] + "</td><td>" + meshtasticRadiosOnSystem.battery[radioLoop] + " %</td><td>" + meshtasticRadiosOnSystem.airUtilTx[radioLoop] + " %</td><td align='center'>" + meshtasticRadiosOnSystem.hopLimit[radioLoop] + "</td><td align='center'>" + meshtasticRadiosOnSystem.rxSnr[radioLoop] + "</td><td align='center'>" + meshtasticRadiosOnSystem.rxRssi[radioLoop] + "</td><td align='center'>" + age + "</td></tr>";
+        radioListContent += "<tr><td>" + meshtasticRadiosOnSystem.members[radioLoop] + "</td><td>" + meshtasticRadiosOnSystem.battery[radioLoop] + " %</td><td>" + meshtasticRadiosOnSystem.airUtilTx[radioLoop] + " %</td><td align='center'>" + meshtasticRadiosOnSystem.rxSnr[radioLoop] + "</td><td align='center'>" + meshtasticRadiosOnSystem.rxRssi[radioLoop] + "</td><td align='center'>" + age + "</td></tr>";
     }
     radioListContent += "</table>";
     document.getElementById("radiolist").innerHTML = radioListContent;
 }
 
+/* There is also reticulum node age check here */
 function updateReticulumBlock() {
     document.getElementById("reticulumlist").innerHTML = "";
-    
     var reticulumLoop=0;
     var reticulumListContent = "";
     reticulumListContent = "<table width=90%><tr ><td style='border-bottom: 1px solid #0F0;' >Callsign</td><td style='border-bottom: 1px solid #0F0;' >Age</td><td style='border-bottom: 1px solid #0F0;'>Hash</td></tr>";
     for ( reticulumLoop = 0; reticulumLoop < reticulumNodesOnSystem.getSize(); reticulumLoop++) { 
-        reticulumListContent += "<tr><td>" + reticulumNodesOnSystem.members[reticulumLoop] + "</td><td>" + reticulumNodesOnSystem.age[reticulumLoop] + "</td><td>" + reticulumNodesOnSystem.hash[reticulumLoop] + "</td></tr>";
+        if ( reticulumNodesOnSystem.age[reticulumLoop] < 5 ) {
+            reticulumListContent += "<tr><td>" + reticulumNodesOnSystem.members[reticulumLoop] + "</td><td>" + reticulumNodesOnSystem.age[reticulumLoop] + "</td><td>" + reticulumNodesOnSystem.hash[reticulumLoop] + "</td></tr>";
+        }
     }
     reticulumListContent += "</table>";
     
@@ -359,15 +361,26 @@ function checkPeerExpiry() {
     }
 }*/
 
-// Remove radios if unheard over 300 s
-// TODO: Uncaught ReferenceError: peerLoop is not defined (BUG) 
-function checkRadioExpiry() {
+// Remove meshstastic radios if unheard over 300 s
+function checkMeshtasticRadioExpiry() {
     let currentTime = Math.round(+new Date()/1000);
-    for ( radioLoop = 0; radioLoop < radiosOnSystem.getSize(); radioLoop++) {
-        var radioAge = parseInt ( currentTime ) - parseInt( radiosOnSystem.timestamps[peerLoop] );
+    for ( nodeLoop = 0; nodeLoop < meshtasticRadiosOnSystem.getSize(); nodeLoop++) {
+        var radioAge = parseInt ( currentTime ) - parseInt( meshtasticRadiosOnSystem.timestamps[nodeLoop] );
         if ( radioAge > 300 ) {
-            radiosOnSystem.remove( radiosOnSystem.members[peerLoop] );
-            updateRadioListBlock(); 
+            meshtasticRadiosOnSystem.remove( meshtasticRadiosOnSystem.members[nodeLoop] );
+            updateMeshtasticRadioListBlock(); 
+        }
+    }
+}
+
+// Remove reticulum radios if unheard over 5 minutes
+function checkReticulumRadioExpiry() {
+    let currentTime = Math.round(+new Date()/1000);
+    for ( nodeLoop = 0; nodeLoop < reticulumNodesOnSystem.getSize(); nodeLoop++) {
+        // var radioAge = parseInt ( currentTime ) - parseInt( reticulumNodesOnSystem.timestamps[nodeLoop] );
+        if ( reticulumNodesOnSystem.age[nodeLoop] > 5 ) {
+            reticulumNodesOnSystem.remove( reticulumNodesOnSystem.members[nodeLoop] );
+            updateReticulumBlock(); 
         }
     }
 }
@@ -715,7 +728,7 @@ function animateLocalGpsMarker(timestamp) {
 } 
 
 // Send my GPS provided location over meshtastic msg channel when
-// coordinates are clicked on top bar. 
+// coordinates are clicked on top bar.
 function sendMyGpsLocation() {
     var lat = document.getElementById('lat_localgps').innerHTML;
     var lon = document.getElementById('lon_localgps').innerHTML; 
@@ -734,9 +747,8 @@ function animateHighrateMarker(timestamp) {
             var lon = document.getElementById('lon_highrate').innerHTML; 
             var highrateName = document.getElementById('name_highrate').innerHTML;
             var locationComment = lat + "," + lon;
-            milSymbolHighrate.setOptions({ staffComments: locationComment });
             milSymbolHighrate.setOptions({ type: highrateName });
-            
+            milSymbolHighrate.setOptions({ uniqueDesignation: locationComment }); 
             milSymHighrateMarker = milSymbolHighrate.asDOM(); 
             highrateMarker = new maplibregl.Marker({
                     element: milSymHighrateMarker
