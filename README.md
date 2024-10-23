@@ -1,5 +1,7 @@
 # rpi-edgemap
 
+**NOTE:** THIS REPOSITORY IS NOW INACTIVE AND DEVELOPMENT HAPPENS AT [rpi4edgemap](https://github.com/resiliencetheatre/rpi4edgemap) repository. This change took place at Oct 23, 2024.
+
 Edgemap is small project built on embedded ARM targets like RaspberryPi4 and Raspberry Pi Zero 2W. It can be cross compiled to various other platforms and integrated to work with AMD64 based PC architectures. 
 
 ![meshtastic](https://github.com/resiliencetheatre/rpi4edgemapdisplay/blob/secureptt/doc/kit.png?raw=true)
